@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slowcraft — Strategy & Programs · IA deliberadamente diseñada</title>
+  <meta name="description" content="Diseñamos los flujos donde el talento humano y la IA hacen lo que mejor saben hacer. Strategy para repensar la operación, Programs para resolver dolores específicos.">
+  <meta name="version" content="3.0">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --tinta: #0F0F0E;
+      --crema: #F5F1EA;
+      --crema-soft: #EFEAE0;
+      --salvia: #3A4F41;
+      --cobre: #A8593D;
+      --piedra: #7A7570;
+      --piedra-soft: #B5B0A8;
+      
+      --serif: 'Newsreader', 'Times New Roman', serif;
+      --sans: 'Inter', -apple-system, sans-serif;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html { scroll-behavior: smooth; }
+    
+    body {
+      background: var(--crema);
+      color: var(--tinta);
+      font-family: var(--sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    
+    /* === NAVIGATION === */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 24px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(245, 241, 234, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(15, 15, 14, 0.06);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--tinta);
+    }
+    
+    .logo-symbol {
+      width: 24px;
+      height: 24px;
+      border: 1.5px solid var(--tinta);
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .logo-symbol::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      background: var(--tinta);
+    }
+    
+    .logo-text {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -0.5px;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      color: var(--tinta);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.2px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    
+    .nav-links a:hover { opacity: 1; }
+    
+    .lang-switch {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--piedra);
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: var(--sans);
+      padding: 8px 12px;
+      border: 1px solid rgba(15, 15, 14, 0.15);
+      transition: border-color 0.2s;
+    }
+    
+    .lang-switch:hover { border-color: var(--tinta); }
+    
+    .nav-cta {
+      padding: 10px 20px;
+      background: var(--tinta);
+      color: var(--crema) !important;
+      border-radius: 2px;
+      font-size: 13px !important;
+      opacity: 1 !important;
+      transition: background 0.2s;
+    }
+    
+    .nav-cta:hover { background: var(--salvia); }
+    
+    /* === SECTION BASE === */
+    section {
+      padding: 120px 48px;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+    
+    .divider {
+      width: 60px;
+      height: 1px;
+      background: var(--salvia);
+      margin: 32px 0;
+    }
+    
+    /* === HERO === */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-top: 80px;
+      padding-bottom: 80px;
+      position: relative;
+    }
+    
+    .hero-eyebrow {
+      animation: fadeInUp 0.8s ease 0.2s backwards;
+    }
+    
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(48px, 8vw, 112px);
+      line-height: 1;
+      letter-spacing: -3px;
+      font-weight: 400;
+      max-width: 1100px;
+      margin-bottom: 48px;
+      animation: fadeInUp 1s ease 0.4s backwards;
+    }
+    
+    .hero h1 em {
+      font-style: italic;
+      color: var(--salvia);
+    }
+    
+    .hero p {
+      font-size: 22px;
+      max-width: 660px;
+      color: var(--tinta);
+      margin-bottom: 56px;
+      line-height: 1.5;
+      animation: fadeInUp 1s ease 0.7s backwards;
+    }
+    
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 32px;
+      background: var(--tinta);
+      color: var(--crema);
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      border-radius: 2px;
+      transition: all 0.3s;
+      animation: fadeInUp 1s ease 1s backwards;
+    }
+    
+    .hero-cta:hover {
+      background: var(--salvia);
+      transform: translateY(-2px);
+    }
+    
+    .hero-cta::after {
+      content: '→';
+      transition: transform 0.3s;
+    }
+    
+    .hero-cta:hover::after { transform: translateX(4px); }
+    
+    .hero-meta {
+      position: absolute;
+      bottom: 80px;
+      right: 48px;
+      text-align: right;
+      animation: fadeIn 1s ease 1.3s backwards;
+    }
+    
+    .hero-meta-label {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    
+    .hero-meta-text {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 18px;
+      color: var(--tinta);
+      max-width: 280px;
+      line-height: 1.4;
+    }
+    
+    /* === MANIFIESTO / TESIS === */
+    .tesis {
+      background: var(--tinta);
+      color: var(--crema);
+      padding: 160px 48px;
+      margin: 0;
+      max-width: none;
+    }
+    
+    .tesis-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    .tesis .eyebrow {
+      color: var(--piedra-soft);
+    }
+    
+    .tesis h2 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1.15;
+      font-weight: 400;
+      letter-spacing: -1.5px;
+      margin-bottom: 64px;
+      max-width: 1000px;
+    }
+    
+    .tesis h2 em {
+      font-style: italic;
+      color: var(--cobre);
+    }
+    
+    .tesis-text {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+      margin-top: 80px;
+    }
+    
+    .tesis-block {
+      border-top: 1px solid rgba(245, 241, 234, 0.2);
+      padding-top: 24px;
+    }
+    
+    .tesis-block-num {
+      font-family: var(--serif);
+      font-size: 14px;
+      color: var(--cobre);
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+    
+    .tesis-block p {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--crema);
+      opacity: 0.85;
+    }
+    
+    /* === MÉTODO === */
+    .metodo {
+      padding-top: 160px;
+      padding-bottom: 160px;
+    }
+    
+    .metodo h2 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.1;
+      letter-spacing: -2px;
+      font-weight: 400;
+      margin-bottom: 80px;
+      max-width: 800px;
+    }
+    
+    .fases {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 48px;
+      margin-top: 64px;
+    }
+    
+    .fase {
+      border-top: 1px solid var(--tinta);
+      padding-top: 32px;
+      position: relative;
+    }
+    
+    .fase-num {
+      font-family: var(--serif);
+      font-size: 64px;
+      font-weight: 400;
+      line-height: 1;
+      color: var(--salvia);
+      margin-bottom: 24px;
+      letter-spacing: -2px;
+    }
+    
+    .fase h3 {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+    
+    .fase p {
+      color: var(--piedra);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    
+    /* === SERVICIOS === */
+    .servicios {
+      background: var(--crema-soft);
+      padding: 160px 48px;
+      margin: 0;
+      max-width: none;
+    }
+    
+    .servicios-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    
+    .servicios h2 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.1;
+      letter-spacing: -2px;
+      font-weight: 400;
+      margin-bottom: 24px;
+      max-width: 800px;
+    }
+    
+    .servicios-intro {
+      font-size: 19px;
+      color: var(--piedra);
+      max-width: 640px;
+      margin-bottom: 80px;
+      line-height: 1.5;
+    }
+    
+    .servicios-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--tinta);
+    }
+    
+    .servicio {
+      padding: 48px 32px;
+      border-right: 1px solid rgba(15, 15, 14, 0.15);
+      border-bottom: 1px solid rgba(15, 15, 14, 0.15);
+      transition: background 0.3s;
+    }
+    
+    .servicio:last-child { border-right: none; }
+    
+    .servicio:hover {
+      background: var(--crema);
+    }
+    
+    .servicio-num {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--cobre);
+      margin-bottom: 24px;
+      font-weight: 500;
+    }
+    
+    .servicio h3 {
+      font-family: var(--serif);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+      line-height: 1.1;
+    }
+    
+    .servicio p {
+      font-size: 15px;
+      color: var(--piedra);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .servicio-list {
+      list-style: none;
+      font-size: 14px;
+      color: var(--tinta);
+    }
+    
+    .servicio-list li {
+      padding: 8px 0;
+      border-top: 1px solid rgba(15, 15, 14, 0.08);
+    }
+    
+    .servicio-list li:first-child {
+      border-top: none;
+    }
+    
+    /* === PROGRAMS === */
+    .programs {
+      background: var(--crema);
+      padding: 160px 48px;
+      margin: 0;
+      max-width: none;
+    }
+    
+    .programs-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    
+    .programs-head {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 64px;
+      align-items: end;
+      margin-bottom: 64px;
+    }
+    
+    .programs h2 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.1;
+      letter-spacing: -2px;
+      font-weight: 400;
+      max-width: 720px;
+    }
+    
+    .programs h2 em {
+      font-style: italic;
+      color: var(--cobre);
+    }
+    
+    .programs-bridge {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--salvia);
+      padding-left: 24px;
+      border-left: 2px solid var(--salvia);
+      max-width: 420px;
+    }
+    
+    .programs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      border-top: 1px solid var(--tinta);
+      border-left: 1px solid var(--tinta);
+    }
+    
+    .program-card {
+      padding: 48px 40px;
+      border-right: 1px solid var(--tinta);
+      border-bottom: 1px solid var(--tinta);
+      background: var(--crema);
+      transition: background 0.3s;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .program-card:hover {
+      background: var(--crema-soft);
+    }
+    
+    .program-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 24px;
+    }
+    
+    .program-card-num {
+      font-family: var(--serif);
+      font-size: 48px;
+      color: var(--salvia);
+      font-weight: 400;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+    
+    .program-card-tag {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: var(--cobre);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    
+    .program-card h3 {
+      font-family: var(--serif);
+      font-size: 36px;
+      font-weight: 400;
+      letter-spacing: -1px;
+      line-height: 1.05;
+      margin-bottom: 24px;
+    }
+    
+    .program-card-pitch {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 17px;
+      line-height: 1.45;
+      color: var(--cobre);
+      margin-bottom: 28px;
+      padding-left: 18px;
+      border-left: 2px solid var(--cobre);
+    }
+    
+    .program-card-meta {
+      margin-bottom: 24px;
+    }
+    
+    .program-card-meta-label {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    
+    .program-card-meta-text {
+      font-size: 13px;
+      color: var(--tinta);
+      line-height: 1.55;
+    }
+    
+    .program-card-modules {
+      list-style: none;
+      font-size: 14px;
+      color: var(--tinta);
+      margin-top: auto;
+    }
+    
+    .program-card-modules li {
+      padding: 8px 0;
+      border-top: 1px solid rgba(15, 15, 14, 0.1);
+    }
+    
+    .program-card-modules li:first-child {
+      border-top: 1px solid rgba(15, 15, 14, 0.25);
+    }
+    
+    .program-card-note {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--piedra);
+      font-style: italic;
+    }
+    
+    /* === PRINCIPIOS === */
+    .principios h2 {
+      font-family: var(--serif);
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.1;
+      letter-spacing: -2px;
+      font-weight: 400;
+      margin-bottom: 80px;
+      max-width: 700px;
+    }
+    
+    .principios-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-top: 1px solid var(--tinta);
+    }
+    
+    .principio {
+      padding: 40px 0;
+      border-bottom: 1px solid rgba(15, 15, 14, 0.15);
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    
+    .principio:nth-child(odd) {
+      padding-right: 40px;
+      border-right: 1px solid rgba(15, 15, 14, 0.15);
+    }
+    
+    .principio:nth-child(even) {
+      padding-left: 40px;
+    }
+    
+    .principio-num {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-style: italic;
+      color: var(--cobre);
+    }
+    
+    .principio h3 {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+      margin-bottom: 12px;
+      line-height: 1.3;
+      letter-spacing: -0.5px;
+    }
+    
+    .principio p {
+      font-size: 15px;
+      color: var(--piedra);
+      line-height: 1.6;
+    }
+    
+    /* === SOBRE === */
+    .sobre {
+      background: var(--tinta);
+      color: var(--crema);
+      padding: 160px 48px;
+      margin: 0;
+      max-width: none;
+    }
+    
+    .sobre-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .sobre .eyebrow { color: var(--piedra-soft); }
+    
+    .sobre h2 {
+      font-family: var(--serif);
+      font-size: clamp(36px, 5vw, 56px);
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+      font-weight: 400;
+      margin-bottom: 40px;
+    }
+    
+    .sobre h2 em {
+      font-style: italic;
+      color: var(--cobre);
+    }
+    
+    .sobre p {
+      font-size: 18px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+      color: var(--crema);
+      opacity: 0.9;
+    }
+    
+    .sobre-meta {
+      margin-top: 64px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(245, 241, 234, 0.2);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    
+    .sobre-meta-item .label {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: var(--piedra-soft);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    
+    .sobre-meta-item .value {
+      font-family: var(--serif);
+      font-size: 18px;
+      color: var(--crema);
+    }
+    
+    /* === CTA FINAL === */
+    .cta-final {
+      padding: 200px 48px;
+      text-align: center;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    .cta-final h2 {
+      font-family: var(--serif);
+      font-size: clamp(48px, 8vw, 96px);
+      line-height: 1.05;
+      letter-spacing: -3px;
+      font-weight: 400;
+      margin-bottom: 48px;
+    }
+    
+    .cta-final h2 em {
+      font-style: italic;
+      color: var(--salvia);
+    }
+    
+    .cta-final p {
+      font-size: 19px;
+      color: var(--piedra);
+      max-width: 540px;
+      margin: 0 auto 56px;
+      line-height: 1.5;
+    }
+    
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      padding: 22px 40px;
+      background: var(--tinta);
+      color: var(--crema);
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+    
+    .cta-button:hover {
+      background: var(--salvia);
+      transform: translateY(-2px);
+    }
+    
+    .cta-button::after {
+      content: '→';
+      transition: transform 0.3s;
+    }
+    
+    .cta-button:hover::after { transform: translateX(6px); }
+    
+    /* === FOOTER === */
+    footer {
+      padding: 64px 48px 32px;
+      max-width: 1280px;
+      margin: 0 auto;
+      border-top: 1px solid rgba(15, 15, 14, 0.15);
+    }
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    
+    .footer-brand .logo-text {
+      font-size: 32px;
+    }
+    
+    .footer-brand p {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--piedra);
+      max-width: 320px;
+    }
+    
+    .footer-col h4 {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      font-weight: 500;
+    }
+    
+    .footer-col a {
+      display: block;
+      color: var(--tinta);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 12px;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    
+    .footer-col a:hover { opacity: 1; }
+    
+    .footer-bottom {
+      padding-top: 32px;
+      border-top: 1px solid rgba(15, 15, 14, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--piedra);
+    }
+    
+    /* === ANIMATIONS === */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    /* === RESPONSIVE === */
+    @media (max-width: 900px) {
+      nav { padding: 20px 24px; }
+      .nav-links { gap: 20px; }
+      .nav-links a:not(.nav-cta) { display: none; }
+      
+      section { padding: 80px 24px; }
+      .tesis, .servicios, .programs, .sobre { padding: 100px 24px; }
+      
+      .tesis-text, .fases, .servicios-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      
+      .servicio {
+        border-right: none;
+        border-bottom: 1px solid rgba(15, 15, 14, 0.15);
+      }
+      
+      .programs-head {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      
+      .programs-grid {
+        grid-template-columns: 1fr;
+        border-left: none;
+      }
+      
+      .program-card {
+        padding: 36px 24px;
+        border-right: none;
+      }
+      
+      .program-card h3 { font-size: 28px; }
+      .program-card-num { font-size: 36px; }
+      
+      .principios-list {
+        grid-template-columns: 1fr;
+      }
+      
+      .principio:nth-child(odd) {
+        padding-right: 0;
+        border-right: none;
+      }
+      
+      .principio:nth-child(even) {
+        padding-left: 0;
+      }
+      
+      .sobre-meta {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      
+      .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+      
+      .footer-bottom {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+      
+      .hero-meta {
+        position: static;
+        text-align: left;
+        margin-top: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <!-- NAVIGATION -->
+  <nav>
+    <a href="#" class="logo">
+      <div class="logo-symbol"></div>
+      <span class="logo-text">Slowcraft</span>
+    </a>
+    <div class="nav-links">
+      <a href="#metodo">Método</a>
+      <a href="#strategy">Strategy</a>
+      <a href="#programs">Programs</a>
+      <a href="#sobre">Nosotros</a>
+      <button class="lang-switch">EN</button>
+      <a href="#contacto" class="nav-cta">Conversemos</a>
+    </div>
+  </nav>
+  
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow eyebrow">SLOWCRAFT · AI STRATEGY · MÉXICO</div>
+    <h1>La IA es la mano derecha del <em>talento humano.</em></h1>
+    <p>Diseñamos los flujos donde tu equipo y la inteligencia artificial hacen lo que cada uno mejor sabe hacer. Sin reemplazos. Sin atajos. Con criterio.</p>
+    <a href="#contacto" class="hero-cta">Agenda una conversación</a>
+    
+    <div class="hero-meta">
+      <div class="hero-meta-label">Slowcraft</div>
+      <div class="hero-meta-text">"Estrategia AI, deliberadamente diseñada."</div>
+    </div>
+  </section>
+  
+  <!-- TESIS -->
+  <section class="tesis">
+    <div class="tesis-inner">
+      <div class="eyebrow">01 · NUESTRA TESIS</div>
+      <h2>La IA no reemplaza al humano. <em>Lo amplifica.</em> El humano no frena a la IA. La dirige. Slowcraft diseña esa colaboración.</h2>
+      
+      <div class="tesis-text">
+        <div class="tesis-block">
+          <div class="tesis-block-num">i.</div>
+          <p>La inteligencia artificial es el copiloto más poderoso que ha existido. Pero un copiloto sin un piloto que sepa hacia dónde va, no llega lejos.</p>
+        </div>
+        <div class="tesis-block">
+          <div class="tesis-block-num">ii.</div>
+          <p>El error no es adoptar la IA tarde. Es adoptarla sin diseño. Las empresas que ganarán esta década son las que diseñaron mejor cómo trabajan con ella.</p>
+        </div>
+        <div class="tesis-block">
+          <div class="tesis-block-num">iii.</div>
+          <p>Tu equipo y la IA son tus dos recursos más valiosos. Nuestro trabajo es diseñar cómo se dan la mano para que ambos hagan lo que mejor saben hacer.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- MÉTODO -->
+  <section id="metodo" class="metodo">
+    <div class="eyebrow">02 · CÓMO TRABAJAMOS</div>
+    <h2>Tres fases. Una arquitectura. Resultados medibles.</h2>
+    
+    <div class="fases">
+      <div class="fase">
+        <div class="fase-num">01</div>
+        <h3>Diagnóstico</h3>
+        <p>Mapeamos cómo trabaja hoy tu empresa. Identificamos dónde la IA puede ser un copiloto poderoso para tu equipo — y dónde es mejor no tocar nada todavía.</p>
+      </div>
+      <div class="fase">
+        <div class="fase-num">02</div>
+        <h3>Arquitectura</h3>
+        <p>Diseñamos los flujos humano–IA con propósito. Definimos qué hace mejor la máquina, qué hace mejor la persona, y cómo se complementan en cada paso.</p>
+      </div>
+      <div class="fase">
+        <div class="fase-num">03</div>
+        <h3>Implementación</h3>
+        <p>Integramos las herramientas correctas, capacitamos al equipo, y medimos resultados reales. Nos quedamos hasta que el sistema funciona en sintonía.</p>
+      </div>
+    </div>
+  </section>
+  
+  <!-- SERVICIOS -->
+  <section id="strategy" class="servicios">
+    <div class="servicios-inner">
+      <div class="eyebrow">03 · STRATEGY</div>
+      <h2>Engagements de arquitectura.</h2>
+      <p class="servicios-intro">Para empresas que quieren repensar cómo trabajan con IA. Proyectos transformacionales, con alcance abierto al diagnóstico. Tres tipos.</p>
+      
+      <div class="servicios-grid">
+        <div class="servicio">
+          <div class="servicio-num">01 · STRATEGY</div>
+          <h3>AI Readiness</h3>
+          <p>Diagnóstico estratégico para empresas que quieren entrar bien a la era de IA. Sin desperdiciar capital ni tiempo.</p>
+          <ul class="servicio-list">
+            <li>Audit de procesos actuales</li>
+            <li>Roadmap de adopción 12 meses</li>
+            <li>Business case por iniciativa</li>
+            <li>Plan de capacitación interna</li>
+          </ul>
+        </div>
+        
+        <div class="servicio">
+          <div class="servicio-num">02 · DESIGN</div>
+          <h3>Workflow Architecture</h3>
+          <p>Diseño detallado de flujos humano–IA para áreas críticas: marketing, operaciones, ventas, atención al cliente.</p>
+          <ul class="servicio-list">
+            <li>Mapeo de tareas humano + IA</li>
+            <li>Selección de herramientas</li>
+            <li>Diseño de handoffs</li>
+            <li>Métricas y guardrails</li>
+          </ul>
+        </div>
+        
+        <div class="servicio">
+          <div class="servicio-num">03 · DEPLOY</div>
+          <h3>Implementation Partner</h3>
+          <p>Acompañamos la implementación end-to-end. Nos quedamos hasta que el sistema funciona y el equipo lo opera con confianza.</p>
+          <ul class="servicio-list">
+            <li>Integración técnica</li>
+            <li>Training del equipo</li>
+            <li>Iteración basada en datos</li>
+            <li>Handoff documentado</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- PROGRAMS -->
+  <section id="programs" class="programs">
+    <div class="programs-inner">
+      <div class="programs-head">
+        <div>
+          <div class="eyebrow">04 · PROGRAMS</div>
+          <h2>Productos modulares con <em>objetivos específicos.</em></h2>
+        </div>
+        <p class="programs-bridge">Aplicaciones modulares de la tesis Slowcraft, cada una con un objetivo específico. Los módulos se activan según la madurez del cliente.</p>
+      </div>
+      
+      <div class="programs-grid">
+        
+        <div class="program-card">
+          <div class="program-card-head">
+            <div class="program-card-num">01</div>
+            <div class="program-card-tag">FOUNDATIONS</div>
+          </div>
+          <h3>Founder OS</h3>
+          <div class="program-card-pitch">El sistema operativo de tu startup, diseñado desde el día uno con IA adentro.</div>
+          
+          <div class="program-card-meta">
+            <div class="program-card-meta-label">PARA QUIÉN</div>
+            <div class="program-card-meta-text">Founders y emprendedores arrancando su startup, o empresas con trayectoria reinventando cómo operan.</div>
+          </div>
+          
+          <ul class="program-card-modules">
+            <li>Brand Book de Marca</li>
+            <li>Sistema de diseño · Gobernanza visual</li>
+            <li>Oficina Digital · Gobernanza de información</li>
+            <li>Integración de herramientas IA</li>
+            <li>KPIs y dashboard de negocio</li>
+            <li>Vibe Coding (exclusivo startups)</li>
+          </ul>
+          <div class="program-card-note">Módulos activados según madurez del cliente.</div>
+        </div>
+        
+        <div class="program-card">
+          <div class="program-card-head">
+            <div class="program-card-num">02</div>
+            <div class="program-card-tag">GROWTH</div>
+          </div>
+          <h3>Site Performance Lab</h3>
+          <div class="program-card-pitch">Cada segundo que tarda tu sitio, pierdes una conversión.</div>
+          
+          <div class="program-card-meta">
+            <div class="program-card-meta-label">PARA QUIÉN</div>
+            <div class="program-card-meta-text">CEOs, CTOs, CMOs, Marketing y Digital Managers, Ecommerce Directors, agencias.</div>
+          </div>
+          
+          <ul class="program-card-modules">
+            <li>Auditoría técnica y estratégica</li>
+            <li>Core Web Vitals · LCP, INP, CLS</li>
+            <li>SEO técnico · Lighthouse</li>
+            <li>Plan de acción priorizado</li>
+            <li>Implementación de mejoras</li>
+            <li>Modelo de medición adhoc · Mejora continua</li>
+          </ul>
+          <div class="program-card-note">Alcance se define con base en la auditoría inicial.</div>
+        </div>
+        
+        <div class="program-card">
+          <div class="program-card-head">
+            <div class="program-card-num">03</div>
+            <div class="program-card-tag">GROWTH</div>
+          </div>
+          <h3>Conversion Architecture</h3>
+          <div class="program-card-pitch">Si te encuentran pero tu sitio no convierte, no funciona.</div>
+          
+          <div class="program-card-meta">
+            <div class="program-card-meta-label">PARA QUIÉN</div>
+            <div class="program-card-meta-text">CEOs, CTOs, CMOs, Marketing y Digital Managers, Ecommerce Directors, agencias.</div>
+          </div>
+          
+          <ul class="program-card-modules">
+            <li>Auditoría UX/UI</li>
+            <li>Mapas de calor y session recordings</li>
+            <li>Customer journey y customer persona</li>
+            <li>Rediseño de paths de conversión</li>
+            <li>A/B testing</li>
+            <li>Modelo de medición adhoc · Mejora continua</li>
+          </ul>
+          <div class="program-card-note">Profundidad según volumen de tráfico y madurez analítica.</div>
+        </div>
+        
+        <div class="program-card">
+          <div class="program-card-head">
+            <div class="program-card-num">04</div>
+            <div class="program-card-tag">OPERATIONS</div>
+          </div>
+          <h3>Studio Automation</h3>
+          <div class="program-card-pitch">Produces mucho y rentabilizas poco. Automatiza la operación.</div>
+          
+          <div class="program-card-meta">
+            <div class="program-card-meta-label">PARA QUIÉN</div>
+            <div class="program-card-meta-text">Owners, CEOs, CMOs, Marketing y Brand Managers, agencias, internal hubs.</div>
+          </div>
+          
+          <ul class="program-card-modules">
+            <li>Auditoría del ecosistema de comunicación</li>
+            <li>Integración n8n / Make</li>
+            <li>Email marketing · CRM · Chatbots</li>
+            <li>Agentes IA en flujos de producción</li>
+            <li>Aseguramiento de procesos del equipo</li>
+            <li>Modelo de medición adhoc · Mejora continua</li>
+          </ul>
+          <div class="program-card-note">Stack se elige sobre las herramientas que ya use el cliente.</div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <!-- PRINCIPIOS -->
+  <section class="principios">
+    <div class="eyebrow">05 · PRINCIPIOS</div>
+    <h2>Cinco cosas en las que sí creemos.</h2>
+    
+    <div class="principios-list">
+      <div class="principio">
+        <div class="principio-num">i.</div>
+        <div>
+          <h3>Diseñar antes de implementar.</h3>
+          <p>No instalamos herramientas. Arquitectamos cómo trabaja una organización con sus dos recursos más valiosos.</p>
+        </div>
+      </div>
+      
+      <div class="principio">
+        <div class="principio-num">ii.</div>
+        <div>
+          <h3>La IA es el copiloto. El humano dirige.</h3>
+          <p>Cada uno hace lo que mejor sabe hacer. Diseñar bien esa colaboración es lo que define el resultado.</p>
+        </div>
+      </div>
+      
+      <div class="principio">
+        <div class="principio-num">iii.</div>
+        <div>
+          <h3>Claridad sobre complejidad.</h3>
+          <p>Si no podemos explicarlo en una frase, no lo hemos entendido todavía.</p>
+        </div>
+      </div>
+      
+      <div class="principio">
+        <div class="principio-num">iv.</div>
+        <div>
+          <h3>Resultados, no demos.</h3>
+          <p>Vendemos cambios medibles, no presentaciones bonitas.</p>
+        </div>
+      </div>
+      
+      <div class="principio">
+        <div class="principio-num">v.</div>
+        <div>
+          <h3>Inteligencia con criterio.</h3>
+          <p>La IA propone alternativas. El equipo decide cuáles amplificar. Esa es la combinación ganadora.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- SOBRE -->
+  <section id="sobre" class="sobre">
+    <div class="sobre-inner">
+      <div class="eyebrow">05 · NOSOTROS</div>
+      <h2>Slowcraft es una consultora boutique con base en <em>Ciudad de México.</em></h2>
+      <p>Nacimos en 2026 con una convicción simple: la IA es la oportunidad más grande de esta década, pero la mayoría de las empresas la están adoptando mal. Sin diseño, sin criterio, sin un plan que considere a las personas que la van a usar día con día.</p>
+      <p>Trabajamos con CEOs y líderes de empresas en crecimiento que quieren entrar a esta era con cabeza. No vendemos hype, no prometemos atajos. Diseñamos los flujos donde el talento humano y la IA hacen lo que cada uno mejor sabe hacer — porque esa es la única forma de generar ventaja real y sostenida.</p>
+      
+      <div class="sobre-meta">
+        <div class="sobre-meta-item">
+          <div class="label">FUNDADO</div>
+          <div class="value">2026</div>
+        </div>
+        <div class="sobre-meta-item">
+          <div class="label">BASE</div>
+          <div class="value">Ciudad de México</div>
+        </div>
+        <div class="sobre-meta-item">
+          <div class="label">ALCANCE</div>
+          <div class="value">LATAM · Global</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- CTA FINAL -->
+  <section id="contacto" class="cta-final">
+    <h2>Diseñemos juntos cómo trabaja tu empresa <em>con IA.</em></h2>
+    <p>Agenda una conversación de 30 minutos. Sin pitch, sin presentación. Solo una charla honesta sobre dónde está tu empresa y cómo podríamos ayudarte.</p>
+    <a href="mailto:hola@slowcraft.ai" class="cta-button">hola@slowcraft.ai</a>
+  </section>
+  
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-symbol"></div>
+          <span class="logo-text">Slowcraft</span>
+        </a>
+        <p>Estrategia AI, deliberadamente diseñada. La mano derecha del talento humano.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navegación</h4>
+        <a href="#metodo">Método</a>
+        <a href="#strategy">Strategy</a>
+        <a href="#programs">Programs</a>
+        <a href="#sobre">Nosotros</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <a href="mailto:hola@slowcraft.ai">hola@slowcraft.ai</a>
+        <a href="#" target="_blank">LinkedIn</a>
+        <a href="#" target="_blank">Twitter / X</a>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <div>© 2026 Slowcraft. Diseñado con criterio en Ciudad de México.</div>
+      <div>v3.0</div>
+    </div>
+  </footer>
+  
+  <script>
+    // Language switch (placeholder - en una versión futura cambia el contenido)
+    document.querySelector('.lang-switch').addEventListener('click', function() {
+      const current = this.textContent;
+      this.textContent = current === 'EN' ? 'ES' : 'EN';
+      // TODO: implementar contenido en inglés en versión 2.1
+    });
+    
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+  
+</body>
+</html>
