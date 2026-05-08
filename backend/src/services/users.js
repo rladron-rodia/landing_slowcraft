@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
 import { query } from '../db.js';
 
-export const VALID_ROLES = new Set(['master_admin','admin','viewer','content','commercial']);
+export const VALID_ROLES = new Set(['master_admin','admin','viewer','content','commercial','agente']);
 const INVITATION_EXPIRY_HOURS = 48;
 
 // Permisos por rol — qué tabs puede ver y si puede editar
@@ -13,7 +13,8 @@ export const ROLE_PERMISSIONS = {
   admin:        { tabs: ['leads','contenido','formulario','configuracion','analitica'],            canEdit: true, canManageUsers: false },
   viewer:       { tabs: ['leads','contenido','formulario','configuracion','analitica'],            canEdit: false, canManageUsers: false },
   content:      { tabs: ['contenido'],                                                              canEdit: true, canManageUsers: false },
-  commercial:   { tabs: ['leads','formulario'],                                                     canEdit: true, canManageUsers: false }
+  commercial:   { tabs: ['leads','formulario','analitica'],                                         canEdit: true, canManageUsers: false },
+  agente:       { tabs: ['leads','analitica'],                                                      canEdit: true, canManageUsers: false }
 };
 
 export function rolePermissions (role) {

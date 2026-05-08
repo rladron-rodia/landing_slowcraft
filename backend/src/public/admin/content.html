@@ -101,7 +101,8 @@
       admin:        ['leads','contenido','formulario','configuracion','analitica'],
       viewer:       ['leads','contenido','formulario','configuracion','analitica'],
       content:      ['contenido'],
-      commercial:   ['leads','formulario']
+      commercial:   ['leads','formulario','analitica'],
+      agente:       ['leads','analitica']
     };
     let currentUser = null;  // { email, role, permissions } — se setea en boot
 
@@ -875,13 +876,220 @@
     }
 
     // ============================================================
-    // ANALÍTICA — Mockup propuesta + GA4 deep links
+    // ANALÍTICA — Charts reales de leads + propuesta GA4
     // ============================================================
+    let __analiticaState = { period: 'week', weeks: 12, agent: '' };
+    let __chartLeads = null, __chartMotivo = null, __chartStatus = null;
+
+    async function loadChartJs () {
+      if (window.Chart) return window.Chart;
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js';
+        s.onload = () => resolve(window.Chart);
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
+    async function renderAnaliticaLeads () {
+      await loadChartJs();
+      const { period, weeks, agent } = __analiticaState;
+
+      // Cargar todo en paralelo
+      const qs = (extra) => {
+        const p = new URLSearchParams();
+        if (agent) p.set('agent', agent);
+        Object.entries(extra || {}).forEach(([k, v]) => p.set(k, v));
+        return p.toString() ? '?' + p.toString() : '';
+      };
+      const [summaryD, periodD, motivoD, statusD, agentsPerf, agentsList] = await Promise.all([
+        api('/api/admin/analytics/summary' + qs()),
+        api('/api/admin/analytics/leads-by-period' + qs({ period, weeks })),
+        api('/api/admin/analytics/leads-by-motivo' + qs()),
+        api('/api/admin/analytics/leads-by-status' + qs()),
+        api('/api/admin/analytics/leads-per-agent'),
+        api('/api/admin/analytics/agents')
+      ]);
+
+      // Render KPIs
+      document.getElementById('an-total').textContent = summaryD.total;
+      document.getElementById('an-last7').textContent = summaryD.last7;
+      document.getElementById('an-last30').textContent = summaryD.last30;
+      document.getElementById('an-conv').textContent = summaryD.conversionRate + '%';
+
+      // Chart 1: leads por período
+      const ctx1 = document.getElementById('chart-leads').getContext('2d');
+      if (__chartLeads) __chartLeads.destroy();
+      __chartLeads = new Chart(ctx1, {
+        type: 'bar',
+        data: {
+          labels: periodD.data.map(d => fmtPeriodLabel(d.period, period)),
+          datasets: [{
+            label: agent ? `Leads de ${agent}` : 'Total leads',
+            data: periodD.data.map(d => d.total),
+            backgroundColor: '#A8593D',
+            borderRadius: 2
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+
+      // Chart 2: motivo (donut)
+      const ctx2 = document.getElementById('chart-motivo').getContext('2d');
+      if (__chartMotivo) __chartMotivo.destroy();
+      const motivoLabels = { proyectos: 'Proyectos', informes: 'Informes', 'bolsa-de-trabajo': 'Bolsa de trabajo' };
+      __chartMotivo = new Chart(ctx2, {
+        type: 'doughnut',
+        data: {
+          labels: motivoD.data.map(d => motivoLabels[d.motivo] || d.motivo),
+          datasets: [{
+            data: motivoD.data.map(d => d.total),
+            backgroundColor: ['#3A4F41','#A8593D','#5C705F','#7A7570'],
+            borderWidth: 0
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+      });
+
+      // Chart 3: status (horizontal bar)
+      const ctx3 = document.getElementById('chart-status').getContext('2d');
+      if (__chartStatus) __chartStatus.destroy();
+      const statusLabels = { 'new': 'Nuevos', 'in-progress': 'En proceso', contacted: 'Contactados', closed: 'Cerrados', spam: 'Spam' };
+      const statusColors = { 'new': '#A8593D', 'in-progress': '#B88339', contacted: '#4A6B5C', closed: '#7A7570', spam: '#B5B0A8' };
+      __chartStatus = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: statusD.data.map(d => statusLabels[d.status]),
+          datasets: [{
+            data: statusD.data.map(d => d.total),
+            backgroundColor: statusD.data.map(d => statusColors[d.status]),
+            borderRadius: 2
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+        }
+      });
+
+      // Tabla de performance por agente
+      const tbody = document.getElementById('agents-perf-tbody');
+      tbody.innerHTML = agentsPerf.data.length
+        ? agentsPerf.data.map(a => `
+            <tr>
+              <td>${escapeHtml(a.agent)}</td>
+              <td style="text-align:right;font-family:var(--mono);">${a.total}</td>
+              <td style="text-align:right;font-family:var(--mono);">${a.converted}</td>
+              <td style="text-align:right;font-family:var(--mono);">${a.rate}%</td>
+            </tr>`).join('')
+        : '<tr><td colspan="4" class="state">Sin datos.</td></tr>';
+
+      // Update agent select options (preserva selección)
+      const sel = document.getElementById('an-agent');
+      const currentVal = sel.value;
+      sel.innerHTML = '<option value="">Todos los agentes</option>' +
+        agentsList.agents.map(a => `<option value="${escapeHtml(a.email)}">${escapeHtml(a.email)}</option>`).join('');
+      sel.value = currentVal;
+    }
+
+    function fmtPeriodLabel (iso, period) {
+      const d = new Date(iso);
+      if (period === 'month') return d.toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+      // week — show "DD MMM"
+      return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+    }
+
     async function renderAnalitica () {
-      // Datos mock para mostrar la estructura del dashboard
       const ga4Id = 'G-TJEN2EXGSN';
       const gtmId = 'GTM-WM6WHTW3';
 
+      document.getElementById('pane').innerHTML = `
+        <div class="config-block" style="margin-bottom:var(--space-6);background:#fff;">
+          <div class="analitica-controls">
+            <div class="filter">
+              <label class="content-field-lang-label">Período</label>
+              <select id="an-period" class="input" style="font-size:13px;padding:6px 10px;">
+                <option value="week">Por semana (últimas 12)</option>
+                <option value="month">Por mes (últimos 12)</option>
+              </select>
+            </div>
+            <div class="filter">
+              <label class="content-field-lang-label">Filtrar por agente</label>
+              <select id="an-agent" class="input" style="font-size:13px;padding:6px 10px;">
+                <option value="">Todos los agentes</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+          <div class="stat-card"><div class="stat-label">Total leads</div><div class="stat-value" id="an-total">—</div></div>
+          <div class="stat-card"><div class="stat-label">Últimos 7 días</div><div class="stat-value" id="an-last7">—</div></div>
+          <div class="stat-card"><div class="stat-label">Últimos 30 días</div><div class="stat-value" id="an-last30">—</div></div>
+          <div class="stat-card"><div class="stat-label">Conversion rate</div><div class="stat-value" id="an-conv">—</div></div>
+        </div>
+
+        <div class="config-block" style="background:#fff;margin-top:var(--space-8);">
+          <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">Leads por período <span style="font-family:var(--mono);font-size:11px;color:var(--piedra);" id="an-period-info"></span></h3>
+          <div style="position:relative;height:300px;"><canvas id="chart-leads"></canvas></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6);margin-top:var(--space-6);">
+          <div class="config-block" style="background:#fff;">
+            <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">Por motivo</h3>
+            <div style="position:relative;height:240px;"><canvas id="chart-motivo"></canvas></div>
+          </div>
+          <div class="config-block" style="background:#fff;">
+            <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">Funnel · status</h3>
+            <div style="position:relative;height:240px;"><canvas id="chart-status"></canvas></div>
+          </div>
+        </div>
+
+        <div class="config-block" style="background:#fff;margin-top:var(--space-6);">
+          <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">Performance por agente</h3>
+          <table class="leads">
+            <thead><tr><th>Agente</th><th style="text-align:right;">Asignados</th><th style="text-align:right;">Convertidos</th><th style="text-align:right;">Tasa</th></tr></thead>
+            <tbody id="agents-perf-tbody"><tr><td colspan="4" class="state">Cargando…</td></tr></tbody>
+          </table>
+          <p style="font-size:11px;color:var(--piedra);margin-top:8px;">"Convertidos" = leads en status <code>contacted</code> o <code>closed</code>.</p>
+        </div>
+
+        <details class="config-events-doc" style="margin-top:var(--space-8);">
+          <summary>📊 GA4 / GTM · datos del comportamiento del sitio</summary>
+          <p class="config-help">Los charts de arriba son <strong>datos reales de leads del backend</strong>. Para ver datos del comportamiento del sitio (visitas, sources, dispositivos, eventos cta_click, etc.) hay que conectar GA4. Hoy GA4 ${escapeHtml(ga4Id)} y GTM ${escapeHtml(gtmId)} están configurados y los eventos llegan a tu cuenta de Analytics.</p>
+          <p class="config-help">Para ver dashboards visuales <strong>aquí en el admin</strong>:</p>
+          <ol class="config-setup">
+            <li><strong>Looker Studio embed</strong> (no-code, ~30 min): conectás GA4 a un dashboard, lo embeds público y nos das la URL del iframe.</li>
+            <li><strong>GA4 Data API</strong> (más robusto, ~2-3h): service account + paquete <code>@google-analytics/data</code> + queries server-side.</li>
+          </ol>
+          <p class="config-help">Mientras: <a href="https://analytics.google.com" target="_blank" rel="noopener">analytics.google.com</a> tiene los datos en vivo.</p>
+        </details>`;
+
+      // Wire controls + first render
+      document.getElementById('an-period').addEventListener('change', (e) => {
+        __analiticaState.period = e.target.value;
+        document.getElementById('an-period-info').textContent = e.target.value === 'month' ? '· últimos 12 meses' : '· últimas 12 semanas';
+        renderAnaliticaLeads();
+      });
+      document.getElementById('an-agent').addEventListener('change', (e) => {
+        __analiticaState.agent = e.target.value;
+        renderAnaliticaLeads();
+      });
+      document.getElementById('an-period-info').textContent = '· últimas 12 semanas';
+      try { await renderAnaliticaLeads(); } catch (err) {
+        console.error('[analitica]', err);
+        toast('Error cargando charts: ' + err.message, 'error');
+      }
+      return;
+
+      // ---- código viejo del mockup, no se usa ----
       document.getElementById('pane').innerHTML = `
         <div class="config-block" style="margin-bottom:var(--space-6);background:#fff;">
           <div class="config-status-row">
@@ -983,7 +1191,8 @@
       admin: 'Admin',
       viewer: 'Solo lectura',
       content: 'Editor de contenido',
-      commercial: 'Equipo comercial'
+      commercial: 'Equipo comercial',
+      agente: 'Agente'
     };
 
     async function renderUsuarios () {
@@ -1005,7 +1214,7 @@
               <td>${isMaster
                 ? `<span class="badge badge-status-new">${escapeHtml(ROLE_LABELS_USR[u.role])}</span>`
                 : `<select class="input" data-action="role-change" data-user-id="${u.id}" style="font-size:12px;padding:6px 10px;">
-                     ${['admin','viewer','content','commercial'].map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${escapeHtml(ROLE_LABELS_USR[r])}</option>`).join('')}
+                     ${['admin','agente','commercial','content','viewer'].map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${escapeHtml(ROLE_LABELS_USR[r])}</option>`).join('')}
                    </select>`}</td>
               <td><span class="badge ${verifiedClass}">${verified}</span></td>
               <td>${activeBadge}</td>
@@ -1060,8 +1269,9 @@
         <div class="field"><label class="label">Rol</label>
           <select class="input" id="inv-role">
             <option value="admin">Admin · todas las pestañas (no gestiona usuarios)</option>
+            <option value="agente">Agente · Leads + Analítica (puede ser asignado a leads)</option>
+            <option value="commercial">Equipo comercial · Leads + Formulario + Analítica</option>
             <option value="content">Editor de contenido · solo pestaña Contenido</option>
-            <option value="commercial">Equipo comercial · Leads + Formulario</option>
             <option value="viewer">Solo lectura · todas las pestañas en modo vista</option>
           </select>
         </div>

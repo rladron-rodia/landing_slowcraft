@@ -28,6 +28,9 @@ import {
   getAllForAdmin as getSettingsForAdmin,
   bulkUpdate as bulkUpdateSettings
 } from '../services/settings.js';
+import {
+  listAgents, leadsByPeriod, leadsByMotivo, leadsByStatus, leadsPerAgent, summary as analyticsSummary
+} from '../services/analytics.js';
 
 const router = Router();
 const isProd = process.env.NODE_ENV === 'production';
@@ -310,14 +313,17 @@ router.patch('/leads/:id', requireAuth, requireEditor, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'ID inválido' });
 
-  const { status, notes } = req.body || {};
+  const { status, notes, assigned_to } = req.body || {};
   if (status !== undefined && !ALLOWED_STATUS.has(status)) {
     return res.status(400).json({ error: 'Status inválido' });
   }
   if (notes !== undefined && typeof notes !== 'string') {
     return res.status(400).json({ error: 'Notes debe ser string' });
   }
-  if (status === undefined && notes === undefined) {
+  if (assigned_to !== undefined && assigned_to !== null && typeof assigned_to !== 'string') {
+    return res.status(400).json({ error: 'assigned_to debe ser string o null' });
+  }
+  if (status === undefined && notes === undefined && assigned_to === undefined) {
     return res.status(400).json({ error: 'Nada para actualizar' });
   }
 
@@ -325,7 +331,7 @@ router.patch('/leads/:id', requireAuth, requireEditor, async (req, res) => {
     const result = await withClient(async (client) => {
       await client.query('BEGIN');
 
-      const { rows: prevRows } = await client.query('SELECT status, notes FROM leads WHERE id = $1 FOR UPDATE', [id]);
+      const { rows: prevRows } = await client.query('SELECT status, notes, assigned_to FROM leads WHERE id = $1 FOR UPDATE', [id]);
       if (!prevRows.length) throw new Error('not_found');
       const prev = prevRows[0];
 
@@ -341,6 +347,13 @@ router.patch('/leads/:id', requireAuth, requireEditor, async (req, res) => {
         params.push(notes || null);
         sets.push(`notes = $${params.length}`);
       }
+      const newAssigned = (assigned_to === '' || assigned_to === null) ? null : assigned_to;
+      if (assigned_to !== undefined && newAssigned !== prev.assigned_to) {
+        params.push(newAssigned);
+        sets.push(`assigned_to = $${params.length}`);
+        params.push(newAssigned ? new Date() : null);
+        sets.push(`assigned_at = $${params.length}`);
+      }
       if (!sets.length) {
         await client.query('COMMIT');
         return { unchanged: true };
@@ -348,7 +361,7 @@ router.patch('/leads/:id', requireAuth, requireEditor, async (req, res) => {
 
       params.push(id);
       const updateSql = `UPDATE leads SET ${sets.join(', ')} WHERE id = $${params.length}
-                         RETURNING id, status, notes, status_updated_at`;
+                         RETURNING id, status, notes, assigned_to, assigned_at, status_updated_at`;
       const { rows: updated } = await client.query(updateSql, params);
 
       // Audit
@@ -365,6 +378,13 @@ router.patch('/leads/:id', requireAuth, requireEditor, async (req, res) => {
           `INSERT INTO lead_events (lead_id, event_type, prev_value, new_value, actor)
            VALUES ($1, 'note_changed', $2, $3, $4)`,
           [id, (prev.notes || '').slice(0, 500), (notes || '').slice(0, 500), actor]
+        );
+      }
+      if (assigned_to !== undefined && newAssigned !== prev.assigned_to) {
+        await client.query(
+          `INSERT INTO lead_events (lead_id, event_type, prev_value, new_value, actor)
+           VALUES ($1, 'assigned', $2, $3, $4)`,
+          [id, prev.assigned_to || '(sin asignar)', newAssigned || '(sin asignar)', actor]
         );
       }
 
@@ -516,6 +536,42 @@ router.patch('/settings/bulk', requireAuth, requireRole(['master_admin','admin']
     console.error('[settings PATCH]', err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// ============================================================
+// ANALYTICS — dashboards de leads
+// ============================================================
+router.get('/analytics/agents', requireAuth, async (_req, res) => {
+  try { res.json({ agents: await listAgents() }); }
+  catch (err) { console.error('[analytics/agents]', err); res.status(500).json({ error: err.message }); }
+});
+
+router.get('/analytics/summary', requireAuth, async (req, res) => {
+  try { res.json(await analyticsSummary({ agent: req.query.agent || null })); }
+  catch (err) { console.error('[analytics/summary]', err); res.status(500).json({ error: err.message }); }
+});
+
+router.get('/analytics/leads-by-period', requireAuth, async (req, res) => {
+  try {
+    const period = req.query.period === 'month' ? 'month' : 'week';
+    const weeks = Math.min(52, Math.max(4, parseInt(req.query.weeks || '12', 10)));
+    res.json({ period, data: await leadsByPeriod({ period, weeks, agent: req.query.agent || null }) });
+  } catch (err) { console.error('[analytics/period]', err); res.status(500).json({ error: err.message }); }
+});
+
+router.get('/analytics/leads-by-motivo', requireAuth, async (req, res) => {
+  try { res.json({ data: await leadsByMotivo({ agent: req.query.agent || null }) }); }
+  catch (err) { console.error('[analytics/motivo]', err); res.status(500).json({ error: err.message }); }
+});
+
+router.get('/analytics/leads-by-status', requireAuth, async (req, res) => {
+  try { res.json({ data: await leadsByStatus({ agent: req.query.agent || null }) }); }
+  catch (err) { console.error('[analytics/status]', err); res.status(500).json({ error: err.message }); }
+});
+
+router.get('/analytics/leads-per-agent', requireAuth, async (_req, res) => {
+  try { res.json({ data: await leadsPerAgent() }); }
+  catch (err) { console.error('[analytics/per-agent]', err); res.status(500).json({ error: err.message }); }
 });
 
 // ============================================================

@@ -4,7 +4,15 @@ Pendientes y mejoras futuras.
 
 ## Próximo
 
-- **Analítica con datos reales de GA4** — hoy los dashboards de la tab Analítica son mockups con datos placeholder. Para alimentarlos con datos reales hay 2 caminos: (a) embed Looker Studio dashboard (no-code, ~30min de setup en lookerstudio.google.com), (b) integración GA4 Data API directa con service account de Google Cloud + paquete `@google-analytics/data` (~2-3h). La guía está en el panel "🛣 Roadmap" dentro del tab Analítica.
+- **Dashboards adicionales propuestos** (datos disponibles, falta UI):
+  - ⏱ **Tiempo de respuesta promedio** — Δ entre `created_at` y primer cambio de status; útil para SLA del equipo comercial.
+  - 🏢 **Top empresas / dominios** — `empresa_web` agrupado, ranking; útil para account-based marketing.
+  - 📅 **Pipeline aging** — leads agrupados por días en cada status (qué leads están "estancados"); útil para alertas.
+  - 📧 **Salud del email** — % `email_sent_at` vs `email_error`; detectar problemas de deliverability con Resend.
+  - 🌎 **Geografía** — `ip` resuelto a país/región (necesita geo-IP service como ipapi o ipinfo).
+  - 📈 **Tendencia mensual de conversion rate** — % de leads que llegan a `contacted` o `closed` por mes.
+
+- **GA4 Data API real** — los charts de Analítica hoy muestran **datos del backend (leads)** que es mucho mejor que mockups, pero falta integración con GA4 para ver comportamiento del sitio (visitas, sources, dispositivos, eventos cta_click). Hay 2 caminos: (a) Looker Studio embed (~30min, no-code), (b) GA4 Data API directa con service account (~2-3h). Guía dentro del tab Analítica.
 
 - **WhatsApp chatbot + chat IA embebido** — el setting `whatsapp.mode` ya está preparado. Hoy soporta `link` (abre wa.me en pestaña nueva). Próximo modo `chatbot`:
   - Widget de chat embebido en la landing (no abrir wa.me, sino ventana dentro del sitio).
@@ -62,3 +70,4 @@ Pendientes y mejoras futuras.
 - ✅ v0.10.0 — Fonts vía jsdelivr CDN (sin Google tracking) + WCAG AA contrast (piedra/piedra-soft ajustados) + script para true self-hosting opcional
 - ✅ v0.11.0 — WhatsApp config administrable (slug renombrado + business label + mode futuro chatbot) + true self-hosted fonts en /fonts/
 - ✅ v0.12.0 — Sistema de usuarios y roles (master_admin/admin/viewer/content/commercial) + invitación por email con verificación + tab Usuarios + tab Analítica con propuesta de dashboards + role-based UI filtering + read-only mode
+- ✅ v0.13.0 — Rol `agente` + asignación de leads a agente + tab Analítica con charts reales (leads/período, motivo, status, performance por agente) + filtros por agente + Chart.js dinámico

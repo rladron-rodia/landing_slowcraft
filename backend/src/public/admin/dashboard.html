@@ -329,16 +329,20 @@
       document.getElementById('d-subtitle').textContent = '—';
 
       try {
-        const data = await api('/api/admin/leads/' + id);
-        state.currentLead = data.lead;
-        state.currentEvents = data.events;
-        renderLeadDetail(data.lead, data.events);
+        const [leadData, agentsData] = await Promise.all([
+          api('/api/admin/leads/' + id),
+          api('/api/admin/analytics/agents').catch(() => ({ agents: [] }))
+        ]);
+        state.currentLead = leadData.lead;
+        state.currentEvents = leadData.events;
+        state.agents = agentsData.agents || [];
+        renderLeadDetail(leadData.lead, leadData.events, state.agents);
       } catch (err) {
         body.innerHTML = `<div class="state"><h3>Error</h3>${escapeHtml(err.message)}</div>`;
       }
     }
 
-    function renderLeadDetail (lead, events) {
+    function renderLeadDetail (lead, events, agents) {
       document.getElementById('d-title').textContent = lead.nombre;
       document.getElementById('d-subtitle').textContent = lead.cargo + ' · ' + lead.empresa_web;
 
@@ -401,6 +405,15 @@
         </section>
 
         <section class="drawer-section">
+          <div class="drawer-section-label">Asignado a</div>
+          <select class="input" id="d-assigned">
+            <option value="">— sin asignar —</option>
+            ${(agents || []).map(a => `<option value="${escapeHtml(a.email)}" ${lead.assigned_to === a.email ? 'selected' : ''}>${escapeHtml(a.email)}</option>`).join('')}
+          </select>
+          ${lead.assigned_at ? `<p class="cell-meta" style="margin-top:6px;">Asignado ${fmtFullDate(lead.assigned_at)}</p>` : ''}
+        </section>
+
+        <section class="drawer-section">
           <div class="drawer-section-label">Notas internas</div>
           <textarea class="input" id="d-notes" rows="5" placeholder="Próximo paso, contexto, lo que sea…">${escapeHtml(lead.notes || '')}</textarea>
         </section>
@@ -427,12 +440,14 @@
       const id = state.currentLead.id;
       const status = document.getElementById('d-status').value;
       const notes = document.getElementById('d-notes').value;
+      const assignedSel = document.getElementById('d-assigned');
+      const assigned_to = assignedSel ? (assignedSel.value || null) : undefined;
       const btn = document.getElementById('d-save');
       btn.disabled = true; btn.textContent = 'Guardando…';
       try {
         const data = await api('/api/admin/leads/' + id, {
           method: 'PATCH',
-          body: JSON.stringify({ status, notes })
+          body: JSON.stringify({ status, notes, assigned_to })
         });
         if (data.unchanged) {
           toast('Sin cambios.', 'success');
@@ -523,9 +538,10 @@
       admin:        ['leads','contenido','formulario','configuracion','analitica'],
       viewer:       ['leads','contenido','formulario','configuracion','analitica'],
       content:      ['contenido'],
-      commercial:   ['leads','formulario']
+      commercial:   ['leads','formulario','analitica'],
+      agente:       ['leads','analitica']
     };
-    const ROLE_LABELS = { master_admin: 'Master Admin', admin: 'Admin', viewer: 'Solo lectura', content: 'Editor de contenido', commercial: 'Equipo comercial' };
+    const ROLE_LABELS = { master_admin: 'Master Admin', admin: 'Admin', viewer: 'Solo lectura', content: 'Editor de contenido', commercial: 'Equipo comercial', agente: 'Agente' };
 
     function applyRoleUI (user) {
       const allowed = ROLE_TABS[user.role] || ROLE_TABS.viewer;

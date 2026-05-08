@@ -1123,6 +1123,17 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
 }
 
 /* ============================================================
+   ANALÍTICA — controles
+   ============================================================ */
+.analitica-controls {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  align-items: end;
+}
+.analitica-controls .filter { flex: 0 0 220px; min-width: 200px; }
+
+/* ============================================================
    GTM EVENTS DOC TABLE
    ============================================================ */
 .config-events-doc {
