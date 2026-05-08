@@ -1,0 +1,26 @@
+{
+  "name": "slowcraft-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Slowcraft — API + admin + DB para la landing (Express + Postgres + Resend SMTP)",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch --env-file=.env src/server.js",
+    "migrate": "node --env-file-if-exists=.env src/migrate.js",
+    "lint": "node --check src/server.js && node --check src/db.js && node --check src/email.js && node --check src/migrate.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^8.0.0",
+    "nodemailer": "^6.9.15",
+    "pg": "^8.13.0"
+  }
+}

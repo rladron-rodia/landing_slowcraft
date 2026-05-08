@@ -848,7 +848,258 @@
     }
     
     .cta-button:hover::after { transform: translateX(6px); }
-    
+
+    /* === CONTACT FORM === */
+    .contact-form {
+      max-width: var(--container-sm);
+      margin: 0 auto;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+    }
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      min-width: 0;
+    }
+
+    .form-label {
+      font-family: var(--sans);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .form-label .req {
+      color: var(--cobre);
+      margin-left: 2px;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--crema);
+      color: var(--text-primary);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.4;
+      border: 1px solid var(--piedra-soft);
+      border-radius: 2px;
+      transition: border-color var(--duration-fast) var(--ease-out),
+                  box-shadow var(--duration-fast) var(--ease-out);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .form-input::placeholder { color: var(--piedra-soft); }
+
+    .form-input:hover { border-color: var(--piedra); }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--salvia);
+      box-shadow: 0 0 0 3px rgba(58, 79, 65, 0.12);
+    }
+
+    .form-input.is-invalid {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(160, 74, 61, 0.10);
+    }
+
+    .form-input.is-valid {
+      border-color: var(--success);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 140px;
+      font-family: var(--sans);
+    }
+
+    .form-select {
+      background-image: linear-gradient(45deg, transparent 50%, var(--piedra) 50%),
+                        linear-gradient(135deg, var(--piedra) 50%, transparent 50%);
+      background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+
+    .form-hint {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--danger);
+      min-height: 16px;
+      line-height: 1.3;
+    }
+
+    .form-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+
+    .form-counter {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--piedra);
+      white-space: nowrap;
+    }
+
+    .form-submit {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 18px 36px;
+      background: var(--tinta);
+      color: var(--crema);
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background var(--duration-default) var(--ease-out),
+                  transform var(--duration-default) var(--ease-out);
+      align-self: flex-start;
+      min-width: 200px;
+    }
+
+    .form-submit:hover:not(:disabled) {
+      background: var(--salvia);
+      transform: translateY(-2px);
+    }
+
+    .form-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .form-submit-spinner {
+      display: none;
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(245, 241, 234, 0.3);
+      border-top-color: var(--crema);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .form-submit.is-loading .form-submit-spinner { display: inline-block; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .form-disclaimer {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-top: var(--space-2);
+    }
+
+    /* Honeypot — visualmente oculto pero accesible */
+    .hp-field {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    /* === TOAST NOTIFICATIONS === */
+    .toast-region {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      max-width: 380px;
+      pointer-events: none;
+    }
+
+    .toast {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: flex-start;
+      gap: var(--space-3);
+      padding: 14px 16px;
+      background: var(--crema);
+      border: 1px solid var(--piedra-light);
+      border-left: 3px solid var(--piedra);
+      border-radius: 2px;
+      box-shadow: 0 8px 24px rgba(15, 15, 14, 0.12);
+      font-family: var(--sans);
+      font-size: 14px;
+      line-height: 1.4;
+      color: var(--text-primary);
+      opacity: 0;
+      transform: translateX(20px);
+      transition: opacity var(--duration-default) var(--ease-out),
+                  transform var(--duration-default) var(--ease-out);
+      pointer-events: auto;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .toast-success { border-left-color: var(--success); }
+    .toast-error { border-left-color: var(--danger); }
+
+    .toast-icon {
+      font-family: var(--mono);
+      font-size: 16px;
+      font-weight: 500;
+      line-height: 1;
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      color: var(--crema);
+      flex-shrink: 0;
+    }
+
+    .toast-success .toast-icon { background: var(--success); }
+    .toast-error .toast-icon { background: var(--danger); }
+
+    .toast-msg { word-wrap: break-word; }
+
+    .toast-close {
+      background: none;
+      border: none;
+      color: var(--piedra);
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 0 4px;
+      transition: color var(--duration-fast) var(--ease-out);
+    }
+
+    .toast-close:hover { color: var(--text-primary); }
+
     /* === FOOTER === */
     footer {
       padding: 64px 48px 32px;
@@ -975,6 +1226,16 @@
       .footer-grid {
         grid-template-columns: 1fr;
         gap: 32px;
+      }
+
+      .form-row { grid-template-columns: 1fr; }
+      .cta-final { padding: 100px 24px; }
+      .form-submit { width: 100%; align-self: stretch; }
+      .toast-region {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
       }
       
       .footer-bottom {
@@ -1306,8 +1567,81 @@
   <section id="contacto" class="cta-final">
     <h2>Diseñemos juntos cómo trabaja tu empresa <em>con IA.</em></h2>
     <p>Agenda una conversación de 30 minutos. Sin pitch, sin presentación. Solo una charla honesta sobre dónde está tu empresa y cómo podríamos ayudarte.</p>
-    <a href="mailto:hola@slowcraft.ai" class="cta-button">hola@slowcraft.ai</a>
+    <form id="contact-form" class="contact-form" novalidate>
+      <!-- Honeypot anti-spam: invisible para humanos -->
+      <div class="hp-field" aria-hidden="true">
+        <label for="cf-website">No completar este campo</label>
+        <input type="text" id="cf-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label" for="cf-nombre">Nombre completo <span class="req" aria-hidden="true">*</span></label>
+          <input class="form-input" id="cf-nombre" name="nombre" type="text"
+                 required minlength="3" maxlength="80" autocomplete="name"
+                 placeholder="Ada Lovelace" aria-describedby="err-nombre">
+          <p class="form-hint" id="err-nombre" role="alert"></p>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="cf-email">Email empresa <span class="req" aria-hidden="true">*</span></label>
+          <input class="form-input" id="cf-email" name="email" type="email"
+                 required autocomplete="email"
+                 placeholder="ada@empresa.com" aria-describedby="err-email">
+          <p class="form-hint" id="err-email" role="alert"></p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-field">
+          <label class="form-label" for="cf-cargo">Cargo / posición <span class="req" aria-hidden="true">*</span></label>
+          <input class="form-input" id="cf-cargo" name="cargo" type="text"
+                 required minlength="2" maxlength="80" autocomplete="organization-title"
+                 placeholder="CEO, COO, Head of Operations…" aria-describedby="err-cargo">
+          <p class="form-hint" id="err-cargo" role="alert"></p>
+        </div>
+        <div class="form-field">
+          <label class="form-label" for="cf-empresa">www de la empresa <span class="req" aria-hidden="true">*</span></label>
+          <input class="form-input" id="cf-empresa" name="empresa_web" type="text"
+                 required autocomplete="url" inputmode="url"
+                 placeholder="empresa.com" aria-describedby="err-empresa">
+          <p class="form-hint" id="err-empresa" role="alert"></p>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="cf-motivo">Motivo de contacto <span class="req" aria-hidden="true">*</span></label>
+        <select class="form-input form-select" id="cf-motivo" name="motivo" required aria-describedby="err-motivo">
+          <option value="" disabled selected>Selecciona un motivo</option>
+          <option value="proyectos">Proyectos</option>
+          <option value="informes">Informes</option>
+          <option value="bolsa-de-trabajo">Bolsa de trabajo</option>
+        </select>
+        <p class="form-hint" id="err-motivo" role="alert"></p>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label" for="cf-descripcion">Descripción <span class="req" aria-hidden="true">*</span></label>
+        <textarea class="form-input form-textarea" id="cf-descripcion" name="descripcion"
+                  rows="5" required minlength="20" maxlength="1000"
+                  placeholder="Cuéntanos brevemente sobre tu empresa, el contexto y qué te gustaría explorar."
+                  aria-describedby="err-descripcion"></textarea>
+        <div class="form-meta">
+          <p class="form-hint" id="err-descripcion" role="alert"></p>
+          <p class="form-counter"><span id="cf-counter">0</span> / 1000</p>
+        </div>
+      </div>
+
+      <button type="submit" class="form-submit" id="cf-submit">
+        <span class="form-submit-label">Enviar mensaje</span>
+        <span class="form-submit-spinner" aria-hidden="true"></span>
+      </button>
+
+      <p class="form-disclaimer">Respondemos en máximo 48h hábiles. Tu información es confidencial y solo la usamos para responder tu consulta.</p>
+    </form>
   </section>
+
+  <!-- Toast notifications region -->
+  <div class="toast-region" aria-live="polite" aria-atomic="false" id="toast-region"></div>
   
   <!-- FOOTER -->
   <footer>
@@ -1339,7 +1673,15 @@
       <div>v3.0</div>
     </div>
   </footer>
-  
+
+  <!-- ============================================================
+       Endpoint del backend (Render).
+       Cambiá esta URL por la que te dio Render después del deploy.
+       ============================================================ -->
+  <script>
+    window.SLOWCRAFT_FORM_ENDPOINT = 'https://slowcraft-api.onrender.com/api/contact';
+  </script>
+
   <script>
     // Language switch (placeholder - en una versión futura cambia el contenido)
     document.querySelector('.lang-switch').addEventListener('click', function() {
@@ -1358,6 +1700,231 @@
         }
       });
     });
+
+    // ============================================================
+    // CONTACT FORM — validación + submit + toasts
+    // Endpoint configurable: window.SLOWCRAFT_FORM_ENDPOINT
+    // Default: /api/contact (Cloudflare Worker / Vercel function)
+    // ============================================================
+    (function initContactForm () {
+      const FORM_ENDPOINT = window.SLOWCRAFT_FORM_ENDPOINT || '/api/contact';
+      // Bloquea emails personales — exigimos corporativos
+      const FREE_EMAIL_DOMAINS = new Set([
+        'gmail.com','googlemail.com','yahoo.com','yahoo.com.mx','yahoo.es',
+        'hotmail.com','hotmail.es','hotmail.com.mx','outlook.com','outlook.es',
+        'live.com','msn.com','icloud.com','me.com','aol.com','protonmail.com',
+        'proton.me','tutanota.com','mail.com','gmx.com','yandex.com','zoho.com'
+      ]);
+
+      const form = document.getElementById('contact-form');
+      if (!form) return;
+
+      const fields = {
+        nombre:      { el: form.elements.nombre,      errId: 'err-nombre',      validate: validateNombre },
+        email:       { el: form.elements.email,       errId: 'err-email',       validate: validateEmail },
+        cargo:       { el: form.elements.cargo,       errId: 'err-cargo',       validate: validateCargo },
+        empresa_web: { el: form.elements.empresa_web, errId: 'err-empresa',     validate: validateUrl },
+        motivo:      { el: form.elements.motivo,      errId: 'err-motivo',      validate: validateMotivo },
+        descripcion: { el: form.elements.descripcion, errId: 'err-descripcion', validate: validateDescripcion }
+      };
+
+      // Wire validation per field
+      Object.keys(fields).forEach(name => {
+        const { el } = fields[name];
+        el.addEventListener('blur', () => runValidation(name));
+        el.addEventListener('input', () => {
+          if (el.classList.contains('is-invalid')) runValidation(name);
+        });
+      });
+
+      // Counter for descripción
+      const desc = fields.descripcion.el;
+      const counter = document.getElementById('cf-counter');
+      desc.addEventListener('input', () => {
+        counter.textContent = String(desc.value.length);
+        counter.style.color = desc.value.length > 1000 ? 'var(--danger)' : '';
+      });
+
+      // Submit
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Honeypot check (bots completan campos invisibles)
+        if (form.elements.website && form.elements.website.value !== '') {
+          // Mensaje de éxito falso — el bot no debe saber que lo descartamos
+          showToast('Mensaje recibido', 'success');
+          form.reset();
+          return;
+        }
+
+        const allValid = Object.keys(fields).every(name => runValidation(name));
+        if (!allValid) {
+          showToast('Revisá los campos marcados antes de enviar.', 'error');
+          const firstInvalid = form.querySelector('.form-input.is-invalid');
+          if (firstInvalid) firstInvalid.focus();
+          return;
+        }
+
+        const payload = {
+          nombre: fields.nombre.el.value.trim(),
+          email: fields.email.el.value.trim().toLowerCase(),
+          cargo: fields.cargo.el.value.trim(),
+          empresa_web: normalizeUrl(fields.empresa_web.el.value.trim()),
+          motivo: fields.motivo.el.value,
+          descripcion: fields.descripcion.el.value.trim(),
+          _meta: {
+            userAgent: navigator.userAgent,
+            referrer: document.referrer || null,
+            submittedAt: new Date().toISOString()
+          }
+        };
+
+        setSubmitting(true);
+        try {
+          const res = await fetch(FORM_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data.error || 'HTTP ' + res.status);
+          }
+          showToast('¡Mensaje enviado! Te respondemos en máximo 48h hábiles.', 'success', 7000);
+          form.reset();
+          counter.textContent = '0';
+          Object.values(fields).forEach(({ el }) => {
+            el.classList.remove('is-valid', 'is-invalid');
+            el.removeAttribute('aria-invalid');
+          });
+          form.querySelectorAll('.form-hint').forEach(h => { h.textContent = ''; });
+        } catch (err) {
+          console.error('[contact-form]', err);
+          showToast('No pudimos enviar el mensaje. Intentá de nuevo o escribinos a hola@slowcraft.ai', 'error', 9000);
+        } finally {
+          setSubmitting(false);
+        }
+      });
+
+      function setSubmitting (on) {
+        const btn = document.getElementById('cf-submit');
+        btn.disabled = on;
+        btn.classList.toggle('is-loading', on);
+        btn.querySelector('.form-submit-label').textContent = on ? 'Enviando…' : 'Enviar mensaje';
+      }
+
+      function runValidation (name) {
+        const { el, validate, errId } = fields[name];
+        const result = validate(el.value);
+        const errEl = document.getElementById(errId);
+        if (!result.ok) {
+          el.classList.add('is-invalid');
+          el.classList.remove('is-valid');
+          el.setAttribute('aria-invalid', 'true');
+          if (errEl) errEl.textContent = result.msg;
+        } else {
+          el.classList.remove('is-invalid');
+          el.classList.add('is-valid');
+          el.setAttribute('aria-invalid', 'false');
+          if (errEl) errEl.textContent = '';
+        }
+        return result.ok;
+      }
+
+      // ---- Validators ----
+      function validateNombre (v) {
+        const t = v.trim();
+        if (!t) return { ok: false, msg: 'El nombre es obligatorio.' };
+        if (t.length < 3) return { ok: false, msg: 'Demasiado corto. Escribí tu nombre completo.' };
+        if (!/\s/.test(t)) return { ok: false, msg: 'Incluí nombre y apellido.' };
+        if (t.length > 80) return { ok: false, msg: 'Demasiado largo (máx. 80 caracteres).' };
+        return { ok: true };
+      }
+
+      function validateEmail (v) {
+        const t = v.trim().toLowerCase();
+        if (!t) return { ok: false, msg: 'El email es obligatorio.' };
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+        if (!re.test(t)) return { ok: false, msg: 'Email inválido. Revisá el formato.' };
+        const domain = t.split('@')[1];
+        if (FREE_EMAIL_DOMAINS.has(domain)) {
+          return { ok: false, msg: 'Usá tu email corporativo, no uno personal (gmail, outlook, etc.).' };
+        }
+        return { ok: true };
+      }
+
+      function validateCargo (v) {
+        const t = v.trim();
+        if (!t) return { ok: false, msg: 'Cargo obligatorio.' };
+        if (t.length < 2) return { ok: false, msg: 'Demasiado corto.' };
+        if (t.length > 80) return { ok: false, msg: 'Demasiado largo (máx. 80).' };
+        return { ok: true };
+      }
+
+      function validateUrl (v) {
+        const t = v.trim().toLowerCase();
+        if (!t) return { ok: false, msg: 'Sitio web obligatorio.' };
+        const stripped = t.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
+        const domainRe = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/;
+        if (!domainRe.test(stripped)) return { ok: false, msg: 'Dominio inválido. Ej: empresa.com' };
+        return { ok: true };
+      }
+
+      function normalizeUrl (v) {
+        const t = v.trim();
+        if (!/^https?:\/\//i.test(t)) return 'https://' + t;
+        return t;
+      }
+
+      function validateMotivo (v) {
+        const allowed = ['proyectos', 'informes', 'bolsa-de-trabajo'];
+        if (!v || !allowed.includes(v)) return { ok: false, msg: 'Seleccioná un motivo.' };
+        return { ok: true };
+      }
+
+      function validateDescripcion (v) {
+        const t = v.trim();
+        if (!t) return { ok: false, msg: 'Descripción obligatoria.' };
+        if (t.length < 20) return { ok: false, msg: 'Demasiado breve (' + t.length + '/20). Contanos un poco más.' };
+        if (t.length > 1000) return { ok: false, msg: 'Demasiado largo (máx. 1000).' };
+        return { ok: true };
+      }
+
+      // ---- Toasts ----
+      function showToast (msg, type, timeout) {
+        type = type || 'success';
+        timeout = timeout || 6000;
+        const region = document.getElementById('toast-region');
+        if (!region) return;
+        const t = document.createElement('div');
+        t.className = 'toast toast-' + type;
+        t.setAttribute('role', type === 'error' ? 'alert' : 'status');
+        const icon = document.createElement('div');
+        icon.className = 'toast-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.textContent = type === 'success' ? '✓' : '!';
+        const m = document.createElement('div');
+        m.className = 'toast-msg';
+        m.textContent = msg;
+        const close = document.createElement('button');
+        close.className = 'toast-close';
+        close.setAttribute('aria-label', 'Cerrar notificación');
+        close.textContent = '×';
+        close.addEventListener('click', () => dismiss());
+        t.appendChild(icon);
+        t.appendChild(m);
+        t.appendChild(close);
+        region.appendChild(t);
+        // Trigger transition
+        requestAnimationFrame(() => t.classList.add('is-visible'));
+        const timer = setTimeout(dismiss, timeout);
+        function dismiss () {
+          clearTimeout(timer);
+          t.classList.remove('is-visible');
+          setTimeout(() => t.remove(), 400);
+        }
+      }
+    })();
   </script>
   
 </body>
