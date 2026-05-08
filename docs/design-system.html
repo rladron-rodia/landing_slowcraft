@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slowcraft · Design System v2.0</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       SLOWCRAFT DESIGN SYSTEM — INLINE TOKENS
+       ========================================================================== */
+    
+    :root {
+      /* Color primitives */
+      --tinta: #0F0F0E;
+      --tinta-80: #2A2A28;
+      --crema: #F5F1EA;
+      --crema-soft: #EFEAE0;
+      --crema-deep: #E8E3DA;
+      --salvia: #3A4F41;
+      --salvia-light: #5C705F;
+      --cobre: #A8593D;
+      --cobre-light: #C77A57;
+      --piedra: #7A7570;
+      --piedra-soft: #B5B0A8;
+      --piedra-light: #DDD8D0;
+      
+      /* Estados */
+      --success: #4A6B5C;
+      --warning: #B88339;
+      --danger: #A04A3D;
+      --info: #4A6175;
+      
+      /* Type */
+      --serif: 'Newsreader', 'Times New Roman', serif;
+      --sans: 'Inter', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', 'Courier New', monospace;
+      
+      /* Layout */
+      --sidebar-w: 280px;
+    }
+    
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html { scroll-behavior: smooth; }
+    
+    body {
+      font-family: var(--sans);
+      background: var(--crema);
+      color: var(--tinta);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.6;
+    }
+    
+    /* ==========================================================================
+       LAYOUT: SIDEBAR + MAIN
+       ========================================================================== */
+    
+    .ds-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      min-height: 100vh;
+    }
+    
+    /* SIDEBAR */
+    aside {
+      background: var(--tinta);
+      color: var(--crema);
+      padding: 32px 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      border-right: 1px solid rgba(245, 241, 234, 0.1);
+    }
+    
+    .ds-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .ds-brand-symbol {
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid var(--crema);
+      border-radius: 50%;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ds-brand-symbol::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 50%;
+      height: 100%;
+      background: var(--crema);
+    }
+    
+    .ds-brand-name {
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 400;
+    }
+    
+    .ds-tagline {
+      font-size: 11px;
+      color: var(--piedra-soft);
+      letter-spacing: 1px;
+      margin-bottom: 32px;
+    }
+    
+    .ds-nav-section {
+      margin-top: 32px;
+    }
+    
+    .ds-nav-section h4 {
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      color: var(--piedra-soft);
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    
+    .ds-nav-section a {
+      display: block;
+      padding: 8px 12px;
+      margin-left: -12px;
+      color: var(--crema);
+      text-decoration: none;
+      font-size: 14px;
+      border-radius: 4px;
+      opacity: 0.7;
+      transition: all 0.2s;
+    }
+    
+    .ds-nav-section a:hover {
+      opacity: 1;
+      background: rgba(245, 241, 234, 0.06);
+    }
+    
+    .ds-nav-section a .num {
+      display: inline-block;
+      width: 24px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--cobre);
+    }
+    
+    /* MAIN */
+    main {
+      padding: 80px 80px 200px;
+      max-width: 1200px;
+    }
+    
+    /* ==========================================================================
+       HEADER & SECTIONS
+       ========================================================================== */
+    
+    .ds-header {
+      padding-bottom: 80px;
+      border-bottom: 1px solid var(--tinta);
+      margin-bottom: 80px;
+    }
+    
+    .ds-header .eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+    
+    .ds-header h1 {
+      font-family: var(--serif);
+      font-size: 88px;
+      line-height: 1;
+      letter-spacing: -3px;
+      font-weight: 400;
+      margin-bottom: 32px;
+    }
+    
+    .ds-header h1 em {
+      font-style: italic;
+      color: var(--salvia);
+    }
+    
+    .ds-header .lead {
+      font-size: 22px;
+      max-width: 720px;
+      color: var(--tinta);
+      line-height: 1.5;
+      margin-bottom: 48px;
+    }
+    
+    .ds-header .meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      max-width: 720px;
+      padding-top: 32px;
+      border-top: 1px solid var(--piedra-soft);
+    }
+    
+    .ds-header .meta-item .label {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    
+    .ds-header .meta-item .value {
+      font-family: var(--serif);
+      font-size: 18px;
+    }
+    
+    section {
+      padding: 80px 0;
+      border-bottom: 1px solid var(--piedra-light);
+    }
+    
+    section:last-of-type { border-bottom: none; }
+    
+    .section-num {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--cobre);
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+    
+    section h2 {
+      font-family: var(--serif);
+      font-size: 56px;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+    
+    section h2 em {
+      font-style: italic;
+      color: var(--salvia);
+    }
+    
+    section .intro {
+      font-size: 19px;
+      max-width: 720px;
+      color: var(--tinta);
+      line-height: 1.5;
+      margin-bottom: 56px;
+    }
+    
+    h3 {
+      font-family: var(--serif);
+      font-size: 32px;
+      letter-spacing: -1px;
+      font-weight: 400;
+      margin: 48px 0 20px;
+    }
+    
+    h4 {
+      font-family: var(--serif);
+      font-size: 22px;
+      letter-spacing: -0.5px;
+      font-weight: 400;
+      margin: 32px 0 16px;
+    }
+    
+    .label {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+    
+    /* ==========================================================================
+       SECCIÓN 01 — FOUNDATIONS
+       ========================================================================== */
+    
+    .principios-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-top: 1px solid var(--tinta);
+    }
+    
+    .principio {
+      padding: 32px 0;
+      border-bottom: 1px solid var(--piedra-light);
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 24px;
+    }
+    
+    .principio:nth-child(odd) {
+      padding-right: 32px;
+      border-right: 1px solid var(--piedra-light);
+    }
+    
+    .principio:nth-child(even) { padding-left: 32px; }
+    
+    .principio-num {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 24px;
+      color: var(--cobre);
+    }
+    
+    .principio h4 { margin: 0 0 8px; font-size: 20px; }
+    .principio p { color: var(--piedra); font-size: 14px; line-height: 1.5; }
+    
+    /* ==========================================================================
+       SECCIÓN 02 — TOKENS (color cards)
+       ========================================================================== */
+    
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 24px;
+    }
+    
+    .color-family {
+      margin-bottom: 56px;
+    }
+    
+    .color-family-label {
+      font-family: var(--serif);
+      font-size: 28px;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .color-family-desc {
+      color: var(--piedra);
+      font-size: 14px;
+      margin-bottom: 24px;
+      max-width: 600px;
+    }
+    
+    .color-scale {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    
+    .color-card {
+      border: 1px solid var(--piedra-light);
+      overflow: hidden;
+    }
+    
+    .color-swatch {
+      height: 80px;
+      width: 100%;
+    }
+    
+    .color-info {
+      padding: 12px;
+      background: var(--crema);
+    }
+    
+    .color-info .name {
+      font-family: var(--serif);
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    
+    .color-info .hex {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--piedra);
+    }
+    
+    .color-info .role {
+      font-size: 10px;
+      color: var(--piedra);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    
+    /* Color usage table */
+    .usage-table {
+      border-top: 1px solid var(--tinta);
+      margin-top: 32px;
+    }
+    
+    .usage-row {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 32px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--piedra-light);
+      align-items: center;
+    }
+    
+    .usage-token {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--tinta);
+    }
+    
+    .usage-desc {
+      font-size: 14px;
+      color: var(--piedra);
+    }
+    
+    /* ==========================================================================
+       SECCIÓN 03 — TYPOGRAPHY
+       ========================================================================== */
+    
+    .type-spec {
+      padding: 32px 0;
+      border-bottom: 1px solid var(--piedra-light);
+    }
+    
+    .type-spec-meta {
+      display: flex;
+      gap: 24px;
+      align-items: baseline;
+      margin-bottom: 16px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--piedra);
+    }
+    
+    .type-spec-meta strong {
+      color: var(--tinta);
+      font-weight: 500;
+    }
+    
+    .type-display { font-family: var(--serif); font-size: 88px; line-height: 1; letter-spacing: -3px; font-weight: 400; }
+    .type-h1 { font-family: var(--serif); font-size: 64px; line-height: 1.1; letter-spacing: -2px; font-weight: 400; }
+    .type-h2 { font-family: var(--serif); font-size: 48px; line-height: 1.1; letter-spacing: -1.5px; font-weight: 400; }
+    .type-h3 { font-family: var(--serif); font-size: 36px; line-height: 1.2; letter-spacing: -1px; font-weight: 400; }
+    .type-h4 { font-family: var(--serif); font-size: 28px; line-height: 1.2; letter-spacing: -0.5px; font-weight: 400; }
+    .type-lg { font-family: var(--sans); font-size: 22px; line-height: 1.5; }
+    .type-base { font-family: var(--sans); font-size: 16px; line-height: 1.6; }
+    .type-sm { font-family: var(--sans); font-size: 14px; line-height: 1.5; color: var(--piedra); }
+    .type-xs { font-family: var(--sans); font-size: 12px; line-height: 1.5; color: var(--piedra); }
+    .type-eyebrow { font-family: var(--sans); font-size: 12px; letter-spacing: 3px; color: var(--piedra); text-transform: uppercase; font-weight: 500; }
+    
+    /* ==========================================================================
+       SECCIÓN — SPACING
+       ========================================================================== */
+    
+    .spacing-row {
+      display: grid;
+      grid-template-columns: 80px 80px 1fr;
+      gap: 32px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--piedra-light);
+      align-items: center;
+    }
+    
+    .spacing-token { font-family: var(--mono); font-size: 12px; }
+    .spacing-value { font-family: var(--mono); font-size: 12px; color: var(--piedra); }
+    .spacing-bar {
+      background: var(--salvia);
+      height: 16px;
+    }
+    
+    /* ==========================================================================
+       SECCIÓN — COMPONENTS
+       ========================================================================== */
+    
+    .component-block {
+      margin: 48px 0;
+      padding: 48px;
+      background: var(--crema-soft);
+      border: 1px solid var(--piedra-light);
+    }
+    
+    .component-block h4 {
+      margin-top: 0;
+    }
+    
+    .component-demo {
+      padding: 32px 0;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    
+    .component-code {
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--tinta);
+      color: var(--crema);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 28px;
+      background: var(--tinta);
+      color: var(--crema);
+      text-decoration: none;
+      font-family: var(--sans);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      border: none;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    
+    .btn:hover { background: var(--salvia); transform: translateY(-2px); }
+    .btn::after { content: '→'; transition: transform 0.3s; }
+    .btn:hover::after { transform: translateX(4px); }
+    
+    .btn-secondary {
+      background: transparent;
+      color: var(--tinta);
+      border: 1px solid var(--tinta);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--tinta);
+      color: var(--crema);
+    }
+    
+    .btn-tertiary {
+      background: transparent;
+      color: var(--salvia);
+      padding: 14px 0;
+      border-bottom: 1px solid var(--salvia);
+      border-radius: 0;
+    }
+    
+    .btn-tertiary:hover {
+      color: var(--cobre);
+      border-color: var(--cobre);
+      transform: none;
+    }
+    
+    .btn-sm { padding: 10px 20px; font-size: 13px; }
+    .btn-lg { padding: 18px 36px; font-size: 16px; }
+    
+    /* Inputs */
+    .input {
+      width: 100%;
+      max-width: 400px;
+      padding: 14px 16px;
+      background: var(--crema);
+      color: var(--tinta);
+      font-family: var(--sans);
+      font-size: 15px;
+      border: 1px solid var(--piedra-soft);
+      border-radius: 2px;
+      transition: border-color 0.2s;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: var(--salvia);
+    }
+    
+    .input-label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    
+    /* Cards */
+    .card {
+      padding: 32px;
+      background: var(--crema);
+      border: 1px solid var(--piedra-light);
+      transition: all 0.3s;
+    }
+    
+    .card:hover {
+      border-color: var(--tinta);
+    }
+    
+    .card-eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--cobre);
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    
+    .card h4 { margin: 0 0 12px; font-size: 22px; }
+    .card p { color: var(--piedra); font-size: 14px; line-height: 1.6; margin: 0; }
+    
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    
+    /* Badges / Tags */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+      border-radius: 2px;
+    }
+    
+    .badge-default { background: var(--tinta); color: var(--crema); }
+    .badge-accent { background: var(--salvia); color: var(--crema); }
+    .badge-highlight { background: var(--cobre); color: var(--crema); }
+    .badge-outline { background: transparent; color: var(--tinta); border: 1px solid var(--tinta); }
+    
+    /* Editorial blockquote */
+    .quote {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 26px;
+      line-height: 1.4;
+      color: var(--tinta);
+      padding-left: 24px;
+      border-left: 2px solid var(--cobre);
+      max-width: 720px;
+      margin: 32px 0;
+    }
+    
+    .quote-attr {
+      display: block;
+      font-style: normal;
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--piedra);
+      margin-top: 16px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    
+    /* Number display (para stats, métricas) */
+    .stat {
+      padding-top: 16px;
+      border-top: 1px solid var(--tinta);
+    }
+    
+    .stat-value {
+      font-family: var(--serif);
+      font-size: 64px;
+      line-height: 1;
+      letter-spacing: -2px;
+      color: var(--cobre);
+      margin-bottom: 8px;
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--piedra);
+      text-transform: uppercase;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+    
+    /* ==========================================================================
+       SECCIÓN — PATTERNS (mini-mockups)
+       ========================================================================== */
+    
+    .pattern-block {
+      margin: 32px 0;
+      border: 1px solid var(--piedra-light);
+      overflow: hidden;
+    }
+    
+    .pattern-meta {
+      padding: 12px 24px;
+      background: var(--crema-soft);
+      border-bottom: 1px solid var(--piedra-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .pattern-name {
+      font-size: 13px;
+      letter-spacing: 1.5px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    
+    .pattern-content {
+      background: var(--crema);
+    }
+    
+    /* Pattern: Hero */
+    .demo-hero {
+      padding: 80px 48px;
+      background: var(--crema);
+    }
+    
+    .demo-hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    
+    .demo-hero h1 {
+      font-family: var(--serif);
+      font-size: 56px;
+      line-height: 1;
+      letter-spacing: -2px;
+      font-weight: 400;
+      max-width: 700px;
+      margin-bottom: 24px;
+    }
+    
+    .demo-hero h1 em {
+      font-style: italic;
+      color: var(--salvia);
+    }
+    
+    .demo-hero p {
+      font-size: 18px;
+      max-width: 540px;
+      margin-bottom: 32px;
+    }
+    
+    /* Pattern: Inverse hero */
+    .demo-hero-inverse {
+      padding: 80px 48px;
+      background: var(--tinta);
+      color: var(--crema);
+    }
+    
+    .demo-hero-inverse h1 em {
+      color: var(--cobre);
+    }
+    
+    /* Pattern: Footer */
+    .demo-footer {
+      padding: 48px;
+      background: var(--crema);
+      border-top: 1px solid var(--tinta);
+    }
+    
+    .demo-footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 32px;
+    }
+    
+    .demo-footer h5 {
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      color: var(--piedra);
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    
+    .demo-footer a {
+      display: block;
+      color: var(--tinta);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 8px;
+      opacity: 0.8;
+    }
+    
+    /* Pattern: Email signature */
+    .demo-signature {
+      padding: 24px;
+      background: var(--crema);
+      max-width: 500px;
+      font-family: var(--sans);
+    }
+    
+    .demo-signature-name {
+      font-family: var(--serif);
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+    
+    .demo-signature-title {
+      font-size: 13px;
+      color: var(--piedra);
+      margin-bottom: 12px;
+    }
+    
+    .demo-signature-divider {
+      width: 40px;
+      height: 1px;
+      background: var(--salvia);
+      margin: 12px 0;
+    }
+    
+    .demo-signature-meta {
+      font-size: 12px;
+      color: var(--piedra);
+      line-height: 1.6;
+    }
+    
+    /* ==========================================================================
+       SECCIÓN — APPLICATIONS / PLATAFORMAS
+       ========================================================================== */
+    
+    .platform-list {
+      border-top: 1px solid var(--tinta);
+    }
+    
+    .platform-row {
+      display: grid;
+      grid-template-columns: 60px 1fr 200px 140px;
+      gap: 24px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--piedra-light);
+      align-items: baseline;
+    }
+    
+    .platform-num {
+      font-family: var(--serif);
+      font-size: 24px;
+      color: var(--salvia);
+    }
+    
+    .platform-name {
+      font-family: var(--serif);
+      font-size: 22px;
+      letter-spacing: -0.5px;
+    }
+    
+    .platform-desc {
+      font-size: 13px;
+      color: var(--piedra);
+      grid-column: 2 / 5;
+      margin-top: 4px;
+    }
+    
+    .platform-status {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    
+    .status-now { color: var(--success); font-weight: 500; }
+    .status-soon { color: var(--cobre); font-weight: 500; }
+    .status-future { color: var(--piedra); }
+    
+    /* ==========================================================================
+       MOTION DEMO
+       ========================================================================== */
+    
+    .motion-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+    
+    .motion-demo {
+      padding: 24px;
+      border: 1px solid var(--piedra-light);
+      background: var(--crema);
+    }
+    
+    .motion-demo-name {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--piedra);
+      margin-bottom: 16px;
+    }
+    
+    .motion-box {
+      width: 60px;
+      height: 60px;
+      background: var(--salvia);
+      border-radius: 2px;
+      animation-iteration-count: infinite;
+      animation-duration: 2s;
+    }
+    
+    .motion-box-fast { animation: slide 2s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)) infinite; }
+    
+    @keyframes slide {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(120px); }
+    }
+    
+    /* ==========================================================================
+       RESPONSIVE
+       ========================================================================== */
+    
+    @media (max-width: 1024px) {
+      .ds-layout { grid-template-columns: 1fr; }
+      aside { position: relative; height: auto; }
+      main { padding: 48px 32px 120px; }
+      .ds-header h1 { font-size: 56px; letter-spacing: -2px; }
+      .ds-header .meta { grid-template-columns: 1fr; gap: 16px; }
+      section h2 { font-size: 40px; }
+      .principios-grid { grid-template-columns: 1fr; }
+      .principio:nth-child(odd) { padding-right: 0; border-right: none; }
+      .principio:nth-child(even) { padding-left: 0; }
+      .card-grid, .stats-grid { grid-template-columns: 1fr; }
+      .platform-row { grid-template-columns: 40px 1fr; }
+      .platform-status { grid-column: 2; }
+    }
+    
+  </style>
+</head>
+<body>
+  
+  <div class="ds-layout">
+    
+    <!-- ========================================================================
+         SIDEBAR
+         ======================================================================== -->
+    <aside>
+      <div class="ds-brand">
+        <div class="ds-brand-symbol"></div>
+        <span class="ds-brand-name">Slowcraft</span>
+      </div>
+      <div class="ds-tagline">DESIGN SYSTEM · v2.0</div>
+      
+      <div class="ds-nav-section">
+        <h4>Foundations</h4>
+        <a href="#foundations"><span class="num">01</span>Filosofía</a>
+        <a href="#tokens"><span class="num">02</span>Color tokens</a>
+        <a href="#typography"><span class="num">03</span>Tipografía</a>
+        <a href="#spacing"><span class="num">04</span>Espaciado</a>
+        <a href="#layout"><span class="num">05</span>Grid & Layout</a>
+      </div>
+      
+      <div class="ds-nav-section">
+        <h4>Components</h4>
+        <a href="#buttons"><span class="num">06</span>Botones</a>
+        <a href="#inputs"><span class="num">07</span>Forms & Inputs</a>
+        <a href="#cards"><span class="num">08</span>Cards</a>
+        <a href="#badges"><span class="num">09</span>Badges</a>
+        <a href="#editorial"><span class="num">10</span>Editorial</a>
+      </div>
+      
+      <div class="ds-nav-section">
+        <h4>Patterns</h4>
+        <a href="#patterns"><span class="num">11</span>Patrones</a>
+        <a href="#motion"><span class="num">12</span>Motion</a>
+      </div>
+      
+      <div class="ds-nav-section">
+        <h4>Apply</h4>
+        <a href="#platforms"><span class="num">13</span>Plataformas</a>
+        <a href="#integration"><span class="num">14</span>Cómo integrar</a>
+      </div>
+      
+      <div class="ds-nav-section">
+        <h4>Service Architecture · v2</h4>
+        <a href="#layered-architecture"><span class="num">15</span>Strategy + Programs</a>
+        <a href="#program-card"><span class="num">16</span>Program Card</a>
+        <a href="#pitch-line"><span class="num">17</span>Pitch line</a>
+      </div>
+    </aside>
+    
+    <!-- ========================================================================
+         MAIN
+         ======================================================================== -->
+    <main>
+      
+      <!-- HEADER -->
+      <header class="ds-header">
+        <div class="eyebrow">SLOWCRAFT · DESIGN SYSTEM v1.0</div>
+        <h1>Sistema de <em>diseño.</em></h1>
+        <p class="lead">La biblioteca técnica que convierte cualquier superficie nueva en una pieza coherente de Slowcraft. Tokens, componentes y patrones — listos para producción.</p>
+        
+        <div class="meta">
+          <div class="meta-item">
+            <div class="label">VERSIÓN</div>
+            <div class="value">1.0</div>
+          </div>
+          <div class="meta-item">
+            <div class="label">ÚLTIMA ACTUALIZACIÓN</div>
+            <div class="value">Mayo 2026</div>
+          </div>
+          <div class="meta-item">
+            <div class="label">CSS TOKENS</div>
+            <div class="value">slowcraft_tokens.css</div>
+          </div>
+        </div>
+      </header>
+      
+      <!-- ========================================================================
+           SECCIÓN 01 — FOUNDATIONS
+           ======================================================================== -->
+      <section id="foundations">
+        <div class="section-num">01 / FOUNDATIONS</div>
+        <h2>Cinco principios <em>de diseño técnico.</em></h2>
+        <p class="intro">Antes de cualquier componente, las reglas que rigen cómo se ven y se sienten todas las superficies Slowcraft.</p>
+        
+        <div class="principios-grid">
+          <div class="principio">
+            <div class="principio-num">i.</div>
+            <div>
+              <h4>Editorial sobre decorativo.</h4>
+              <p>Cada pieza se piensa como una página de revista de arquitectura. Las palabras importan más que los gráficos.</p>
+            </div>
+          </div>
+          <div class="principio">
+            <div class="principio-num">ii.</div>
+            <div>
+              <h4>Whitespace activo.</h4>
+              <p>El espacio respira y comunica. Nunca llenamos por miedo al vacío. El blanco es contenido, no ausencia.</p>
+            </div>
+          </div>
+          <div class="principio">
+            <div class="principio-num">iii.</div>
+            <div>
+              <h4>Líneas finas y deliberadas.</h4>
+              <p>1px en verde salvia para divisiones. Nunca cajas pesadas, nunca bordes gruesos. La estructura se sugiere, no se grita.</p>
+            </div>
+          </div>
+          <div class="principio">
+            <div class="principio-num">iv.</div>
+            <div>
+              <h4>Tipografía como protagonista.</h4>
+              <p>Una serif y una sans. Nunca tres familias. Máximo dos pesos por página. La jerarquía es por tamaño, no por color.</p>
+            </div>
+          </div>
+          <div class="principio">
+            <div class="principio-num">v.</div>
+            <div>
+              <h4>Acentos raros, nunca constantes.</h4>
+              <p>El cobre es excepcional, no recurrente. Como un sello editorial: un punto, una línea, una cita. Si está en todos lados, no acentúa nada.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 02 — COLOR TOKENS
+           ======================================================================== -->
+      <section id="tokens">
+        <div class="section-num">02 / COLOR TOKENS</div>
+        <h2>Sistema de <em>color.</em></h2>
+        <p class="intro">Cinco familias. Múltiples escalas. Cada token tiene un rol semántico que dicta dónde se usa.</p>
+        
+        <!-- TINTA -->
+        <div class="color-family">
+          <div class="color-family-label">Tinta</div>
+          <div class="color-family-desc">Negro suavizado para tipografía, logo y líneas. Nunca negro absoluto — siempre con calidez.</div>
+          <div class="color-scale">
+            <div class="color-card">
+              <div class="color-swatch" style="background:#0F0F0E"></div>
+              <div class="color-info"><div class="name">tinta-100</div><div class="hex">#0F0F0E</div><div class="role">PRIMARIO</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#1A1A18"></div>
+              <div class="color-info"><div class="name">tinta-90</div><div class="hex">#1A1A18</div><div class="role">HOVER STATES</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#2A2A28"></div>
+              <div class="color-info"><div class="name">tinta-80</div><div class="hex">#2A2A28</div><div class="role">FONDO PRESENTACIÓN</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#3D3D3A"></div>
+              <div class="color-info"><div class="name">tinta-70</div><div class="hex">#3D3D3A</div><div class="role">TEXTO INVERSO</div></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- CREMA -->
+        <div class="color-family">
+          <div class="color-family-label">Crema</div>
+          <div class="color-family-desc">Fondos cálidos. Reemplaza el blanco puro. Da textura y respiración editorial.</div>
+          <div class="color-scale">
+            <div class="color-card">
+              <div class="color-swatch" style="background:#F5F1EA;border:1px solid #DDD8D0"></div>
+              <div class="color-info"><div class="name">crema-100</div><div class="hex">#F5F1EA</div><div class="role">BASE / FONDO</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#EFEAE0"></div>
+              <div class="color-info"><div class="name">crema-90</div><div class="hex">#EFEAE0</div><div class="role">FONDO SECUNDARIO</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#E8E3DA"></div>
+              <div class="color-info"><div class="name">crema-80</div><div class="hex">#E8E3DA</div><div class="role">FONDO TERCIARIO</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#DDD7CC"></div>
+              <div class="color-info"><div class="name">crema-70</div><div class="hex">#DDD7CC</div><div class="role">DIVISORES SUTILES</div></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- SALVIA -->
+        <div class="color-family">
+          <div class="color-family-label">Salvia</div>
+          <div class="color-family-desc">Verde profundo. Acento principal: CTAs, links activos, divisiones editoriales. Naturaleza + criterio.</div>
+          <div class="color-scale">
+            <div class="color-card">
+              <div class="color-swatch" style="background:#3A4F41"></div>
+              <div class="color-info"><div class="name">salvia-100</div><div class="hex">#3A4F41</div><div class="role">ACENTO PRIMARIO</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#4A5F51"></div>
+              <div class="color-info"><div class="name">salvia-90</div><div class="hex">#4A5F51</div><div class="role">HOVER LINKS</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#5C705F"></div>
+              <div class="color-info"><div class="name">salvia-80</div><div class="hex">#5C705F</div><div class="role">DETALLES</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#738373"></div>
+              <div class="color-info"><div class="name">salvia-70</div><div class="hex">#738373</div><div class="role">DETALLES SUTILES</div></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- COBRE -->
+        <div class="color-family">
+          <div class="color-family-label">Cobre</div>
+          <div class="color-family-desc">Tierra cálida. Acento editorial raro: cifras importantes, citas, puntos decorativos. Nunca recurrente.</div>
+          <div class="color-scale">
+            <div class="color-card">
+              <div class="color-swatch" style="background:#A8593D"></div>
+              <div class="color-info"><div class="name">cobre-100</div><div class="hex">#A8593D</div><div class="role">ACENTO EDITORIAL</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#B86949"></div>
+              <div class="color-info"><div class="name">cobre-90</div><div class="hex">#B86949</div><div class="role">HOVER ACCENTS</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#C77A57"></div>
+              <div class="color-info"><div class="name">cobre-80</div><div class="hex">#C77A57</div><div class="role">DETALLES</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#D08C6E"></div>
+              <div class="color-info"><div class="name">cobre-70</div><div class="hex">#D08C6E</div><div class="role">DETALLES SUTILES</div></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PIEDRA -->
+        <div class="color-family">
+          <div class="color-family-label">Piedra</div>
+          <div class="color-family-desc">Neutrales cálidos. Texto secundario, captions, borders, microcopy.</div>
+          <div class="color-scale">
+            <div class="color-card">
+              <div class="color-swatch" style="background:#4D4945"></div>
+              <div class="color-info"><div class="name">piedra-100</div><div class="hex">#4D4945</div><div class="role">TEXTO ÉNFASIS</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#7A7570"></div>
+              <div class="color-info"><div class="name">piedra-80</div><div class="hex">#7A7570</div><div class="role">TEXTO SECUNDARIO</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#B5B0A8"></div>
+              <div class="color-info"><div class="name">piedra-60</div><div class="hex">#B5B0A8</div><div class="role">BORDERS</div></div>
+            </div>
+            <div class="color-card">
+              <div class="color-swatch" style="background:#DDD8D0"></div>
+              <div class="color-info"><div class="name">piedra-40</div><div class="hex">#DDD8D0</div><div class="role">DIVIDERS SUTILES</div></div>
+            </div>
+          </div>
+        </div>
+        
+        <h3>Tokens semánticos</h3>
+        <p>Estos son los que usas en CSS. Si cambian aquí, cambia todo el sistema:</p>
+        
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">--bg-primary</div><div class="usage-desc">Fondo por defecto de cualquier página · crema-100</div></div>
+          <div class="usage-row"><div class="usage-token">--bg-secondary</div><div class="usage-desc">Fondo de secciones contrastantes · crema-90</div></div>
+          <div class="usage-row"><div class="usage-token">--bg-inverse</div><div class="usage-desc">Fondo oscuro (hero alterno, secciones especiales) · tinta-100</div></div>
+          <div class="usage-row"><div class="usage-token">--text-primary</div><div class="usage-desc">Color de texto por defecto · tinta-100</div></div>
+          <div class="usage-row"><div class="usage-token">--text-secondary</div><div class="usage-desc">Texto auxiliar, captions · piedra-80</div></div>
+          <div class="usage-row"><div class="usage-token">--text-accent</div><div class="usage-desc">Itálicas en headlines, énfasis · salvia-100</div></div>
+          <div class="usage-row"><div class="usage-token">--text-highlight</div><div class="usage-desc">Cifras destacadas, citas raras · cobre-100</div></div>
+          <div class="usage-row"><div class="usage-token">--border-default</div><div class="usage-desc">Bordes principales · rgba(15,15,14,0.15)</div></div>
+          <div class="usage-row"><div class="usage-token">--border-strong</div><div class="usage-desc">Divisiones de sección · tinta-100</div></div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 03 — TYPOGRAPHY
+           ======================================================================== -->
+      <section id="typography">
+        <div class="section-num">03 / TYPOGRAPHY</div>
+        <h2>Escala <em>tipográfica.</em></h2>
+        <p class="intro">Una serif para autoridad editorial, una sans para claridad funcional. Cada nivel tiene un rol específico.</p>
+        
+        <h3>Familias</h3>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>SERIF · Display, Headlines, Citas</strong>
+            <span>Newsreader / GT Sectra / Tiempos Headline</span>
+          </div>
+          <div class="type-display">Newsreader</div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>SANS · Body, UI, Microcopy</strong>
+            <span>Inter / Söhne / GT America</span>
+          </div>
+          <div style="font-family: var(--sans); font-size: 64px; font-weight: 500; letter-spacing: -2px;">Inter</div>
+        </div>
+        
+        <h3>Escala completa</h3>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-6xl</strong><span>112px / 7rem</span><span>line-height 1</span><span>tracking -3px</span><span>SERIF</span>
+          </div>
+          <div class="type-display" style="font-size: 96px;">Display</div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-4xl</strong><span>64px / 4rem</span><span>line-height 1.1</span><span>tracking -2px</span><span>SERIF</span>
+          </div>
+          <div class="type-h1">Heading 1 — La IA es la mano <em style="font-style:italic; color:var(--salvia)">derecha del talento.</em></div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-3xl</strong><span>48px / 3rem</span><span>line-height 1.1</span><span>tracking -1.5px</span><span>SERIF</span>
+          </div>
+          <div class="type-h2">Heading 2 — Tres fases. Una arquitectura.</div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-2xl</strong><span>36px / 2.25rem</span><span>line-height 1.2</span><span>tracking -1px</span><span>SERIF</span>
+          </div>
+          <div class="type-h3">Heading 3 — Cómo trabajamos</div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-xl</strong><span>28px / 1.75rem</span><span>line-height 1.2</span><span>tracking -0.5px</span><span>SERIF</span>
+          </div>
+          <div class="type-h4">Heading 4 — Diagnóstico</div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-md</strong><span>18px / 1.125rem</span><span>line-height 1.5</span><span>SANS</span>
+          </div>
+          <div class="type-lg">Body large — Diseñamos los flujos de trabajo donde el talento humano y la IA hacen lo que cada uno mejor sabe hacer. Sin reemplazos. Sin atajos.</div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-base</strong><span>16px / 1rem</span><span>line-height 1.6</span><span>SANS</span>
+          </div>
+          <div class="type-base">Body default — Esta es la jerarquía base de párrafo. Para body text en landing, descripciones de servicios, contenido editorial, y cualquier texto extenso. Mantiene legibilidad sin agotar al lector.</div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-sm</strong><span>14px / 0.875rem</span><span>line-height 1.5</span><span>SANS</span>
+          </div>
+          <div class="type-sm">Body small — Para captions, descripciones de servicios en cards, metadata expandida, footer copy.</div>
+        </div>
+        
+        <div class="type-spec">
+          <div class="type-spec-meta">
+            <strong>--text-xs</strong><span>12px / 0.75rem</span><span>tracking 3px</span><span>SANS · UPPERCASE</span>
+          </div>
+          <div class="type-eyebrow">EYEBROW · ETIQUETAS · METADATA</div>
+        </div>
+        
+        <h3>Reglas tipográficas</h3>
+        <div class="card">
+          <h4 style="margin-top: 0">Las cinco reglas inviolables</h4>
+          <p style="margin-bottom: 12px">— Una serif y una sans. Nunca tres familias en la misma página.</p>
+          <p style="margin-bottom: 12px">— Máximo dos pesos por página (regular 400 + medium 500).</p>
+          <p style="margin-bottom: 12px">— Letterspacing apretado (-1 a -3) en serif display. Nunca expandido.</p>
+          <p style="margin-bottom: 12px">— Letterspacing amplio (+2 a +4) en mayúsculas para etiquetas y eyebrows.</p>
+          <p>— Cursivas solo en serif, para citas o énfasis editorial. Nunca en sans.</p>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 04 — SPACING
+           ======================================================================== -->
+      <section id="spacing">
+        <div class="section-num">04 / SPACING</div>
+        <h2>Sistema de <em>espaciado.</em></h2>
+        <p class="intro">Todo es múltiplo de 4. Esto crea ritmo visual y consistencia matemática en toda superficie Slowcraft.</p>
+        
+        <div style="margin-top: 32px; border-top: 1px solid var(--tinta);">
+          <div class="spacing-row"><div class="spacing-token">--space-1</div><div class="spacing-value">4px</div><div class="spacing-bar" style="width: 4px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-2</div><div class="spacing-value">8px</div><div class="spacing-bar" style="width: 8px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-3</div><div class="spacing-value">12px</div><div class="spacing-bar" style="width: 12px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-4</div><div class="spacing-value">16px</div><div class="spacing-bar" style="width: 16px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-6</div><div class="spacing-value">24px</div><div class="spacing-bar" style="width: 24px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-8</div><div class="spacing-value">32px</div><div class="spacing-bar" style="width: 32px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-12</div><div class="spacing-value">48px</div><div class="spacing-bar" style="width: 48px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-16</div><div class="spacing-value">64px</div><div class="spacing-bar" style="width: 64px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-24</div><div class="spacing-value">96px</div><div class="spacing-bar" style="width: 96px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-32</div><div class="spacing-value">128px</div><div class="spacing-bar" style="width: 128px;"></div></div>
+          <div class="spacing-row"><div class="spacing-token">--space-48</div><div class="spacing-value">192px</div><div class="spacing-bar" style="width: 192px;"></div></div>
+        </div>
+        
+        <h3>Tokens semánticos</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">--space-section</div><div class="usage-desc">Padding vertical entre secciones de página · 128px</div></div>
+          <div class="usage-row"><div class="usage-token">--space-block</div><div class="usage-desc">Entre bloques dentro de una sección · 64px</div></div>
+          <div class="usage-row"><div class="usage-token">--space-element</div><div class="usage-desc">Entre elementos relacionados · 24px</div></div>
+          <div class="usage-row"><div class="usage-token">--space-tight</div><div class="usage-desc">Entre elementos muy ligados · 8px</div></div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 05 — LAYOUT & GRID
+           ======================================================================== -->
+      <section id="layout">
+        <div class="section-num">05 / LAYOUT & GRID</div>
+        <h2>Grid y <em>contenedores.</em></h2>
+        <p class="intro">Sistema de 12 columnas con breakpoints estándar. Containers max-width que dictan respiración.</p>
+        
+        <h3>Breakpoints</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">sm</div><div class="usage-desc">640px · móvil grande</div></div>
+          <div class="usage-row"><div class="usage-token">md</div><div class="usage-desc">768px · tablet vertical</div></div>
+          <div class="usage-row"><div class="usage-token">lg</div><div class="usage-desc">1024px · tablet horizontal / desktop pequeño</div></div>
+          <div class="usage-row"><div class="usage-token">xl</div><div class="usage-desc">1280px · desktop estándar (target principal)</div></div>
+          <div class="usage-row"><div class="usage-token">2xl</div><div class="usage-desc">1536px · ultra-wide</div></div>
+        </div>
+        
+        <h3>Containers</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">--container-sm</div><div class="usage-desc">640px · contenido editorial focal (citas, formularios)</div></div>
+          <div class="usage-row"><div class="usage-token">--container-md</div><div class="usage-desc">768px · texto largo (case studies, blog)</div></div>
+          <div class="usage-row"><div class="usage-token">--container-lg</div><div class="usage-desc">1024px · contenido medio</div></div>
+          <div class="usage-row"><div class="usage-token">--container-xl</div><div class="usage-desc">1280px · contenedor principal (landing, deck)</div></div>
+          <div class="usage-row"><div class="usage-token">--container-2xl</div><div class="usage-desc">1440px · uso especial (dashboards, hero ultra-wide)</div></div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 06 — BUTTONS
+           ======================================================================== -->
+      <section id="buttons">
+        <div class="section-num">06 / COMPONENTS / BUTTONS</div>
+        <h2>Botones.</h2>
+        <p class="intro">Tres jerarquías. Hover sutil con micro-elevación. Flecha animada para señalar dirección.</p>
+        
+        <div class="component-block">
+          <h4>Primary</h4>
+          <div class="component-demo">
+            <button class="btn btn-sm">Conversemos</button>
+            <button class="btn">Agenda una conversación</button>
+            <button class="btn btn-lg">hola@slowcraft.ai</button>
+          </div>
+          <div class="component-code">&lt;button class="btn"&gt;Agenda una conversación&lt;/button&gt;</div>
+        </div>
+        
+        <div class="component-block">
+          <h4>Secondary</h4>
+          <div class="component-demo">
+            <button class="btn btn-secondary btn-sm">Ver caso</button>
+            <button class="btn btn-secondary">Ver caso de estudio</button>
+            <button class="btn btn-secondary btn-lg">Descargar propuesta</button>
+          </div>
+          <div class="component-code">&lt;button class="btn btn-secondary"&gt;Ver caso&lt;/button&gt;</div>
+        </div>
+        
+        <div class="component-block">
+          <h4>Tertiary (text link)</h4>
+          <div class="component-demo">
+            <a href="#" class="btn btn-tertiary">Leer más sobre el método</a>
+          </div>
+          <div class="component-code">&lt;a href="#" class="btn btn-tertiary"&gt;Leer más&lt;/a&gt;</div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 07 — INPUTS
+           ======================================================================== -->
+      <section id="inputs">
+        <div class="section-num">07 / COMPONENTS / FORMS</div>
+        <h2>Inputs y <em>forms.</em></h2>
+        <p class="intro">Minimalistas, con label en mayúsculas. Border solo abajo en versión editorial.</p>
+        
+        <div class="component-block">
+          <h4>Input estándar</h4>
+          <div class="component-demo" style="display: block;">
+            <label class="input-label">EMAIL</label>
+            <input type="email" class="input" placeholder="hola@empresa.com">
+          </div>
+        </div>
+        
+        <div class="component-block">
+          <h4>Input editorial (border bottom)</h4>
+          <div class="component-demo" style="display: block;">
+            <label class="input-label">¿EN QUÉ ESTÁS TRABAJANDO?</label>
+            <input type="text" class="input" placeholder="Cuéntanos brevemente..." 
+                   style="border: none; border-bottom: 1px solid var(--tinta); background: transparent; padding-left: 0; max-width: 600px;">
+          </div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 08 — CARDS
+           ======================================================================== -->
+      <section id="cards">
+        <div class="section-num">08 / COMPONENTS / CARDS</div>
+        <h2>Cards.</h2>
+        <p class="intro">Borde sutil, mucho aire interno, eyebrow en cobre para categorización.</p>
+        
+        <div class="component-block" style="background: var(--crema)">
+          <h4 style="margin-top: 0">Card de servicio</h4>
+          <div class="card-grid" style="margin-top: 24px;">
+            <div class="card">
+              <div class="card-eyebrow">01 · STRATEGY</div>
+              <h4>AI Readiness</h4>
+              <p>Diagnóstico estratégico para empresas que quieren entrar bien a la era de IA.</p>
+            </div>
+            <div class="card">
+              <div class="card-eyebrow">02 · DESIGN</div>
+              <h4>Workflow Architecture</h4>
+              <p>Diseño detallado de flujos humano–IA para áreas críticas del negocio.</p>
+            </div>
+            <div class="card">
+              <div class="card-eyebrow">03 · DEPLOY</div>
+              <h4>Implementation Partner</h4>
+              <p>Acompañamos la implementación end-to-end hasta que el sistema funciona solo.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="component-block" style="background: var(--crema)">
+          <h4 style="margin-top: 0">Stat cards</h4>
+          <div class="stats-grid" style="margin-top: 24px;">
+            <div class="stat">
+              <div class="stat-value">35%</div>
+              <div class="stat-label">REDUCCIÓN DE TIEMPO EN CICLO</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">3x</div>
+              <div class="stat-label">VOLUMEN DE PROPUESTAS</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">100%</div>
+              <div class="stat-label">EQUIPO AUTÓNOMO</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 09 — BADGES
+           ======================================================================== -->
+      <section id="badges">
+        <div class="section-num">09 / COMPONENTS / BADGES</div>
+        <h2>Badges y <em>etiquetas.</em></h2>
+        <p class="intro">Sólidos, mayúsculas, letterspacing amplio. Para categorización y estados.</p>
+        
+        <div class="component-block">
+          <div class="component-demo">
+            <span class="badge badge-default">DEFAULT</span>
+            <span class="badge badge-accent">ACCENT</span>
+            <span class="badge badge-highlight">HIGHLIGHT</span>
+            <span class="badge badge-outline">OUTLINE</span>
+          </div>
+          <div class="component-code">&lt;span class="badge badge-default"&gt;DEFAULT&lt;/span&gt;</div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 10 — EDITORIAL
+           ======================================================================== -->
+      <section id="editorial">
+        <div class="section-num">10 / COMPONENTS / EDITORIAL</div>
+        <h2>Componentes <em>editoriales.</em></h2>
+        <p class="intro">Lo que distingue a Slowcraft de cualquier landing tech genérica: detalles editoriales premium.</p>
+        
+        <div class="component-block" style="background: var(--crema)">
+          <h4 style="margin-top: 0">Pull quote</h4>
+          <div class="quote">
+            La IA no reemplaza al humano. Lo amplifica. El humano no frena a la IA. La dirige.
+            <span class="quote-attr">— SLOWCRAFT MANIFIESTO</span>
+          </div>
+        </div>
+        
+        <div class="component-block" style="background: var(--crema)">
+          <h4 style="margin-top: 0">Divider editorial</h4>
+          <div style="width: 60px; height: 1px; background: var(--salvia); margin: 24px 0;"></div>
+          <div style="font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--piedra); margin-top: 8px;">"Una pequeña pausa visual entre ideas grandes."</div>
+        </div>
+        
+        <div class="component-block" style="background: var(--crema)">
+          <h4 style="margin-top: 0">Cobre dot accent</h4>
+          <div style="display: flex; align-items: center; gap: 16px; padding: 16px 0;">
+            <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--cobre); display: inline-block;"></span>
+            <span style="font-family: var(--serif); font-size: 18px;">Punto cobre como sello editorial</span>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 11 — PATTERNS
+           ======================================================================== -->
+      <section id="patterns">
+        <div class="section-num">11 / PATTERNS</div>
+        <h2>Patrones <em>de página.</em></h2>
+        <p class="intro">Composiciones que se repiten a través de las superficies. Cada uno tiene su lógica de uso.</p>
+        
+        <h3>Hero — variante crema</h3>
+        <div class="pattern-block">
+          <div class="pattern-meta">
+            <span class="pattern-name">PATTERN · HERO LIGHT</span>
+            <span class="pattern-name" style="color: var(--success)">USO PRIMARIO</span>
+          </div>
+          <div class="demo-hero">
+            <div class="demo-hero-eyebrow">SLOWCRAFT · AI STRATEGY · MÉXICO</div>
+            <h1>La IA es la mano derecha del <em>talento humano.</em></h1>
+            <p>Diseñamos los flujos donde tu equipo y la IA hacen lo que cada uno mejor sabe hacer.</p>
+            <button class="btn">Agenda una conversación</button>
+          </div>
+        </div>
+        
+        <h3>Hero — variante tinta</h3>
+        <div class="pattern-block">
+          <div class="pattern-meta">
+            <span class="pattern-name">PATTERN · HERO DARK</span>
+            <span class="pattern-name" style="color: var(--cobre)">USO ESPECIAL</span>
+          </div>
+          <div class="demo-hero-inverse">
+            <div class="demo-hero-eyebrow" style="color: var(--piedra-soft)">01 · NUESTRA TESIS</div>
+            <h1>La IA no reemplaza al humano. <em>Lo amplifica.</em></h1>
+            <p>El humano no frena a la IA. La dirige. Slowcraft diseña esa colaboración.</p>
+          </div>
+        </div>
+        
+        <h3>Email signature</h3>
+        <div class="pattern-block">
+          <div class="pattern-meta">
+            <span class="pattern-name">PATTERN · EMAIL SIGNATURE</span>
+            <span class="pattern-name" style="color: var(--success)">USO COMUNICACIÓN</span>
+          </div>
+          <div class="demo-signature">
+            <div class="demo-signature-name">Rodrigo [Apellido]</div>
+            <div class="demo-signature-title">Fundador, Slowcraft</div>
+            <div class="demo-signature-divider"></div>
+            <div class="demo-signature-meta">
+              hola@slowcraft.ai · slowcraft.ai<br>
+              Estrategia AI, deliberadamente diseñada
+            </div>
+          </div>
+        </div>
+        
+        <h3>Footer</h3>
+        <div class="pattern-block">
+          <div class="pattern-meta">
+            <span class="pattern-name">PATTERN · FOOTER</span>
+            <span class="pattern-name" style="color: var(--success)">USO LANDING / CASES</span>
+          </div>
+          <div class="demo-footer">
+            <div class="demo-footer-grid">
+              <div>
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                  <span style="width: 22px; height: 22px; border: 1.5px solid var(--tinta); border-radius: 50%; position: relative; overflow: hidden; display: inline-block;">
+                    <span style="position: absolute; top: 0; right: 0; width: 50%; height: 100%; background: var(--tinta); display: block;"></span>
+                  </span>
+                  <span style="font-family: var(--serif); font-size: 22px;">Slowcraft</span>
+                </div>
+                <p style="font-size: 14px; color: var(--piedra); max-width: 320px;">Estrategia AI, deliberadamente diseñada. La mano derecha del talento humano.</p>
+              </div>
+              <div>
+                <h5>Navegación</h5>
+                <a href="#">Tesis</a>
+                <a href="#">Método</a>
+                <a href="#">Servicios</a>
+              </div>
+              <div>
+                <h5>Contacto</h5>
+                <a href="#">hola@slowcraft.ai</a>
+                <a href="#">LinkedIn</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 12 — MOTION
+           ======================================================================== -->
+      <section id="motion">
+        <div class="section-num">12 / MOTION</div>
+        <h2>Movimiento <em>deliberado.</em></h2>
+        <p class="intro">Easings y duraciones. Slowcraft no es lento, pero tampoco es brusco. El movimiento se siente intencional.</p>
+        
+        <h3>Easings</h3>
+        <div class="motion-grid">
+          <div class="motion-demo">
+            <div class="motion-demo-name">--ease-out · default</div>
+            <div class="motion-box motion-box-fast" style="--ease: cubic-bezier(0.22, 1, 0.36, 1)"></div>
+          </div>
+          <div class="motion-demo">
+            <div class="motion-demo-name">--ease-editorial · fades</div>
+            <div class="motion-box motion-box-fast" style="--ease: cubic-bezier(0.4, 0, 0.2, 1)"></div>
+          </div>
+        </div>
+        
+        <h3>Duraciones</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">--duration-fast · 200ms</div><div class="usage-desc">Hover de botones, links, micro-feedback</div></div>
+          <div class="usage-row"><div class="usage-token">--duration-default · 300ms</div><div class="usage-desc">Transitions estándar, cards, inputs</div></div>
+          <div class="usage-row"><div class="usage-token">--duration-slow · 500ms</div><div class="usage-desc">Cambios de sección, modal entrances</div></div>
+          <div class="usage-row"><div class="usage-token">--duration-slower · 800ms</div><div class="usage-desc">Page transitions, fade-ins de scroll</div></div>
+          <div class="usage-row"><div class="usage-token">--duration-deliberate · 1000ms</div><div class="usage-desc">Hero animations al cargar (uso especial)</div></div>
+        </div>
+        
+        <h3>Reglas de motion</h3>
+        <div class="card">
+          <p style="margin-bottom: 12px">— Toda transición usa <code style="font-family:var(--mono);font-size:13px;color:var(--cobre)">ease-out</code> por defecto. Nunca <code style="font-family:var(--mono);font-size:13px;color:var(--cobre)">linear</code> excepto para loops.</p>
+          <p style="margin-bottom: 12px">— Hover de botones: 300ms. Translate-Y -2px + cambio de color.</p>
+          <p style="margin-bottom: 12px">— Fade-in de scroll: 800ms con delay escalonado de 200ms entre elementos.</p>
+          <p>— Si usuario tiene <code style="font-family:var(--mono);font-size:13px;color:var(--cobre)">prefers-reduced-motion</code>, todas las duraciones se reducen al mínimo.</p>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 13 — PLATFORMS
+           ======================================================================== -->
+      <section id="platforms">
+        <div class="section-num">13 / APPLY · PLATAFORMAS</div>
+        <h2>Dónde vive <em>Slowcraft.</em></h2>
+        <p class="intro">El sistema cubre estas superficies desde el día uno. Algunas son inmediatas, otras llegarán según crece la marca.</p>
+        
+        <div class="platform-list">
+          <div class="platform-row">
+            <div class="platform-num">01</div>
+            <div>
+              <div class="platform-name">Landing slowcraft.ai</div>
+              <div class="platform-desc">Sitio principal · primera impresión digital · convertir en conversaciones</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-now">DISPONIBLE</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">02</div>
+            <div>
+              <div class="platform-name">Deck de propuesta</div>
+              <div class="platform-desc">Plantilla 16:9 · cierre de proyectos · personalizable por cliente</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-now">DISPONIBLE</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">03</div>
+            <div>
+              <div class="platform-name">Brand book PDF</div>
+              <div class="platform-desc">Documento maestro de marca · referencia interna y externa</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-now">DISPONIBLE</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">04</div>
+            <div>
+              <div class="platform-name">Firma de email + plantillas</div>
+              <div class="platform-desc">Cada email es punto de contacto con la marca</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-soon">PRÓXIMAS SEMANAS</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">05</div>
+            <div>
+              <div class="platform-name">LinkedIn (personal + Company)</div>
+              <div class="platform-desc">Banners, avatares, copy de página, plantillas de posts</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-soon">PRÓXIMAS SEMANAS</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">06</div>
+            <div>
+              <div class="platform-name">Notion / Documentos cliente</div>
+              <div class="platform-desc">Plantillas de entregables, dashboards, reportes de proyecto</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-future">1–3 MESES</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">07</div>
+            <div>
+              <div class="platform-name">Case studies</div>
+              <div class="platform-desc">Páginas long-form editoriales · primer hito: cliente cerrado</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-future">3–6 MESES</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">08</div>
+            <div>
+              <div class="platform-name">Insights / Blog</div>
+              <div class="platform-desc">Lectura larga · genera demanda inbound a través de pensamiento</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-future">6–12 MESES</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">09</div>
+            <div>
+              <div class="platform-name">Plataforma cliente / Dashboard</div>
+              <div class="platform-desc">App con métricas en vivo de proyectos en curso</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-future">12+ MESES</div>
+          </div>
+          
+          <div class="platform-row">
+            <div class="platform-num">10</div>
+            <div>
+              <div class="platform-name">Email marketing / Newsletter</div>
+              <div class="platform-desc">Comunicación recurrente · audience building · pensamiento público</div>
+            </div>
+            <div></div>
+            <div class="platform-status status-future">6+ MESES</div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           SECCIÓN 14 — INTEGRATION
+           ======================================================================== -->
+      <section id="integration">
+        <div class="section-num">14 / APPLY · CÓMO INTEGRAR</div>
+        <h2>Cómo usar el <em>sistema.</em></h2>
+        <p class="intro">Tres formas de integrar Slowcraft Design System a cualquier proyecto, en orden de fricción creciente.</p>
+        
+        <h3>Opción 1 — Importar el CSS de tokens</h3>
+        <div class="card">
+          <p style="margin-bottom: 16px">La forma más rápida. Importa el archivo y todas las variables CSS quedan disponibles globalmente.</p>
+          <div class="component-code">@import url('slowcraft_tokens.css');</div>
+          <div class="component-code" style="margin-top: 8px;">// O en HTML:<br>&lt;link rel="stylesheet" href="slowcraft_tokens.css"&gt;</div>
+        </div>
+        
+        <h3>Opción 2 — Copiar componentes específicos</h3>
+        <div class="card">
+          <p>Si necesitas solo un botón, una card, o un patrón específico, cópialo directo de este documento. Cada bloque tiene el código mostrado al lado.</p>
+        </div>
+        
+        <h3>Opción 3 — Convertir a librería de componentes (futuro)</h3>
+        <div class="card">
+          <p>Cuando el proyecto crezca, los componentes se pueden empaquetar como librería de React/Vue. Esto se hace cuando hay 3+ proyectos consumiendo el sistema, no antes (over-engineering temprano).</p>
+        </div>
+        
+        <h3>Versionado del sistema</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">v1.0 · MAYO 2026</div><div class="usage-desc">Versión inicial · tokens, components, patterns base · soporte landing + deck</div></div>
+          <div class="usage-row"><div class="usage-token">v2.0 · MAYO 2026</div><div class="usage-desc">Service Architecture · capa Strategy + Programs · Program Card · Pitch line</div></div>
+          <div class="usage-row"><div class="usage-token">v2.1 · próximos 90 días</div><div class="usage-desc">Componentes nuevos según uso real: tablas, datepickers, dropdowns, modales</div></div>
+          <div class="usage-row"><div class="usage-token">v3.0 · 12 meses</div><div class="usage-desc">Re-arquitectura si hay app de cliente · librería de componentes empaquetada</div></div>
+        </div>
+        
+        <div style="margin-top: 80px; padding-top: 32px; border-top: 1px solid var(--tinta); font-family: var(--mono); font-size: 12px; color: var(--piedra);">
+          SLOWCRAFT DESIGN SYSTEM v2.0 · Mayo 2026 · Hecho con criterio en Ciudad de México
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           15 · LAYERED ARCHITECTURE
+           ======================================================================== -->
+      <section id="layered-architecture" class="ds-section">
+        <div class="eyebrow">15 · SERVICE ARCHITECTURE</div>
+        <h2>Strategy + Programs.<br><em>La doble capa.</em></h2>
+        <p class="lead">Slowcraft ofrece dos capas de servicios claramente diferenciadas. Toda comunicación externa (landing, propuestas, decks de venta) debe respetar esta separación. Es un principio de arquitectura del sistema, no un detalle de copy.</p>
+        
+        <div class="card-grid" style="grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 48px;">
+          <div class="card" style="background: var(--tinta); color: var(--crema); border: none;">
+            <div style="font-size: 10px; letter-spacing: 2.5px; color: var(--cobre); margin-bottom: 12px; font-weight: 600;">CAPA A · STRATEGY</div>
+            <h3 style="font-family: var(--serif); font-size: 28px; font-weight: 400; margin-bottom: 16px; letter-spacing: -1px;">Engagements de arquitectura</h3>
+            <p style="opacity: 0.8;">Para empresas que quieren repensar cómo trabajan con IA. Proyectos largos, transformacionales, alcance abierto. Tres servicios: AI Readiness · Workflow Architecture · Implementation Partner.</p>
+          </div>
+          <div class="card" style="background: var(--crema-soft); border-left: 3px solid var(--cobre);">
+            <div style="font-size: 10px; letter-spacing: 2.5px; color: var(--cobre); margin-bottom: 12px; font-weight: 600;">CAPA B · PROGRAMS</div>
+            <h3 style="font-family: var(--serif); font-size: 28px; font-weight: 400; margin-bottom: 16px; letter-spacing: -1px;">Productos modulares con objetivos específicos</h3>
+            <p>Aplicaciones modulares de la tesis Slowcraft, cada una con un objetivo específico. Los módulos se activan según la madurez del cliente. Cuatro Programs: Founder OS · Site Performance Lab · Conversion Architecture · Studio Automation.</p>
+          </div>
+        </div>
+        
+        <h3 style="margin-top: 64px;">Cuándo usar cuál en comunicación</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">Strategy primero</div><div class="usage-desc">En materiales hacia empresas medianas/grandes con presupuesto de transformación, conversaciones de C-level, propuestas a partir de cierto monto</div></div>
+          <div class="usage-row"><div class="usage-token">Programs primero</div><div class="usage-desc">En materiales hacia founders, startups, agencias, dolores específicos puntuales, leads que llegan por tema concreto (sitio lento, automatización, etc.)</div></div>
+          <div class="usage-row"><div class="usage-token">Ambos visibles</div><div class="usage-desc">Landing principal, deck institucional, presentaciones generales</div></div>
+        </div>
+        
+        <h3 style="margin-top: 64px;">Frase puente canónica</h3>
+        <div class="card" style="background: var(--crema-soft); padding: 32px;">
+          <p style="font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--salvia); line-height: 1.5; margin: 0;">"Strategy es para repensar cómo trabaja tu organización con IA. Los Programs son productos modulares con objetivos específicos, construidos sobre esa misma tesis."</p>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           16 · PROGRAM CARD COMPONENT
+           ======================================================================== -->
+      <section id="program-card" class="ds-section">
+        <div class="eyebrow">16 · COMPONENT · PROGRAM CARD</div>
+        <h2>El componente que <em>vende un Program.</em></h2>
+        <p class="lead">Anatomía estándar para presentar cualquier Program de Slowcraft, sea en landing, propuesta, redes sociales o deck. Garantiza consistencia y permite que el cliente compare entre Programs sin esfuerzo cognitivo.</p>
+        
+        <h3 style="margin-top: 48px;">Anatomía</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">01 · Numeración</div><div class="usage-desc">Número del Program (01-04) en serif grande, color salvia. Marca jerarquía visual sin gritar.</div></div>
+          <div class="usage-row"><div class="usage-token">02 · Tag de categoría</div><div class="usage-desc">FOUNDATIONS · GROWTH · OPERATIONS — letras pequeñas, tracking 2.5px, color cobre. Permite agrupar visualmente.</div></div>
+          <div class="usage-row"><div class="usage-token">03 · Nombre</div><div class="usage-desc">Newsreader serif 36-44px, peso 400, letter-spacing negativo. El nombre es el héroe.</div></div>
+          <div class="usage-row"><div class="usage-token">04 · Pitch line</div><div class="usage-desc">Frase de gancho en serif italic, color cobre, con border-left de 2px. Ver sección 17.</div></div>
+          <div class="usage-row"><div class="usage-token">05 · Para quién</div><div class="usage-desc">Bloque etiquetado con label tracking 2.5px, descripción corta en sans 13-14px. Comunica targeting positivo, nunca exclusión.</div></div>
+          <div class="usage-row"><div class="usage-token">06 · Lista de módulos</div><div class="usage-desc">Lista vertical con divisores horizontales sutiles. 4-8 ítems máximo. Cada módulo se entiende solo.</div></div>
+          <div class="usage-row"><div class="usage-token">07 · Nota de modularidad</div><div class="usage-desc">Frase final en gris/itálica que aclara: "módulos activados según madurez del cliente". Comunica flexibilidad sin perder profesionalismo.</div></div>
+        </div>
+        
+        <h3 style="margin-top: 48px;">Ejemplo en vivo</h3>
+        <div style="margin-top: 24px; padding: 48px 40px; background: var(--crema-soft); max-width: 480px; border: 1px solid var(--tinta);">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 24px;">
+            <div style="font-family: var(--serif); font-size: 48px; color: var(--salvia); letter-spacing: -2px; line-height: 1;">02</div>
+            <div style="font-size: 10px; letter-spacing: 2.5px; color: var(--cobre); text-transform: uppercase; font-weight: 600;">GROWTH</div>
+          </div>
+          <h3 style="font-family: var(--serif); font-size: 36px; font-weight: 400; letter-spacing: -1px; line-height: 1.05; margin-bottom: 24px;">Site Performance Lab</h3>
+          <div style="font-family: var(--serif); font-style: italic; font-size: 17px; line-height: 1.45; color: var(--cobre); margin-bottom: 28px; padding-left: 18px; border-left: 2px solid var(--cobre);">Cada segundo que tarda tu sitio, pierdes una conversión.</div>
+          <div style="margin-bottom: 24px;">
+            <div style="font-size: 10px; letter-spacing: 2.5px; color: var(--piedra); text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">PARA QUIÉN</div>
+            <div style="font-size: 13px; color: var(--tinta); line-height: 1.55;">CEOs, CTOs, CMOs, Marketing Managers, Ecommerce Directors, agencias.</div>
+          </div>
+          <ul style="list-style: none; font-size: 14px; color: var(--tinta);">
+            <li style="padding: 8px 0; border-top: 1px solid rgba(15,15,14,0.25);">Auditoría técnica y estratégica</li>
+            <li style="padding: 8px 0; border-top: 1px solid rgba(15,15,14,0.1);">Core Web Vitals · LCP, INP, CLS</li>
+            <li style="padding: 8px 0; border-top: 1px solid rgba(15,15,14,0.1);">SEO técnico · Lighthouse</li>
+            <li style="padding: 8px 0; border-top: 1px solid rgba(15,15,14,0.1);">Plan de acción priorizado</li>
+            <li style="padding: 8px 0; border-top: 1px solid rgba(15,15,14,0.1);">Implementación de mejoras</li>
+            <li style="padding: 8px 0; border-top: 1px solid rgba(15,15,14,0.1);">Modelo de medición · Mejora continua</li>
+          </ul>
+          <div style="margin-top: 16px; font-size: 12px; color: var(--piedra); font-style: italic;">Alcance se define con base en la auditoría inicial.</div>
+        </div>
+        
+        <h3 style="margin-top: 48px;">Reglas de uso</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">Hover</div><div class="usage-desc">Background pasa de var(--crema) a var(--crema-soft). Transición 0.3s. Sin movimiento.</div></div>
+          <div class="usage-row"><div class="usage-token">Grid</div><div class="usage-desc">Desktop: 2x2. Tablet: 2x2 más compacto. Mobile: stack vertical 1 columna.</div></div>
+          <div class="usage-row"><div class="usage-token">Bordes</div><div class="usage-desc">1px solid var(--tinta) en grid container. Cards comparten bordes — efecto "tabla editorial", no "cards flotantes".</div></div>
+          <div class="usage-row"><div class="usage-token">No hacer</div><div class="usage-desc">Sombras flotantes · gradientes · iconos decorativos · "para quién NO es" · precios visibles · timelines fijos en semanas</div></div>
+        </div>
+      </section>
+      
+      <!-- ========================================================================
+           17 · PITCH LINE PATTERN
+           ======================================================================== -->
+      <section id="pitch-line" class="ds-section">
+        <div class="eyebrow">17 · PATTERN · PITCH LINE</div>
+        <h2>El gancho <em>en una línea.</em></h2>
+        <p class="lead">Cada Program (y cada engagement de Strategy en el futuro) tiene una pitch line — una sola frase italiana en serif, color cobre, con border-left. Es el hook emocional que el cliente recuerda incluso si no lee el resto.</p>
+        
+        <h3 style="margin-top: 48px;">Las cuatro pitch lines canónicas</h3>
+        
+        <div style="margin-top: 32px; display: flex; flex-direction: column; gap: 24px;">
+          <div style="padding: 24px 32px; background: var(--crema-soft); border-left: 2px solid var(--cobre);">
+            <div style="font-size: 10px; letter-spacing: 2.5px; color: var(--piedra); margin-bottom: 8px; font-weight: 600;">FOUNDER OS</div>
+            <p style="font-family: var(--serif); font-style: italic; font-size: 24px; line-height: 1.35; color: var(--cobre); margin: 0;">El sistema operativo de tu startup, diseñado desde el día uno con IA adentro.</p>
+          </div>
+          <div style="padding: 24px 32px; background: var(--crema-soft); border-left: 2px solid var(--cobre);">
+            <div style="font-size: 10px; letter-spacing: 2.5px; color: var(--piedra); margin-bottom: 8px; font-weight: 600;">SITE PERFORMANCE LAB</div>
+            <p style="font-family: var(--serif); font-style: italic; font-size: 24px; line-height: 1.35; color: var(--cobre); margin: 0;">Cada segundo que tarda tu sitio, pierdes una conversión.</p>
+          </div>
+          <div style="padding: 24px 32px; background: var(--crema-soft); border-left: 2px solid var(--cobre);">
+            <div style="font-size: 10px; letter-spacing: 2.5px; color: var(--piedra); margin-bottom: 8px; font-weight: 600;">CONVERSION ARCHITECTURE</div>
+            <p style="font-family: var(--serif); font-style: italic; font-size: 24px; line-height: 1.35; color: var(--cobre); margin: 0;">Si te encuentran pero tu sitio no convierte, no funciona.</p>
+          </div>
+          <div style="padding: 24px 32px; background: var(--crema-soft); border-left: 2px solid var(--cobre);">
+            <div style="font-size: 10px; letter-spacing: 2.5px; color: var(--piedra); margin-bottom: 8px; font-weight: 600;">STUDIO AUTOMATION</div>
+            <p style="font-family: var(--serif); font-style: italic; font-size: 24px; line-height: 1.35; color: var(--cobre); margin: 0;">Produces mucho y rentabilizas poco. Automatiza la operación.</p>
+          </div>
+        </div>
+        
+        <h3 style="margin-top: 64px;">Reglas para escribir una pitch line</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">Longitud</div><div class="usage-desc">Entre 8 y 16 palabras. Si necesita más, no es pitch — es párrafo.</div></div>
+          <div class="usage-row"><div class="usage-token">Estructura</div><div class="usage-desc">Diagnóstico + consecuencia, o problema + solución. Nunca lista de features.</div></div>
+          <div class="usage-row"><div class="usage-token">Tono</div><div class="usage-desc">Directo, casi confrontativo. La marca se permite tutear al cliente con respeto.</div></div>
+          <div class="usage-row"><div class="usage-token">No hacer</div><div class="usage-desc">Adjetivos genéricos ("la mejor solución") · jerga técnica · promesas exageradas · superlativos vacíos</div></div>
+        </div>
+        
+        <h3 style="margin-top: 48px;">Especificación visual</h3>
+        <div class="usage-table">
+          <div class="usage-row"><div class="usage-token">font-family</div><div class="usage-desc">var(--serif) — Newsreader</div></div>
+          <div class="usage-row"><div class="usage-token">font-style</div><div class="usage-desc">italic</div></div>
+          <div class="usage-row"><div class="usage-token">color</div><div class="usage-desc">var(--cobre) · #A8593D</div></div>
+          <div class="usage-row"><div class="usage-token">border-left</div><div class="usage-desc">2px solid var(--cobre)</div></div>
+          <div class="usage-row"><div class="usage-token">padding-left</div><div class="usage-desc">18-24px según contexto</div></div>
+          <div class="usage-row"><div class="usage-token">font-size</div><div class="usage-desc">17-22px en cards, hasta 32px en hero</div></div>
+        </div>
+      </section>
+      
+    </main>
+  </div>
+  
+</body>
+</html>

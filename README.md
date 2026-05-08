@@ -12,10 +12,20 @@ Landing page de **Slowcraft**: Strategy & Programs para diseñar flujos donde el
 
 ```
 .
-├── index.html      # Landing principal (single-file)
+├── index.html              # Landing principal (single-file)
+├── docs/
+│   └── design-system.html  # Design system de referencia (tokens, tipografía, componentes)
 ├── README.md
 ├── LICENSE
 └── .gitignore
+```
+
+## Design system
+
+El archivo [`docs/design-system.html`](docs/design-system.html) es la **fuente de verdad** para colores, tipografía, espaciado y componentes. Toda nueva sección o feature debe respetar los tokens y patrones definidos ahí. Para previsualizar:
+
+```bash
+open docs/design-system.html
 ```
 
 ## Desarrollo local
