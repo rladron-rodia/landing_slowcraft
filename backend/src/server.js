@@ -148,21 +148,28 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
     return res.status(500).json({ error: 'Error guardando el contacto' });
   }
 
-  // Disparar email — si falla, igual respondemos OK (el lead ya está guardado).
-  // Marcamos email_error en la DB para retry manual desde el admin.
-  try {
-    await sendContactEmail(lead, {
-      created_at: lead.created_at,
-      ip, user_agent: userAgent, referrer
-    });
-    await query('UPDATE leads SET email_sent_at = NOW() WHERE id = $1', [lead.id]);
-  } catch (err) {
-    console.error('[contact] email error:', err);
-    await query('UPDATE leads SET email_error = $1 WHERE id = $2', [String(err.message || err).slice(0, 500), lead.id]);
-    // No le decimos al usuario que el email falló — su lead se guardó OK.
-  }
-
+  // ✨ Respondemos al usuario INMEDIATAMENTE.
+  // El email es fire-and-forget — si falla, queda registrado en la columna
+  // email_error para retry manual desde el admin. El usuario no tiene que
+  // esperar al SMTP.
   res.json({ ok: true, leadId: lead.id });
+
+  console.log(`[contact] lead #${lead.id} guardado. Disparando email…`);
+  sendContactEmail(lead, {
+    created_at: lead.created_at,
+    ip, user_agent: userAgent, referrer
+  })
+    .then(() => query('UPDATE leads SET email_sent_at = NOW() WHERE id = $1', [lead.id]))
+    .then(() => console.log(`[contact] lead #${lead.id} email enviado ✓`))
+    .catch(async (err) => {
+      console.error(`[contact] lead #${lead.id} email error:`, err.message || err);
+      try {
+        await query('UPDATE leads SET email_error = $1 WHERE id = $2',
+          [String(err.message || err).slice(0, 500), lead.id]);
+      } catch (dbErr) {
+        console.error(`[contact] lead #${lead.id} no pude registrar email_error:`, dbErr.message);
+      }
+    });
 });
 
 // ---------- 404 + error handler ----------

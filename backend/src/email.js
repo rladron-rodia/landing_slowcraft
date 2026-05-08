@@ -1,29 +1,9 @@
-import nodemailer from 'nodemailer';
+// Resend HTTP API (https://resend.com/docs/api-reference/emails/send-email)
+// Usamos HTTP API en lugar de SMTP porque Render free bloquea outbound 465/587.
+// HTTP API usa 443 (siempre permitido), misma API key.
 
-// Resend SMTP (https://resend.com/docs/send-with-smtp)
-//   host: smtp.resend.com
-//   port: 465 (TLS) o 587 (STARTTLS)
-//   user: 'resend'
-//   pass: <RESEND_API_KEY>
-
-let transporter = null;
-
-function getTransporter () {
-  if (transporter) return transporter;
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY no configurada');
-  }
-  transporter = nodemailer.createTransport({
-    host: 'smtp.resend.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: 'resend',
-      pass: process.env.RESEND_API_KEY
-    }
-  });
-  return transporter;
-}
+const RESEND_ENDPOINT = 'https://api.resend.com/emails';
+const SEND_TIMEOUT_MS = 15_000;
 
 const MOTIVO_LABELS = {
   'proyectos': 'Proyectos',
@@ -88,14 +68,36 @@ UA:       ${meta.user_agent || '—'}
 }
 
 export async function sendContactEmail (lead, meta = {}) {
-  const t = getTransporter();
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY no configurada');
+  }
+  if (!process.env.CONTACT_FROM_EMAIL || !process.env.CONTACT_TO_EMAIL) {
+    throw new Error('CONTACT_FROM_EMAIL y CONTACT_TO_EMAIL son obligatorios');
+  }
+
   const { subject, text, html } = buildContactEmail(lead, meta);
-  return await t.sendMail({
-    from: process.env.CONTACT_FROM_EMAIL,
-    to: process.env.CONTACT_TO_EMAIL,
-    replyTo: lead.email,
-    subject,
-    text,
-    html
+
+  const res = await fetch(RESEND_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: process.env.CONTACT_FROM_EMAIL,
+      to: [process.env.CONTACT_TO_EMAIL],
+      reply_to: lead.email,
+      subject,
+      text,
+      html
+    }),
+    signal: AbortSignal.timeout(SEND_TIMEOUT_MS)
   });
+
+  if (!res.ok) {
+    const errBody = await res.text().catch(() => '');
+    throw new Error(`Resend HTTP ${res.status}: ${errBody.slice(0, 300)}`);
+  }
+
+  return await res.json();
 }
