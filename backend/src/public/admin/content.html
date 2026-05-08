@@ -1244,16 +1244,19 @@
 
           <details class="config-events-doc" style="margin-top:var(--space-6);">
             <summary>📋 Roles y permisos</summary>
-            <table class="events-table">
-              <thead><tr><th>Rol</th><th>Tabs accesibles</th><th>Edita</th></tr></thead>
-              <tbody>
-                <tr><td><code>master_admin</code></td><td>Todas + Usuarios</td><td>✓ todo</td></tr>
-                <tr><td><code>admin</code></td><td>Leads · Contenido · Formulario · Configuración · Analítica</td><td>✓ todo (excepto usuarios)</td></tr>
-                <tr><td><code>viewer</code></td><td>Igual que admin</td><td>✗ solo lectura</td></tr>
-                <tr><td><code>content</code></td><td>Solo Contenido (general/programs/servicios/método)</td><td>✓ contenido</td></tr>
-                <tr><td><code>commercial</code></td><td>Leads · Formulario</td><td>✓ leads + form</td></tr>
-              </tbody>
-            </table>
+            <div class="table-scroll">
+              <table class="events-table">
+                <thead><tr><th>Rol</th><th>Tabs accesibles</th><th>Edita</th></tr></thead>
+                <tbody>
+                  <tr><td><code>master_admin</code></td><td>Todas + Usuarios</td><td>✓ todo</td></tr>
+                  <tr><td><code>admin</code></td><td>Leads · Contenido · Formulario · Configuración · Analítica</td><td>✓ todo (excepto usuarios)</td></tr>
+                  <tr><td><code>viewer</code></td><td>Igual que admin</td><td>✗ solo lectura</td></tr>
+                  <tr><td><code>content</code></td><td>Solo Contenido (general/programs/servicios/método)</td><td>✓ contenido</td></tr>
+                  <tr><td><code>commercial</code></td><td>Leads · Formulario</td><td>✓ leads + form</td></tr>
+                  <tr><td><code>agente</code></td><td>Leads · Analítica</td><td>✓ leads (asignados)</td></tr>
+                </tbody>
+              </table>
+            </div>
           </details>`;
 
         document.getElementById('invite-user').addEventListener('click', promptInviteUser);

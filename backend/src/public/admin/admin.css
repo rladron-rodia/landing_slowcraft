@@ -1599,9 +1599,26 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
   .app-subtitle { font-size: 13px; margin-bottom: var(--space-6); }
   .brand-text { font-size: 18px; }
   .brand-eyebrow { font-size: 9px; padding: 1px 4px; margin-left: var(--space-1); }
-  .user-email {
+  /* Header en mobile: email/role va a una segunda línea para que Salir SIEMPRE sea visible */
+  .app-header-nav {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: var(--space-2);
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .app-header-nav .user-email {
+    /* Email + role en línea propia (debajo de Salir) */
+    order: 2;
+    flex-basis: 100%;
+    text-align: right;
+    max-width: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 10px;
-    max-width: 130px;
+    margin-top: 2px;
   }
 
   /* Top nav: scroll horizontal interno (NO sangra fuera del viewport) */
@@ -1669,8 +1686,22 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
 
   /* Catálogos */
   .catalog-card-head { flex-direction: column; align-items: stretch; }
-  .catalog-card-actions { width: 100%; flex-wrap: wrap; }
-  .catalog-card-actions .btn { flex: 1 0 calc(50% - var(--space-1)); }
+  /* Actions: 3 columnas (Clonar / Meta / Eliminar) lado a lado, no wrap */
+  .catalog-card-actions {
+    width: 100%;
+    flex-wrap: nowrap;
+    gap: var(--space-1);
+  }
+  .catalog-card-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: 11px;
+    padding: 8px 4px;
+    /* Centrar el icono+texto cuando hay poco espacio */
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
   .catalog-card-body { padding: var(--space-4); }
   .catalog-field-grid { grid-template-columns: 1fr; }
   .catalog-item-vals { grid-template-columns: 1fr; }
@@ -1734,10 +1765,16 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
 
 /* Pantallas muy chicas (≤480px) */
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr; }
-  .stat-value { font-size: 28px; }
+  /* Stats grid: mantiene 2 cols (no colapsa a 1) */
+  .stat-value { font-size: 26px; }
+  .stat-card { padding: var(--space-4); }
+  .stat-label { font-size: 10px; }
   .app-h1 { font-size: 24px; }
-  .catalog-card-actions .btn { flex: 1 0 100%; }
+  /* Catalog actions: 3 columnas iguales (Clonar/Meta/Eliminar lado a lado) */
+  .catalog-card-actions .btn {
+    font-size: 10px;
+    padding: 6px 2px;
+  }
   .drawer-meta { grid-template-columns: 1fr; }
   .drawer-meta dt { color: var(--piedra); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: var(--space-2); }
 }
