@@ -6,8 +6,14 @@ import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import { query, withClient } from '../db.js';
 import {
-  verifyPassword, signSession, cookieOptions, requireAuth, SESSION_COOKIE
+  verifyPassword, signSession, cookieOptions, requireAuth, requireRole, requireEditor, SESSION_COOKIE
 } from '../auth.js';
+import {
+  listUsers, inviteUser, verifyInvitationToken, completeInvitation,
+  updateRole as updateUserRole, setActive, deleteUser, resendInvitation, touchLastLogin,
+  rolePermissions, VALID_ROLES
+} from '../services/users.js';
+import { sendInvitationEmail } from '../email.js';
 import {
   findByEmail, updatePassword, createResetToken, consumeResetToken,
   RESET_TOKEN_EXPIRY_MINUTES
@@ -55,14 +61,27 @@ router.post('/login', loginLimiter, async (req, res) => {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
+    // Bloquear login si el usuario está desactivado
+    if (admin.is_active === false) {
+      return res.status(403).json({ error: 'Cuenta desactivada. Contactá a un administrador.' });
+    }
+
+    // Bloquear login si el email aún no fue verificado (cuentas invitadas pendientes)
+    if (admin.email_verified_at === null) {
+      return res.status(403).json({ error: 'Tu cuenta aún no está verificada. Revisá tu email.' });
+    }
+
     const ok = await verifyPassword(String(password), admin.password_hash);
     if (!ok) {
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
-    const token = signSession({ email: admin.email, role: 'admin', uid: admin.id });
+    const role = admin.role || 'admin';
+    const token = signSession({ email: admin.email, role, uid: admin.id });
     res.cookie(SESSION_COOKIE, token, cookieOptions(isProd));
-    res.json({ ok: true, email: admin.email });
+    // Update last_login (no bloqueante)
+    touchLastLogin(admin.id).catch(err => console.error('[login] touchLastLogin', err));
+    res.json({ ok: true, email: admin.email, role, permissions: rolePermissions(role) });
   } catch (err) {
     console.error('[admin/login] error inesperado:', err);
     res.status(500).json({ error: 'Error interno' });
@@ -183,7 +202,8 @@ router.post('/logout', (req, res) => {
 // GET /api/admin/me — verifica sesión activa
 // ============================================================
 router.get('/me', requireAuth, (req, res) => {
-  res.json({ email: req.session.email, role: req.session.role });
+  const role = req.session.role || 'admin';
+  res.json({ email: req.session.email, role, permissions: rolePermissions(role) });
 });
 
 // ============================================================
@@ -286,7 +306,7 @@ router.get('/leads/:id', requireAuth, async (req, res) => {
 // ============================================================
 const ALLOWED_STATUS = new Set(['new','in-progress','contacted','closed','spam']);
 
-router.patch('/leads/:id', requireAuth, async (req, res) => {
+router.patch('/leads/:id', requireAuth, requireEditor, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   if (!Number.isInteger(id) || id < 1) return res.status(400).json({ error: 'ID inválido' });
 
@@ -377,7 +397,7 @@ router.get('/content', requireAuth, async (_req, res) => {
   }
 });
 
-router.patch('/content/bulk', requireAuth, async (req, res) => {
+router.patch('/content/bulk', requireAuth, requireEditor, async (req, res) => {
   try {
     const changes = (req.body && req.body.changes) || [];
     if (!Array.isArray(changes)) return res.status(400).json({ error: 'changes debe ser array' });
@@ -406,7 +426,7 @@ router.get('/catalog/:type', requireAuth, async (req, res) => {
   }
 });
 
-router.post('/catalog/:type', requireAuth, async (req, res) => {
+router.post('/catalog/:type', requireAuth, requireEditor, async (req, res) => {
   try {
     const type = req.params.type;
     if (!VALID_TYPES.has(type)) return res.status(400).json({ error: 'tipo inválido' });
@@ -418,7 +438,7 @@ router.post('/catalog/:type', requireAuth, async (req, res) => {
   }
 });
 
-router.delete('/catalog/section/:section', requireAuth, async (req, res) => {
+router.delete('/catalog/section/:section', requireAuth, requireEditor, async (req, res) => {
   try {
     const section = req.params.section;
     const ok = await deleteCatalogItem(section);
@@ -430,7 +450,7 @@ router.delete('/catalog/section/:section', requireAuth, async (req, res) => {
   }
 });
 
-router.patch('/catalog/section/:section', requireAuth, async (req, res) => {
+router.patch('/catalog/section/:section', requireAuth, requireEditor, async (req, res) => {
   try {
     const section = req.params.section;
     const result = await updateMetadata(section, req.body || {}, req.session.email);
@@ -441,7 +461,7 @@ router.patch('/catalog/section/:section', requireAuth, async (req, res) => {
   }
 });
 
-router.post('/catalog/section/:section/items', requireAuth, async (req, res) => {
+router.post('/catalog/section/:section/items', requireAuth, requireEditor, async (req, res) => {
   try {
     const section = req.params.section;
     const result = await addItem(section, req.body || {}, req.session.email);
@@ -452,7 +472,7 @@ router.post('/catalog/section/:section/items', requireAuth, async (req, res) => 
   }
 });
 
-router.delete('/catalog/items/:i18nKey', requireAuth, async (req, res) => {
+router.delete('/catalog/items/:i18nKey', requireAuth, requireEditor, async (req, res) => {
   try {
     const ok = await removeItem(req.params.i18nKey);
     if (!ok) return res.status(404).json({ error: 'Item no encontrado' });
@@ -463,7 +483,7 @@ router.delete('/catalog/items/:i18nKey', requireAuth, async (req, res) => {
   }
 });
 
-router.post('/catalog/section/:section/clone', requireAuth, async (req, res) => {
+router.post('/catalog/section/:section/clone', requireAuth, requireEditor, async (req, res) => {
   try {
     const result = await cloneCatalogItem(req.params.section, req.session.email);
     res.json({ ok: true, ...result });
@@ -486,7 +506,7 @@ router.get('/settings', requireAuth, async (_req, res) => {
   }
 });
 
-router.patch('/settings/bulk', requireAuth, async (req, res) => {
+router.patch('/settings/bulk', requireAuth, requireRole(['master_admin','admin']), async (req, res) => {
   try {
     const changes = (req.body && req.body.changes) || [];
     if (!Array.isArray(changes)) return res.status(400).json({ error: 'changes debe ser array' });
@@ -495,6 +515,114 @@ router.patch('/settings/bulk', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('[settings PATCH]', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ============================================================
+// USERS MANAGEMENT (master_admin only)
+// ============================================================
+router.get('/users', requireAuth, requireRole(['master_admin']), async (_req, res) => {
+  try {
+    res.json({ users: await listUsers() });
+  } catch (err) {
+    console.error('[users list]', err); res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/users', requireAuth, requireRole(['master_admin']), async (req, res) => {
+  try {
+    const { email, role } = req.body || {};
+    if (!email || !role) return res.status(400).json({ error: 'email y role requeridos' });
+    const { user, rawToken } = await inviteUser({
+      email: String(email).trim().toLowerCase(),
+      role,
+      createdBy: req.session.email
+    });
+    // Enviar email de invitación
+    const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const verifyUrl = `${baseUrl.replace(/\/$/, '')}/admin/verify?token=${rawToken}`;
+    try {
+      await sendInvitationEmail({
+        email: user.email, role: user.role, verifyUrl,
+        expiresInHours: 48, invitedBy: req.session.email
+      });
+    } catch (mailErr) {
+      console.error('[users/invite] email falló:', mailErr.message);
+      // El user ya quedó creado; el master_admin puede reenviar la invitación
+    }
+    res.json({ ok: true, user });
+  } catch (err) {
+    console.error('[users invite]', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.patch('/users/:id/role', requireAuth, requireRole(['master_admin']), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { role } = req.body || {};
+    await updateUserRole(id, role, req.session.email);
+    res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+router.patch('/users/:id/active', requireAuth, requireRole(['master_admin']), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { is_active } = req.body || {};
+    await setActive(id, !!is_active, req.session.email);
+    res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+router.delete('/users/:id', requireAuth, requireRole(['master_admin']), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    await deleteUser(id);
+    res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+router.post('/users/:id/resend-invitation', requireAuth, requireRole(['master_admin']), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { email, rawToken } = await resendInvitation(id);
+    const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const verifyUrl = `${baseUrl.replace(/\/$/, '')}/admin/verify?token=${rawToken}`;
+    await sendInvitationEmail({
+      email, role: 'admin', verifyUrl, expiresInHours: 48, invitedBy: req.session.email
+    });
+    res.json({ ok: true });
+  } catch (err) { res.status(400).json({ error: err.message }); }
+});
+
+// ============================================================
+// VERIFY INVITATION (público — el invitado abre el link del email)
+// GET  /api/admin/verify/check?token=xxx → { valid: true }
+// POST /api/admin/verify { token, password } → setea password + activa cuenta
+// ============================================================
+router.get('/verify/check', async (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.json({ valid: false });
+  try {
+    const user = await verifyInvitationToken(String(token));
+    if (!user) return res.json({ valid: false });
+    res.json({ valid: true, email: user.email, role: user.role });
+  } catch { res.json({ valid: false }); }
+});
+
+router.post('/verify', async (req, res) => {
+  try {
+    const { token, password } = req.body || {};
+    if (!token || !password) return res.status(400).json({ error: 'Token y password requeridos' });
+    if (password.length < 10) return res.status(400).json({ error: 'Password debe tener al menos 10 caracteres' });
+    const user = await verifyInvitationToken(String(token));
+    if (!user) return res.status(400).json({ error: 'Token inválido o expirado. Pedile al admin que reenvíe la invitación.' });
+    await completeInvitation({ userId: user.id, password: String(password) });
+    res.json({ ok: true, email: user.email });
+  } catch (err) {
+    console.error('[verify]', err);
+    res.status(500).json({ error: 'Error interno' });
   }
 });
 

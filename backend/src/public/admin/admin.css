@@ -343,6 +343,43 @@ select.input {
 }
 
 /* ============================================================
+   ROLE-BASED UI: read-only banner + disabled state for viewer
+   ============================================================ */
+.readonly-banner {
+  background: rgba(184, 131, 57, 0.10);
+  border: 1px solid var(--warning);
+  color: var(--warning);
+  padding: 10px 16px;
+  border-radius: 2px;
+  margin-bottom: var(--space-4);
+  font-size: 13px;
+  font-family: var(--mono);
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+body.is-viewer .btn:not(.btn-ghost):not([data-action="logout"]),
+body.is-viewer button[type="submit"],
+body.is-viewer button[data-action="save-card"],
+body.is-viewer button[data-action="delete-item"],
+body.is-viewer button[data-action="add-item"],
+body.is-viewer button[data-action="clone-item"],
+body.is-viewer button[data-action="edit-meta"],
+body.is-viewer button[data-action="remove-item"],
+body.is-viewer #invite-user,
+body.is-viewer #add-catalog-item {
+  pointer-events: none;
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+body.is-viewer input:not([type="search"]):not([type="hidden"]),
+body.is-viewer textarea,
+body.is-viewer select {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ============================================================
    PRIMARY TABS (Leads / Contenido)
    ============================================================ */
 .app-tabs {

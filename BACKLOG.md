@@ -4,7 +4,15 @@ Pendientes y mejoras futuras.
 
 ## Próximo
 
-- **Chat widget de WhatsApp** — actualmente el botón abre `wa.me/PHONE` con número configurado en admin. Si se quiere widget chat embebido custom (no abrir wa.me directo, sino ventana dentro del sitio), reemplazar el handler.
+- **Analítica con datos reales de GA4** — hoy los dashboards de la tab Analítica son mockups con datos placeholder. Para alimentarlos con datos reales hay 2 caminos: (a) embed Looker Studio dashboard (no-code, ~30min de setup en lookerstudio.google.com), (b) integración GA4 Data API directa con service account de Google Cloud + paquete `@google-analytics/data` (~2-3h). La guía está en el panel "🛣 Roadmap" dentro del tab Analítica.
+
+- **WhatsApp chatbot + chat IA embebido** — el setting `whatsapp.mode` ya está preparado. Hoy soporta `link` (abre wa.me en pestaña nueva). Próximo modo `chatbot`:
+  - Widget de chat embebido en la landing (no abrir wa.me, sino ventana dentro del sitio).
+  - Backend con WhatsApp Business API (Meta Cloud API o Twilio) para recibir y responder.
+  - LLM-powered (Claude API o GPT-4): pre-qualifica leads, responde FAQs, agenda demos.
+  - Hook de salida: cuando el bot detecta intención de compra/contacto, escala a humano vía email + dashboard de admin.
+  - Persistir conversaciones en una nueva tabla `chat_sessions` para review posterior.
+  - Implementación sugerida en fases: (a) widget UI mock, (b) backend que reenvía a un humano vía email, (c) integración WA Business API, (d) capa LLM.
 - **True self-hosting de fuentes** — actualmente jsdelivr CDN (sin Google tracking). Para 100% offline-capable, correr `bash scripts/download-fonts.sh` (descarga 8 .woff2 a `/fonts/`), después actualizar `index.html` para usar paths relativos `fonts/{file}.woff2`, eliminar `<link rel='preload'>` y `<link rel='preconnect'>` apuntando a jsdelivr, commit + push.
 
 ## Producción
@@ -52,3 +60,5 @@ Pendientes y mejoras futuras.
 - ✅ v0.8.0 — Nueva jerarquía menús + GTM events + fix fases bug
 - ✅ v0.9.0 — SEO completo (OG, Twitter, Schema JSON-LD, robots, sitemap, hreflang) + a11y (focus-visible, prefers-reduced-motion) + favicon SVG + 404 personalizada + WhatsApp/social administrables
 - ✅ v0.10.0 — Fonts vía jsdelivr CDN (sin Google tracking) + WCAG AA contrast (piedra/piedra-soft ajustados) + script para true self-hosting opcional
+- ✅ v0.11.0 — WhatsApp config administrable (slug renombrado + business label + mode futuro chatbot) + true self-hosted fonts en /fonts/
+- ✅ v0.12.0 — Sistema de usuarios y roles (master_admin/admin/viewer/content/commercial) + invitación por email con verificación + tab Usuarios + tab Analítica con propuesta de dashboards + role-based UI filtering + read-only mode

@@ -20,11 +20,13 @@
   </header>
 
   <main class="app-main">
-    <nav class="app-tabs" aria-label="Secciones del admin">
-      <a href="/admin/dashboard" class="is-active">Leads</a>
-      <a href="/admin/content#contenido/general">Contenido</a>
-      <a href="/admin/content#formulario">Formulario</a>
-      <a href="/admin/content#configuracion/analytics">Configuración</a>
+    <nav class="app-tabs" aria-label="Secciones del admin" id="app-tabs">
+      <a href="/admin/dashboard" class="is-active" data-tab="leads">Leads</a>
+      <a href="/admin/content#contenido/general"       data-tab="contenido">Contenido</a>
+      <a href="/admin/content#formulario"              data-tab="formulario">Formulario</a>
+      <a href="/admin/content#configuracion/analytics" data-tab="configuracion">Configuración</a>
+      <a href="/admin/content#analitica"               data-tab="analitica">Analítica</a>
+      <a href="/admin/content#usuarios"                data-tab="usuarios">Usuarios</a>
     </nav>
 
     <h1 class="app-h1">Leads <em>recientes.</em></h1>
@@ -515,11 +517,36 @@
       });
     }
 
+    // ---------- Role-based tab filtering ----------
+    const ROLE_TABS = {
+      master_admin: ['leads','contenido','formulario','configuracion','analitica','usuarios'],
+      admin:        ['leads','contenido','formulario','configuracion','analitica'],
+      viewer:       ['leads','contenido','formulario','configuracion','analitica'],
+      content:      ['contenido'],
+      commercial:   ['leads','formulario']
+    };
+    const ROLE_LABELS = { master_admin: 'Master Admin', admin: 'Admin', viewer: 'Solo lectura', content: 'Editor de contenido', commercial: 'Equipo comercial' };
+
+    function applyRoleUI (user) {
+      const allowed = ROLE_TABS[user.role] || ROLE_TABS.viewer;
+      document.querySelectorAll('#app-tabs a[data-tab]').forEach(a => {
+        a.style.display = allowed.includes(a.dataset.tab) ? '' : 'none';
+      });
+      // Si "leads" no está permitido para este rol, redirigir
+      if (!allowed.includes('leads')) {
+        const fallback = allowed[0];
+        if (fallback === 'contenido') window.location.replace('/admin/content#contenido/general');
+        else if (fallback) window.location.replace('/admin/content#' + fallback);
+      }
+      if (user.role === 'viewer') document.body.classList.add('is-viewer');
+    }
+
     // ---------- Boot ----------
     (async function () {
       const me = await checkAuth();
       if (!me) return;
-      document.getElementById('user-email').textContent = me.email;
+      applyRoleUI(me);
+      document.getElementById('user-email').textContent = me.email + ' · ' + (ROLE_LABELS[me.role] || me.role);
       wireFilters();
       wirePagination();
       wireDrawer();

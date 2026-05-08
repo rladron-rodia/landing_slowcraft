@@ -154,3 +154,59 @@ export async function sendPasswordResetEmail ({ email, resetUrl, expiresInMinute
   const { subject, text, html } = buildPasswordResetEmail({ email, resetUrl, expiresInMinutes });
   return await sendViaResend({ to: email, subject, text, html });
 }
+
+// ============================================================
+// Invitation email (master_admin invita a un nuevo user)
+// ============================================================
+const ROLE_LABELS = {
+  admin: 'Administrador',
+  viewer: 'Solo lectura',
+  content: 'Editor de contenido',
+  commercial: 'Equipo comercial'
+};
+
+export function buildInvitationEmail ({ email, role, verifyUrl, expiresInHours, invitedBy }) {
+  const subject = `Te invitaron al admin de Slowcraft`;
+  const roleLabel = ROLE_LABELS[role] || role;
+
+  const text =
+`Hola,
+
+${invitedBy || 'El equipo'} te invitó al admin de Slowcraft con el rol "${roleLabel}".
+
+Para aceptar la invitación y configurar tu contraseña, abrí este link:
+${verifyUrl}
+
+El link expira en ${expiresInHours} horas. Después podés entrar normalmente con tu email.
+
+Si no esperabas esta invitación, ignorá este mensaje.
+
+— Slowcraft Admin
+`;
+
+  const safe = (s) => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const html = `
+<!DOCTYPE html>
+<html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F0F0E;background:#F5F1EA;padding:32px;margin:0;">
+  <div style="max-width:520px;margin:0 auto;background:#FFFFFF;padding:32px;border:1px solid #DDD8D0;">
+    <p style="font-size:11px;letter-spacing:2px;color:#71665C;text-transform:uppercase;margin:0 0 8px;font-weight:500;">Slowcraft · Admin</p>
+    <h2 style="font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:28px;margin:0 0 24px;color:#0F0F0E;">Te invitaron al <em style="color:#3A4F41;">admin.</em></h2>
+    <p style="font-size:15px;line-height:1.6;margin:0 0 16px;">${invitedBy ? safe(invitedBy) : 'El equipo de Slowcraft'} te asignó el rol:</p>
+    <p style="font-family:'Courier New',monospace;font-size:14px;background:#EFEAE0;padding:10px 14px;border-radius:2px;margin:0 0 24px;display:inline-block;">${safe(roleLabel)}</p>
+    <p style="margin:32px 0;">
+      <a href="${safe(verifyUrl)}" style="display:inline-block;padding:14px 28px;background:#0F0F0E;color:#F5F1EA;text-decoration:none;font-size:14px;font-weight:500;letter-spacing:0.3px;border-radius:2px;">Aceptar invitación →</a>
+    </p>
+    <p style="font-size:13px;color:#71665C;line-height:1.5;margin:0 0 8px;">Vas a configurar tu contraseña y a partir de ahí podés entrar a Slowcraft Admin con tu email.</p>
+    <p style="font-size:13px;color:#71665C;line-height:1.5;margin:0;">El link expira en ${expiresInHours} horas. Si no esperabas esta invitación, ignorá este mensaje.</p>
+    <hr style="border:none;border-top:1px solid #DDD8D0;margin:24px 0;">
+    <p style="font-size:11px;color:#8A8278;font-family:'Courier New',monospace;line-height:1.5;margin:0;word-break:break-all;">${safe(verifyUrl)}</p>
+  </div>
+</body></html>`;
+
+  return { subject, text, html };
+}
+
+export async function sendInvitationEmail ({ email, role, verifyUrl, expiresInHours, invitedBy }) {
+  const { subject, text, html } = buildInvitationEmail({ email, role, verifyUrl, expiresInHours, invitedBy });
+  return await sendViaResend({ to: email, subject, text, html });
+}

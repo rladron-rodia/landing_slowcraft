@@ -55,3 +55,21 @@ export function requireAuth (req, res, next) {
   req.session = session;
   next();
 }
+
+// Role-based access control. Usage: app.get(..., requireAuth, requireRole(['admin','master_admin']), handler)
+export function requireRole (allowedRoles) {
+  const allowed = new Set(Array.isArray(allowedRoles) ? allowedRoles : [allowedRoles]);
+  return function (req, res, next) {
+    const role = req.session && req.session.role;
+    if (!role || !allowed.has(role)) {
+      return res.status(403).json({ error: 'Permiso insuficiente para esta acción' });
+    }
+    next();
+  };
+}
+
+// Editor permission — los roles que pueden editar (no viewer)
+export const EDITOR_ROLES = ['master_admin','admin','content','commercial'];
+export function requireEditor (req, res, next) {
+  return requireRole(EDITOR_ROLES)(req, res, next);
+}

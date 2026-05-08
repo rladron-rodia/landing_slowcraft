@@ -20,12 +20,14 @@
   </header>
 
   <main class="app-main">
-    <!-- Top-level nav -->
-    <nav class="app-tabs" aria-label="Secciones principales">
-      <a href="/admin/dashboard">Leads</a>
-      <a href="#contenido/general"     data-top="contenido">Contenido</a>
-      <a href="#formulario"            data-top="formulario">Formulario</a>
-      <a href="#configuracion/analytics" data-top="configuracion">Configuración</a>
+    <!-- Top-level nav (filtrado por rol vía JS) -->
+    <nav class="app-tabs" aria-label="Secciones principales" id="app-tabs">
+      <a href="/admin/dashboard"           data-tab="leads">Leads</a>
+      <a href="#contenido/general"         data-tab="contenido"     data-top="contenido">Contenido</a>
+      <a href="#formulario"                data-tab="formulario"    data-top="formulario">Formulario</a>
+      <a href="#configuracion/analytics"   data-tab="configuracion" data-top="configuracion">Configuración</a>
+      <a href="#analitica"                 data-tab="analitica"     data-top="analitica">Analítica</a>
+      <a href="#usuarios"                  data-tab="usuarios"      data-top="usuarios">Usuarios</a>
     </nav>
 
     <h1 class="app-h1" id="page-title">Contenido <em>de la landing.</em></h1>
@@ -78,12 +80,30 @@
         title: 'Configuración', subtitle: 'Ajustes globales del sitio.',
         subs: [
           { key: 'analytics', title: 'Analytics y GTM' },
-          { key: 'contact',   title: 'WhatsApp' },
+          { key: 'whatsapp',  title: 'WhatsApp' },
           { key: 'social',    title: 'Redes sociales' }
         ],
         defaultSub: 'analytics'
+      },
+      analitica: {
+        title: 'Analítica', subtitle: 'Métricas del sitio · datos desde Google Analytics 4.',
+        subs: null
+      },
+      usuarios: {
+        title: 'Usuarios', subtitle: 'Gestionar accesos al admin · invitar, asignar roles, desactivar.',
+        subs: null
       }
     };
+
+    // Permisos por rol (debe matchear ROLE_PERMISSIONS del backend)
+    const ROLE_TABS = {
+      master_admin: ['leads','contenido','formulario','configuracion','analitica','usuarios'],
+      admin:        ['leads','contenido','formulario','configuracion','analitica'],
+      viewer:       ['leads','contenido','formulario','configuracion','analitica'],
+      content:      ['contenido'],
+      commercial:   ['leads','formulario']
+    };
+    let currentUser = null;  // { email, role, permissions } — se setea en boot
 
     // Secciones que viven en "Contenido General"
     const CONTENT_SECTIONS = [
@@ -209,9 +229,11 @@
         if (top === 'formulario')   return await renderFormulario();
         if (top === 'configuracion') {
           if (sub === 'analytics') return await renderAnalytics();
-          if (sub === 'contact')   return await renderSimpleSettings('contact', 'WhatsApp', 'Configurá el botón flotante de WhatsApp del formulario.');
+          if (sub === 'whatsapp')  return await renderSimpleSettings('whatsapp', 'WhatsApp', 'Configurá el número (puede ser WhatsApp Business) y el mensaje pre-llenado del CTA "Contáctanos por WhatsApp" del formulario. Cuando esté configurado, el botón se transforma en un link wa.me que abre el chat. Para integrar un chatbot custom + IA en el futuro, ver el modo "chatbot" (próximamente).');
           if (sub === 'social')    return await renderSimpleSettings('social',  'Redes sociales', 'URLs de los perfiles. Si dejás vacío un campo, el link no aparece en el footer de la landing.');
         }
+        if (top === 'analitica')    return await renderAnalitica();
+        if (top === 'usuarios')     return await renderUsuarios();
       } catch (err) {
         document.getElementById('pane').innerHTML = `<div class="state"><h3>Error</h3>${escapeHtml(err.message)}</div>`;
       }
@@ -853,6 +875,281 @@
     }
 
     // ============================================================
+    // ANALÍTICA — Mockup propuesta + GA4 deep links
+    // ============================================================
+    async function renderAnalitica () {
+      // Datos mock para mostrar la estructura del dashboard
+      const ga4Id = 'G-TJEN2EXGSN';
+      const gtmId = 'GTM-WM6WHTW3';
+
+      document.getElementById('pane').innerHTML = `
+        <div class="config-block" style="margin-bottom:var(--space-6);background:#fff;">
+          <div class="config-status-row">
+            <span class="config-status is-active">● GA4 ${escapeHtml(ga4Id)} · GTM ${escapeHtml(gtmId)}</span>
+            <a href="https://analytics.google.com/analytics/web/" target="_blank" rel="noopener" class="btn btn-sm">Abrir GA4 →</a>
+          </div>
+          <p class="config-intro" style="margin:0;">Vista resumida de las métricas más relevantes. <strong>Los números abajo son placeholder</strong> — para datos reales hay que conectar la GA4 Data API (requiere service account de Google Cloud, ver guía abajo).</p>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(160px,1fr));">
+          <div class="stat-card"><div class="stat-label">Visitas · 30 días</div><div class="stat-value">1,234</div></div>
+          <div class="stat-card"><div class="stat-label">Visitantes únicos</div><div class="stat-value">847</div></div>
+          <div class="stat-card"><div class="stat-label">Form submissions</div><div class="stat-value">47</div></div>
+          <div class="stat-card"><div class="stat-label">Conversion rate</div><div class="stat-value">3.8%</div></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6);margin-top:var(--space-8);">
+          <div class="config-block" style="background:#fff;">
+            <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">CTA clicks · top 5</h3>
+            <table class="leads" style="font-size:13px;">
+              <thead><tr><th>cta_id</th><th style="text-align:right;">Clicks</th></tr></thead>
+              <tbody>
+                <tr><td><code>cta_hero</code></td><td style="text-align:right;font-family:var(--mono);">234</td></tr>
+                <tr><td><code>cta_nav</code></td><td style="text-align:right;font-family:var(--mono);">156</td></tr>
+                <tr><td><code>cta_whatsapp</code></td><td style="text-align:right;font-family:var(--mono);">89</td></tr>
+                <tr><td><code>cta_form_submit</code></td><td style="text-align:right;font-family:var(--mono);">47</td></tr>
+              </tbody>
+            </table>
+            <p style="font-size:11px;color:var(--piedra);margin-top:8px;">Datos placeholder · evento <code>cta_click</code> agrupado por <code>cta_id</code></p>
+          </div>
+
+          <div class="config-block" style="background:#fff;">
+            <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">Funnel del formulario</h3>
+            <div style="display:flex;flex-direction:column;gap:var(--space-2);font-size:13px;">
+              <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--crema-soft);border-radius:2px;"><span>form_view</span><strong>1,234</strong></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--crema-soft);border-radius:2px;margin-left:8px;"><span>form_submit_attempt</span><strong>89 <span style="color:var(--piedra);">(7.2%)</span></strong></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--crema-soft);border-radius:2px;margin-left:16px;"><span>form_submit_success</span><strong>47 <span style="color:var(--success);">(52.8%)</span></strong></div>
+              <div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--salvia);color:var(--crema);border-radius:2px;margin-top:8px;"><span>Conversión total</span><strong>3.8%</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-6);margin-top:var(--space-6);">
+          <div class="config-block" style="background:#fff;">
+            <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">Top fuentes de tráfico</h3>
+            <ul style="list-style:none;padding:0;margin:0;font-size:13px;">
+              <li style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--piedra-light);"><span>Direct</span><strong>42%</strong></li>
+              <li style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--piedra-light);"><span>Google · organic</span><strong>28%</strong></li>
+              <li style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--piedra-light);"><span>LinkedIn</span><strong>18%</strong></li>
+              <li style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--piedra-light);"><span>Twitter</span><strong>8%</strong></li>
+              <li style="display:flex;justify-content:space-between;padding:8px 0;"><span>Otros</span><strong>4%</strong></li>
+            </ul>
+          </div>
+
+          <div class="config-block" style="background:#fff;">
+            <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">Dispositivo · Geografía</h3>
+            <p style="font-size:11px;color:var(--piedra);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Devices</p>
+            <div style="display:flex;gap:8px;margin-bottom:16px;font-size:13px;">
+              <span style="flex:6;background:var(--cobre);color:var(--crema);padding:4px 8px;border-radius:2px;text-align:center;">Desktop 62%</span>
+              <span style="flex:3;background:var(--salvia);color:var(--crema);padding:4px 8px;border-radius:2px;text-align:center;">Mobile 33%</span>
+              <span style="flex:1;background:var(--piedra);color:var(--crema);padding:4px 8px;border-radius:2px;text-align:center;">Tab 5%</span>
+            </div>
+            <p style="font-size:11px;color:var(--piedra);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Top países</p>
+            <ul style="list-style:none;padding:0;margin:0;font-size:13px;">
+              <li style="display:flex;justify-content:space-between;padding:6px 0;"><span>🇲🇽 México</span><strong>54%</strong></li>
+              <li style="display:flex;justify-content:space-between;padding:6px 0;"><span>🇺🇸 Estados Unidos</span><strong>18%</strong></li>
+              <li style="display:flex;justify-content:space-between;padding:6px 0;"><span>🇦🇷 Argentina</span><strong>9%</strong></li>
+              <li style="display:flex;justify-content:space-between;padding:6px 0;"><span>🇨🇴 Colombia</span><strong>7%</strong></li>
+            </ul>
+          </div>
+        </div>
+
+        <details class="config-events-doc" open style="margin-top:var(--space-8);">
+          <summary>🛣 Roadmap · cómo conectar datos reales de GA4</summary>
+          <p class="config-help">Hoy los números son placeholder. Para alimentarlos con datos reales de GA4, hay 2 caminos:</p>
+          <ol class="config-setup">
+            <li><strong>Opción rápida — Looker Studio embed:</strong> en <a href="https://lookerstudio.google.com" target="_blank" rel="noopener">lookerstudio.google.com</a> conectás GA4 al wizard, generás un dashboard, hacés "Embed" público y nos das la URL del iframe. Lo pegamos en este tab. <em>~30 min de configuración, sin código.</em></li>
+            <li><strong>Opción robusta — GA4 Data API directa:</strong>
+              <ol style="margin-top:6px;">
+                <li>Crear service account en <a href="https://console.cloud.google.com" target="_blank" rel="noopener">Google Cloud Console</a>.</li>
+                <li>Habilitar "Google Analytics Data API" en el proyecto.</li>
+                <li>Bajar el JSON de credentials.</li>
+                <li>En GA4 → Admin → Property Access → agregar el email del service account con rol "Viewer".</li>
+                <li>Cargar el JSON como secret <code>GA4_SERVICE_ACCOUNT_KEY</code> en Render Environment.</li>
+                <li>Yo implemento backend con <code>@google-analytics/data</code> y reemplazo los mocks por queries reales.</li>
+              </ol>
+              <em>~2-3h de implementación una vez tengas las credentials.</em>
+            </li>
+          </ol>
+          <p class="config-help" style="margin-top:16px;">Mientras tanto: usá los <a href="https://analytics.google.com" target="_blank" rel="noopener">reportes nativos de GA4</a> (link arriba) para ver datos reales hoy.</p>
+        </details>`;
+    }
+
+    // ============================================================
+    // USUARIOS — gestión (solo master_admin)
+    // ============================================================
+    const ROLE_LABELS_USR = {
+      master_admin: 'Master Admin',
+      admin: 'Admin',
+      viewer: 'Solo lectura',
+      content: 'Editor de contenido',
+      commercial: 'Equipo comercial'
+    };
+
+    async function renderUsuarios () {
+      try {
+        const data = await api('/api/admin/users');
+        const users = data.users || [];
+
+        const rows = users.map(u => {
+          const verified = u.email_verified_at ? '✓ Verificado' : '⏳ Pendiente';
+          const verifiedClass = u.email_verified_at ? 'badge-status-contacted' : 'badge-status-in-progress';
+          const activeBadge = u.is_active
+            ? '<span class="badge badge-status-contacted">Activo</span>'
+            : '<span class="badge badge-status-closed">Inactivo</span>';
+          const lastLogin = u.last_login_at ? fmtAgo(u.last_login_at) : 'nunca';
+          const isMaster = u.role === 'master_admin';
+          return `
+            <tr data-user-id="${u.id}">
+              <td><strong>${escapeHtml(u.email)}</strong><br><span class="cell-meta">creado ${fmtAgo(u.created_at)}${u.created_by ? ' · por ' + escapeHtml(u.created_by) : ''}</span></td>
+              <td>${isMaster
+                ? `<span class="badge badge-status-new">${escapeHtml(ROLE_LABELS_USR[u.role])}</span>`
+                : `<select class="input" data-action="role-change" data-user-id="${u.id}" style="font-size:12px;padding:6px 10px;">
+                     ${['admin','viewer','content','commercial'].map(r => `<option value="${r}" ${u.role === r ? 'selected' : ''}>${escapeHtml(ROLE_LABELS_USR[r])}</option>`).join('')}
+                   </select>`}</td>
+              <td><span class="badge ${verifiedClass}">${verified}</span></td>
+              <td>${activeBadge}</td>
+              <td><span class="cell-meta">${lastLogin}</span></td>
+              <td>
+                ${!isMaster && !u.email_verified_at ? `<button class="btn btn-sm btn-ghost" data-action="resend" data-user-id="${u.id}">↻ Reenviar invitación</button>` : ''}
+                ${!isMaster ? `<button class="btn btn-sm btn-ghost" data-action="toggle-active" data-user-id="${u.id}" data-is-active="${u.is_active}">${u.is_active ? '🚫 Desactivar' : '✓ Activar'}</button>` : ''}
+                ${!isMaster ? `<button class="btn btn-sm btn-danger" data-action="delete-user" data-user-id="${u.id}" data-email="${escapeHtml(u.email)}">🗑 Eliminar</button>` : ''}
+              </td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('pane').innerHTML = `
+          <div class="catalog-toolbar">
+            <p class="content-section-meta">${users.length} usuario(s) · master_admin gestiona los accesos</p>
+            <button class="btn" id="invite-user">+ Invitar usuario</button>
+          </div>
+
+          <div class="leads-table-wrap" style="margin-top:var(--space-4);">
+            <table class="leads">
+              <thead><tr><th>Email</th><th>Rol</th><th>Verificación</th><th>Estado</th><th>Último login</th><th>Acciones</th></tr></thead>
+              <tbody>${rows || '<tr><td colspan="6" class="state">Sin usuarios.</td></tr>'}</tbody>
+            </table>
+          </div>
+
+          <details class="config-events-doc" style="margin-top:var(--space-6);">
+            <summary>📋 Roles y permisos</summary>
+            <table class="events-table">
+              <thead><tr><th>Rol</th><th>Tabs accesibles</th><th>Edita</th></tr></thead>
+              <tbody>
+                <tr><td><code>master_admin</code></td><td>Todas + Usuarios</td><td>✓ todo</td></tr>
+                <tr><td><code>admin</code></td><td>Leads · Contenido · Formulario · Configuración · Analítica</td><td>✓ todo (excepto usuarios)</td></tr>
+                <tr><td><code>viewer</code></td><td>Igual que admin</td><td>✗ solo lectura</td></tr>
+                <tr><td><code>content</code></td><td>Solo Contenido (general/programs/servicios/método)</td><td>✓ contenido</td></tr>
+                <tr><td><code>commercial</code></td><td>Leads · Formulario</td><td>✓ leads + form</td></tr>
+              </tbody>
+            </table>
+          </details>`;
+
+        document.getElementById('invite-user').addEventListener('click', promptInviteUser);
+        document.querySelectorAll('[data-action]').forEach(el => {
+          el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'click', (ev) => handleUserAction(ev));
+        });
+      } catch (err) {
+        document.getElementById('pane').innerHTML = `<div class="state"><h3>Error</h3>${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    function promptInviteUser () {
+      openModal('Invitar nuevo usuario', `
+        <div class="field"><label class="label">Email</label><input class="input" type="email" id="inv-email" placeholder="persona@empresa.com"></div>
+        <div class="field"><label class="label">Rol</label>
+          <select class="input" id="inv-role">
+            <option value="admin">Admin · todas las pestañas (no gestiona usuarios)</option>
+            <option value="content">Editor de contenido · solo pestaña Contenido</option>
+            <option value="commercial">Equipo comercial · Leads + Formulario</option>
+            <option value="viewer">Solo lectura · todas las pestañas en modo vista</option>
+          </select>
+        </div>
+        <p style="font-size:12px;color:var(--piedra);margin-top:8px;">Recibirá un email con link para activar la cuenta y configurar su contraseña.</p>
+      `, [
+        { label: 'Cancelar', variant: 'secondary', onClick: closeModal },
+        { label: 'Invitar', onClick: async (b) => {
+            const email = document.getElementById('inv-email').value.trim().toLowerCase();
+            const role = document.getElementById('inv-role').value;
+            if (!email) return toast('Email requerido', 'error');
+            b.disabled = true; b.textContent = 'Enviando…';
+            try {
+              await api('/api/admin/users', { method: 'POST', body: JSON.stringify({ email, role }) });
+              toast(`Invitación enviada a ${email}`, 'success', 5000);
+              closeModal(); renderActive();
+            } catch (err) { toast('Error: ' + err.message, 'error'); b.disabled = false; b.textContent = 'Invitar'; }
+        }}
+      ]);
+    }
+
+    async function handleUserAction (ev) {
+      const el = ev.currentTarget;
+      const action = el.dataset.action;
+      const id = el.dataset.userId;
+
+      if (action === 'role-change') {
+        try {
+          await api(`/api/admin/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role: el.value }) });
+          toast('Rol actualizado', 'success');
+        } catch (err) { toast('Error: ' + err.message, 'error'); renderActive(); }
+      }
+      else if (action === 'resend') {
+        try {
+          await api(`/api/admin/users/${id}/resend-invitation`, { method: 'POST' });
+          toast('Invitación reenviada', 'success');
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
+      }
+      else if (action === 'toggle-active') {
+        const newState = el.dataset.isActive !== 'true';
+        try {
+          await api(`/api/admin/users/${id}/active`, { method: 'PATCH', body: JSON.stringify({ is_active: newState }) });
+          toast(newState ? 'Usuario activado' : 'Usuario desactivado', 'success');
+          renderActive();
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
+      }
+      else if (action === 'delete-user') {
+        if (!confirm(`¿Eliminar ${el.dataset.email}? Esta acción no se puede deshacer.`)) return;
+        try {
+          await api(`/api/admin/users/${id}`, { method: 'DELETE' });
+          toast('Usuario eliminado', 'success');
+          renderActive();
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
+      }
+    }
+
+    // ============================================================
+    // ROLE-BASED UI — filtra tabs visibles + read-only mode para viewer
+    // ============================================================
+    function applyRoleUI (user) {
+      currentUser = user;
+      const allowedTabs = ROLE_TABS[user.role] || ROLE_TABS.viewer;
+      // Hide tabs not allowed
+      document.querySelectorAll('#app-tabs a[data-tab]').forEach(a => {
+        a.style.display = allowedTabs.includes(a.dataset.tab) ? '' : 'none';
+      });
+      // Read-only banner si viewer
+      if (user.role === 'viewer') {
+        const banner = document.createElement('div');
+        banner.className = 'readonly-banner';
+        banner.textContent = '👁 Modo solo lectura — tu rol no permite editar';
+        document.querySelector('.app-main').insertBefore(banner, document.querySelector('.app-h1'));
+        // Disable all inputs/buttons after each render (via mutation observer or post-render)
+        document.body.classList.add('is-viewer');
+      }
+    }
+
+    function ensureCanAccess () {
+      const { top } = activeRoute();
+      const allowed = ROLE_TABS[currentUser?.role || 'viewer'];
+      if (!allowed.includes(top)) {
+        // Redirect to first allowed tab
+        const fallback = allowed[0];
+        if (fallback === 'leads') window.location.href = '/admin/dashboard';
+        else window.location.hash = '#' + (ROUTES[fallback]?.subs ? fallback + '/' + ROUTES[fallback].defaultSub : fallback);
+      }
+    }
+
+    // ============================================================
     // Boot
     // ============================================================
     async function checkAuth () {
@@ -871,8 +1168,18 @@
     (async function () {
       const me = await checkAuth();
       if (!me) return;
-      document.getElementById('user-email').textContent = me.email;
-      if (!window.location.hash) window.location.hash = '#contenido/general';
+      document.getElementById('user-email').textContent = me.email + ' · ' + (ROLE_LABELS_USR[me.role] || me.role);
+      applyRoleUI(me);
+      if (!window.location.hash) {
+        // Default tab = primera permitida del rol
+        const allowed = ROLE_TABS[me.role] || ROLE_TABS.viewer;
+        const firstNonLeads = allowed.find(t => t !== 'leads');
+        if (firstNonLeads === 'contenido') window.location.hash = '#contenido/general';
+        else if (firstNonLeads === 'configuracion') window.location.hash = '#configuracion/analytics';
+        else if (firstNonLeads) window.location.hash = '#' + firstNonLeads;
+        else window.location.href = '/admin/dashboard';
+      }
+      ensureCanAccess();
       renderActive();
     })();
   </script>
