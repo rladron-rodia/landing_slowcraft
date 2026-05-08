@@ -17,10 +17,10 @@ export async function getAllForAdmin () {
   return grouped;
 }
 
-// Para la landing: solo los keys públicos (analytics) como mapa key→value
+// Para la landing: keys públicos (analytics + contact + social) como mapa key→value
 export async function getPublicSettings () {
   const { rows } = await query(
-    `SELECT key, value FROM site_settings WHERE category = 'analytics'`
+    `SELECT key, value FROM site_settings WHERE category IN ('analytics','contact','social')`
   );
   const out = {};
   for (const r of rows) out[r.key] = r.value || '';

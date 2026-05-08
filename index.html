@@ -3,14 +3,160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Slowcraft — Strategy & Programs · IA deliberadamente diseñada</title>
-  <meta name="description" content="Diseñamos los flujos donde el talento humano y la IA hacen lo que mejor saben hacer. Strategy para repensar la operación, Programs para resolver dolores específicos.">
+  <title>Slowcraft — Consultora boutique de estrategia IA · Ciudad de México · LATAM</title>
+  <meta name="description" content="Slowcraft es una consultora boutique de estrategia IA en Ciudad de México. Diseñamos flujos humano–IA para empresas en crecimiento en LATAM. Strategy + Programs deliberadamente diseñados.">
+  <meta name="keywords" content="consultora IA México, estrategia inteligencia artificial empresas, implementación IA LATAM, AI strategy consulting Mexico, automatización procesos IA, consultoría IA Ciudad de México">
+  <meta name="author" content="Slowcraft">
+  <meta name="robots" content="index, follow, max-image-preview:large">
   <meta name="version" content="3.0">
   <meta name="design-system" content="2.0">
-  
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://rladron-rodia.github.io/landing_slowcraft/">
+
+  <!-- Open Graph (Facebook, LinkedIn, WhatsApp) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Slowcraft">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:url" content="https://rladron-rodia.github.io/landing_slowcraft/">
+  <meta property="og:title" content="Slowcraft — Estrategia IA deliberadamente diseñada">
+  <meta property="og:description" content="Consultora boutique de estrategia IA en Ciudad de México. Diseñamos los flujos donde tu equipo y la IA hacen lo que mejor saben hacer.">
+  <meta property="og:image" content="https://rladron-rodia.github.io/landing_slowcraft/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Slowcraft — Estrategia IA deliberadamente diseñada">
+
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Slowcraft — Estrategia IA deliberadamente diseñada">
+  <meta name="twitter:description" content="Consultora boutique de estrategia IA en Ciudad de México. La mano derecha del talento humano.">
+  <meta name="twitter:image" content="https://rladron-rodia.github.io/landing_slowcraft/og-image.png">
+  <meta name="twitter:image:alt" content="Slowcraft — Estrategia IA deliberadamente diseñada">
+
+  <!-- Theme color para mobile browser chrome -->
+  <meta name="theme-color" content="#0F0F0E" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#F5F1EA" media="(prefers-color-scheme: light)">
+
+  <!-- Favicon: SVG inline (matches brand symbol — half-filled circle) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Cpath d='M12 0h12v24H12z'/%3E%3C/clipPath%3E%3C/defs%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%230F0F0E' stroke-width='2'/%3E%3Ccircle cx='12' cy='12' r='10' fill='%230F0F0E' clip-path='url(%23c)'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="favicon-180.png">
+
+  <!-- hreflang para SEO bilingüe (mismo URL, contenido se renderea según localStorage/browser) -->
+  <link rel="alternate" hreflang="es" href="https://rladron-rodia.github.io/landing_slowcraft/">
+  <link rel="alternate" hreflang="en" href="https://rladron-rodia.github.io/landing_slowcraft/">
+  <link rel="alternate" hreflang="x-default" href="https://rladron-rodia.github.io/landing_slowcraft/">
+
+  <!-- Fonts: jsdelivr CDN (vía @fontsource/*) — no Google tracking, mismas .woff2,
+       y elimina el round-trip CSS+font de Google Fonts.
+       Para true self-hosting (fonts.gitignore'd off, servidos desde GitHub Pages),
+       correr scripts/download-fonts.sh y descomentar las versiones locales abajo. -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://slowcraft-api.onrender.com">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="https://cdn.jsdelivr.net/npm/@fontsource/newsreader@5/files/newsreader-latin-400-normal.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+        href="https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files/inter-latin-400-normal.woff2">
+  <style>
+    /* Newsreader (serif) — 400 normal + italic + 500 */
+    @font-face { font-family: 'Newsreader'; font-style: normal; font-weight: 400; font-display: swap;
+      src: url('https://cdn.jsdelivr.net/npm/@fontsource/newsreader@5/files/newsreader-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Newsreader'; font-style: italic; font-weight: 400; font-display: swap;
+      src: url('https://cdn.jsdelivr.net/npm/@fontsource/newsreader@5/files/newsreader-latin-400-italic.woff2') format('woff2'); }
+    @font-face { font-family: 'Newsreader'; font-style: normal; font-weight: 500; font-display: swap;
+      src: url('https://cdn.jsdelivr.net/npm/@fontsource/newsreader@5/files/newsreader-latin-500-normal.woff2') format('woff2'); }
+    /* Inter (sans) — 400 / 500 / 600 */
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap;
+      src: url('https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files/inter-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 500; font-display: swap;
+      src: url('https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files/inter-latin-500-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap;
+      src: url('https://cdn.jsdelivr.net/npm/@fontsource/inter@5/files/inter-latin-600-normal.woff2') format('woff2'); }
+    /* JetBrains Mono — 400 / 500 */
+    @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400; font-display: swap;
+      src: url('https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/files/jetbrains-mono-latin-400-normal.woff2') format('woff2'); }
+    @font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 500; font-display: swap;
+      src: url('https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5/files/jetbrains-mono-latin-500-normal.woff2') format('woff2'); }
+  </style>
+
+  <!-- Schema.org JSON-LD: Organization + LocalBusiness -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": ["Organization", "LocalBusiness", "ProfessionalService"],
+        "@id": "https://rladron-rodia.github.io/landing_slowcraft/#organization",
+        "name": "Slowcraft",
+        "alternateName": "Slowcraft Strategy & Programs",
+        "description": "Consultora boutique de estrategia IA para empresas en crecimiento en LATAM. Diseñamos los flujos donde el talento humano y la IA hacen lo que mejor saben hacer.",
+        "url": "https://rladron-rodia.github.io/landing_slowcraft/",
+        "logo": "https://rladron-rodia.github.io/landing_slowcraft/og-image.png",
+        "image": "https://rladron-rodia.github.io/landing_slowcraft/og-image.png",
+        "foundingDate": "2026",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Ciudad de México",
+          "addressRegion": "CDMX",
+          "addressCountry": "MX"
+        },
+        "areaServed": [
+          { "@type": "Country", "name": "México" },
+          { "@type": "Place", "name": "LATAM" },
+          { "@type": "Place", "name": "Global" }
+        ],
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "contactType": "sales",
+          "email": "hola@slowcraft.ai",
+          "availableLanguage": ["Spanish", "English"]
+        },
+        "knowsAbout": [
+          "Estrategia de Inteligencia Artificial",
+          "AI Readiness",
+          "Workflow Architecture humano-IA",
+          "Implementación de IA en empresas",
+          "Automatización de procesos",
+          "Transformación digital con IA"
+        ],
+        "sameAs": []
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://rladron-rodia.github.io/landing_slowcraft/#website",
+        "url": "https://rladron-rodia.github.io/landing_slowcraft/",
+        "name": "Slowcraft",
+        "description": "Estrategia IA deliberadamente diseñada",
+        "publisher": { "@id": "https://rladron-rodia.github.io/landing_slowcraft/#organization" },
+        "inLanguage": ["es-MX", "en-US"]
+      },
+      {
+        "@type": "Service",
+        "name": "AI Readiness",
+        "serviceType": "Diagnóstico estratégico de IA",
+        "provider": { "@id": "https://rladron-rodia.github.io/landing_slowcraft/#organization" },
+        "description": "Diagnóstico estratégico para empresas que quieren entrar bien a la era de IA. Sin desperdiciar capital ni tiempo.",
+        "areaServed": "LATAM"
+      },
+      {
+        "@type": "Service",
+        "name": "Workflow Architecture",
+        "serviceType": "Diseño de flujos humano-IA",
+        "provider": { "@id": "https://rladron-rodia.github.io/landing_slowcraft/#organization" },
+        "description": "Diseño detallado de flujos humano–IA para áreas críticas: marketing, operaciones, ventas, atención al cliente.",
+        "areaServed": "LATAM"
+      },
+      {
+        "@type": "Service",
+        "name": "Implementation Partner",
+        "serviceType": "Implementación end-to-end de IA",
+        "provider": { "@id": "https://rladron-rodia.github.io/landing_slowcraft/#organization" },
+        "description": "Acompañamos la implementación end-to-end. Nos quedamos hasta que el sistema funciona y el equipo lo opera con confianza.",
+        "areaServed": "LATAM"
+      }
+    ]
+  }
+  </script>
   
   <style>
     /* ==========================================================================
@@ -28,9 +174,9 @@
       --salvia-light: #5C705F;
       --cobre: #A8593D;
       --cobre-light: #C77A57;
-      --piedra: #7A7570;
-      --piedra-soft: #B5B0A8;
-      --piedra-light: #DDD8D0;
+      --piedra: #71665C;          /* WCAG AA · ratio 4.96 sobre crema (era #7A7570 = 4.05, fallaba) */
+      --piedra-soft: #8A8278;     /* WCAG UI 3.36 sobre crema (era #B5B0A8 = 1.92, fallaba) */
+      --piedra-light: #DDD8D0;    /* divisores decorativos — WCAG no exige contraste */
 
       /* --- States --- */
       --success: #4A6B5C;
@@ -93,6 +239,28 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
     html { scroll-behavior: smooth; }
+
+    /* === ACCESSIBILITY: focus-visible (teclado) + reduced motion === */
+    *:focus { outline: none; }
+    *:focus-visible {
+      outline: 2px solid var(--cobre);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+    .form-input:focus-visible,
+    .form-submit:focus-visible,
+    .form-whatsapp:focus-visible {
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
     
     body {
       background: var(--crema);
@@ -1750,8 +1918,9 @@
       <div class="footer-col">
         <h4 data-i18n="footer.col.contact">Contacto</h4>
         <a href="mailto:hola@slowcraft.ai">hola@slowcraft.ai</a>
-        <a href="#" target="_blank">LinkedIn</a>
-        <a href="#" target="_blank">Twitter / X</a>
+        <a href="#" target="_blank" rel="noopener" id="footer-linkedin" hidden>LinkedIn</a>
+        <a href="#" target="_blank" rel="noopener" id="footer-twitter" hidden>Twitter / X</a>
+        <a href="#" target="_blank" rel="noopener" id="footer-instagram" hidden>Instagram</a>
       </div>
     </div>
 
@@ -2306,6 +2475,49 @@
       }
     };
 
+    // Aplica settings de WhatsApp + redes sociales del admin
+    function applyContactSettings (settings) {
+      if (!settings) return;
+      // WhatsApp button → wa.me link con mensaje pre-llenado
+      const waNumber = (settings['contact.whatsapp_number'] || '').replace(/[^\d]/g, '');
+      const waMessage = settings['contact.whatsapp_message'] || 'Hola Slowcraft, quisiera agendar una conversación.';
+      const waBtn = document.getElementById('cf-whatsapp');
+      if (waBtn && waNumber && waNumber.length >= 10) {
+        // Convertir el button en link (clonar atributos a un <a>)
+        if (waBtn.tagName !== 'A') {
+          const a = document.createElement('a');
+          a.href = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
+          a.target = '_blank';
+          a.rel = 'noopener noreferrer';
+          a.className = waBtn.className;
+          a.id = waBtn.id;
+          a.dataset.gtmId = waBtn.dataset.gtmId || 'cta_whatsapp';
+          if (waBtn.dataset.i18nAriaLabel) a.dataset.i18nAriaLabel = waBtn.dataset.i18nAriaLabel;
+          a.setAttribute('aria-label', waBtn.getAttribute('aria-label') || 'WhatsApp');
+          a.innerHTML = waBtn.innerHTML;
+          waBtn.replaceWith(a);
+        } else {
+          waBtn.href = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`;
+        }
+      }
+      // Redes sociales footer — show/hide based on URL presence
+      const socialMap = {
+        'footer-linkedin':  settings['social.linkedin_url'],
+        'footer-twitter':   settings['social.twitter_url'],
+        'footer-instagram': settings['social.instagram_url']
+      };
+      Object.entries(socialMap).forEach(([id, url]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (url && /^https?:\/\//.test(url)) {
+          el.href = url;
+          el.hidden = false;
+        } else {
+          el.hidden = true;
+        }
+      });
+    }
+
     // Inyecta GA4 / GTM dinámicamente (si están configurados en el admin)
     function loadAnalytics (settings) {
       if (!settings) return;
@@ -2352,6 +2564,7 @@
           if (data.es) Object.assign(I18N.es, data.es);
           if (data.en) Object.assign(I18N.en, data.en);
           applyLang(currentLang);
+          applyContactSettings(data.settings);
           loadAnalytics(data.settings);
         })
         .catch(err => console.warn('[content] no pude cargar:', err.message));

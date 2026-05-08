@@ -4,7 +4,8 @@ Pendientes y mejoras futuras.
 
 ## Próximo
 
-- **Chat widget de WhatsApp** — el botón "Contáctanos por WhatsApp" hoy muestra un toast "próximamente". Hay que conectar un widget tipo chat embebido (no abrir `wa.me/PHONE` directo, sino una ventana custom dentro del sitio respetando el design system).
+- **Chat widget de WhatsApp** — actualmente el botón abre `wa.me/PHONE` con número configurado en admin. Si se quiere widget chat embebido custom (no abrir wa.me directo, sino ventana dentro del sitio), reemplazar el handler.
+- **True self-hosting de fuentes** — actualmente jsdelivr CDN (sin Google tracking). Para 100% offline-capable, correr `bash scripts/download-fonts.sh` (descarga 8 .woff2 a `/fonts/`), después actualizar `index.html` para usar paths relativos `fonts/{file}.woff2`, eliminar `<link rel='preload'>` y `<link rel='preconnect'>` apuntando a jsdelivr, commit + push.
 
 ## Producción
 
@@ -49,3 +50,5 @@ Pendientes y mejoras futuras.
 - ✅ v0.6.0 — Catálogos CRUD (Programs/Servicios/Método)
 - ✅ v0.7.0 — Clone + CTA labels + Configuración tab
 - ✅ v0.8.0 — Nueva jerarquía menús + GTM events + fix fases bug
+- ✅ v0.9.0 — SEO completo (OG, Twitter, Schema JSON-LD, robots, sitemap, hreflang) + a11y (focus-visible, prefers-reduced-motion) + favicon SVG + 404 personalizada + WhatsApp/social administrables
+- ✅ v0.10.0 — Fonts vía jsdelivr CDN (sin Google tracking) + WCAG AA contrast (piedra/piedra-soft ajustados) + script para true self-hosting opcional

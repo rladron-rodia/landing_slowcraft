@@ -77,7 +77,9 @@
       configuracion: {
         title: 'Configuración', subtitle: 'Ajustes globales del sitio.',
         subs: [
-          { key: 'analytics', title: 'Analytics y GTM' }
+          { key: 'analytics', title: 'Analytics y GTM' },
+          { key: 'contact',   title: 'WhatsApp' },
+          { key: 'social',    title: 'Redes sociales' }
         ],
         defaultSub: 'analytics'
       }
@@ -207,6 +209,8 @@
         if (top === 'formulario')   return await renderFormulario();
         if (top === 'configuracion') {
           if (sub === 'analytics') return await renderAnalytics();
+          if (sub === 'contact')   return await renderSimpleSettings('contact', 'WhatsApp', 'Configurá el botón flotante de WhatsApp del formulario.');
+          if (sub === 'social')    return await renderSimpleSettings('social',  'Redes sociales', 'URLs de los perfiles. Si dejás vacío un campo, el link no aparece en el footer de la landing.');
         }
       } catch (err) {
         document.getElementById('pane').innerHTML = `<div class="state"><h3>Error</h3>${escapeHtml(err.message)}</div>`;
@@ -783,6 +787,62 @@
         const changes = Object.entries(dirty).map(([key, value]) => ({ key, value }));
         if (!changes.length) return;
         const btn = document.getElementById('analytics-save');
+        btn.disabled = true; btn.textContent = 'Guardando…';
+        try {
+          await api('/api/admin/settings/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
+          toast(`Guardado ✓ (${changes.length})`, 'success');
+          renderActive();
+        } catch (err) { toast('Error: ' + err.message, 'error'); btn.disabled = false; btn.textContent = 'Reintentar'; }
+      });
+    }
+
+    // ============================================================
+    // SETTINGS GENÉRICO (contact, social, etc.)
+    // ============================================================
+    async function renderSimpleSettings (categoryKey, title, intro) {
+      const data = await api('/api/admin/settings');
+      const items = (data.categories && data.categories[categoryKey]) || [];
+      const dirty = {};
+
+      const itemsHtml = items.map(it => `
+        <div class="content-field" data-key="${escapeHtml(it.key)}">
+          <div class="content-field-header">
+            <span class="content-field-label">${escapeHtml(it.label)}</span>
+            <span class="content-field-key">${escapeHtml(it.key)}</span>
+          </div>
+          ${it.description ? `<p class="config-help">${escapeHtml(it.description)}</p>` : ''}
+          <input type="text" class="input config-input" data-setting-key="${escapeHtml(it.key)}" value="${escapeHtml(it.value || '')}" placeholder="${escapeHtml(it.placeholder || '')}">
+        </div>`).join('');
+
+      document.getElementById('pane').innerHTML = `
+        <div class="config-block">
+          <p class="config-intro">${escapeHtml(intro)}</p>
+          ${itemsHtml || '<div class="state">Sin configuraciones.</div>'}
+          <div class="content-action-bar">
+            <span class="content-action-status" id="simple-status">Sin cambios</span>
+            <button class="btn btn-sm" id="simple-save" disabled>Guardar (0)</button>
+          </div>
+        </div>`;
+
+      document.querySelectorAll('[data-setting-key]').forEach(input => {
+        input.addEventListener('input', () => {
+          const k = input.dataset.settingKey;
+          const original = items.find(x => x.key === k);
+          if (!original) return;
+          if (input.value === (original.value || '')) delete dirty[k];
+          else dirty[k] = input.value;
+          const total = Object.keys(dirty).length;
+          document.getElementById('simple-status').textContent = total > 0 ? `${total} cambio(s) sin guardar` : 'Sin cambios';
+          const btn = document.getElementById('simple-save');
+          btn.disabled = total === 0; btn.textContent = `Guardar (${total})`;
+          input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
+        });
+      });
+
+      document.getElementById('simple-save').addEventListener('click', async () => {
+        const changes = Object.entries(dirty).map(([key, value]) => ({ key, value }));
+        if (!changes.length) return;
+        const btn = document.getElementById('simple-save');
         btn.disabled = true; btn.textContent = 'Guardando…';
         try {
           await api('/api/admin/settings/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
