@@ -13,6 +13,7 @@ import {
   RESET_TOKEN_EXPIRY_MINUTES
 } from '../services/admin-users.js';
 import { sendPasswordResetEmail } from '../email.js';
+import { getAllForAdmin, bulkUpdate } from '../services/content.js';
 
 const router = Router();
 const isProd = process.env.NODE_ENV === 'production';
@@ -349,6 +350,34 @@ router.patch('/leads/:id', requireAuth, async (req, res) => {
     if (err.message === 'not_found') return res.status(404).json({ error: 'Lead no encontrado' });
     console.error('[admin/lead/:id PATCH]', err);
     res.status(500).json({ error: 'Error actualizando lead' });
+  }
+});
+
+// ============================================================
+// CONTENT — Admin (requiere auth)
+// GET  /api/admin/content       → todo el contenido agrupado por sección
+// PATCH /api/admin/content/bulk → bulk update [{i18n_key, value_es, value_en}]
+// ============================================================
+
+router.get('/content', requireAuth, async (_req, res) => {
+  try {
+    const sections = await getAllForAdmin();
+    res.json({ sections });
+  } catch (err) {
+    console.error('[admin/content GET]', err);
+    res.status(500).json({ error: 'Error obteniendo contenido' });
+  }
+});
+
+router.patch('/content/bulk', requireAuth, async (req, res) => {
+  try {
+    const changes = (req.body && req.body.changes) || [];
+    if (!Array.isArray(changes)) return res.status(400).json({ error: 'changes debe ser array' });
+    const result = await bulkUpdate(changes, req.session.email);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('[admin/content PATCH]', err);
+    res.status(500).json({ error: 'Error actualizando contenido' });
   }
 });
 

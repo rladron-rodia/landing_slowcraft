@@ -17,6 +17,7 @@ import { pool, query } from './db.js';
 import { sendContactEmail } from './email.js';
 import adminRouter from './routes/admin.js';
 import { bootstrapFromEnv } from './services/admin-users.js';
+import { getPublicContent } from './services/content.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
@@ -37,16 +38,20 @@ app.use(cookieParser());
 // ---------- CORS ----------
 const ALLOWED = (process.env.ALLOWED_ORIGINS || '')
   .split(',').map(s => s.trim()).filter(Boolean);
+// Permitir same-origin (admin servido desde el mismo dominio)
+const SELF_ORIGIN = (process.env.APP_BASE_URL || '').replace(/\/$/, '');
 
 app.use(cors({
   origin (origin, cb) {
     // requests sin Origin (curl, server-to-server) → permitir
     if (!origin) return cb(null, true);
+    // same-origin (admin pages → propios endpoints)
+    if (SELF_ORIGIN && origin === SELF_ORIGIN) return cb(null, true);
     if (ALLOWED.includes(origin)) return cb(null, true);
     return cb(new Error('CORS: origen no permitido: ' + origin));
   },
-  methods: ['GET', 'POST', 'OPTIONS'],
-  credentials: false
+  methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
+  credentials: true   // requerido para que el browser mande la cookie de sesión
 }));
 
 // ---------- Health ----------
@@ -61,6 +66,21 @@ app.get('/healthz', async (_req, res) => {
 
 app.get('/', (_req, res) => {
   res.json({ name: 'slowcraft-api', version: '0.1.0', status: 'ok' });
+});
+
+// ============================================================
+// GET /api/content — público (la landing fetchea esto)
+// Cacheable: el contenido cambia poco
+// ============================================================
+app.get('/api/content', async (_req, res) => {
+  try {
+    const content = await getPublicContent();
+    res.set('Cache-Control', 'public, max-age=60');  // 1 min de caché en CDN/browser
+    res.json(content);
+  } catch (err) {
+    console.error('[api/content]', err);
+    res.status(500).json({ error: 'Error obteniendo contenido' });
+  }
 });
 
 // ============================================================

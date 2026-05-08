@@ -856,19 +856,19 @@
       text-align: left;
       display: flex;
       flex-direction: column;
-      gap: var(--space-3);
+      gap: 7px;
     }
 
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--space-4);
+      gap: 10px;
     }
 
     .form-field {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 3px;
       min-width: 0;
     }
 
@@ -888,7 +888,7 @@
 
     .form-input {
       width: 100%;
-      padding: 12px 14px;
+      padding: 10px 14px;
       background: var(--crema);
       color: var(--text-primary);
       font-family: var(--sans);
@@ -2188,6 +2188,24 @@
 
     // Apply on load
     applyLang(currentLang);
+
+    // Fetch contenido editado desde /api/content y mergear sobre el diccionario hardcoded.
+    // El hardcoded es el fallback (funciona offline / si la API está caída).
+    // El admin puede editar y los cambios se reflejan al próximo load (con cache de 60s).
+    (function fetchContent () {
+      const baseEndpoint = window.SLOWCRAFT_FORM_ENDPOINT || '';
+      const apiBase = baseEndpoint.replace(/\/api\/contact$/, '');
+      if (!apiBase) return;
+      fetch(apiBase + '/api/content')
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data) return;
+          if (data.es) Object.assign(I18N.es, data.es);
+          if (data.en) Object.assign(I18N.en, data.en);
+          applyLang(currentLang);  // re-aplicar con dictionary mergeado
+        })
+        .catch(err => console.warn('[content] no pude cargar:', err.message));
+    })();
     
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
