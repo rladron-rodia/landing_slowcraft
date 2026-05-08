@@ -131,6 +131,80 @@ export async function createCatalogItem (catalogType, { tag, defaults_es = {}, d
   });
 }
 
+// ---------- CLONE ----------
+// Clona una sección de catálogo completa (todos los content_blocks copiados a nueva section).
+export async function cloneCatalogItem (sourceSection, actor) {
+  return await withClient(async (client) => {
+    await client.query('BEGIN');
+    try {
+      // Verificar fuente
+      const { rows: srcRows } = await client.query(
+        `SELECT * FROM catalog_sections WHERE section = $1`, [sourceSection]
+      );
+      if (!srcRows.length) throw new Error('Section fuente no existe');
+      const src = srcRows[0];
+
+      // Calcular próximo slot del mismo tipo
+      const { rows: existing } = await client.query(
+        `SELECT section FROM catalog_sections WHERE catalog_type = $1`, [src.catalog_type]
+      );
+      const slotPrefix = src.catalog_type === 'program' ? 'p' : src.catalog_type === 'servicio' ? 's' : 'f';
+      const slotsUsed = existing.map(r => slotFromSection(r.section))
+        .map(s => parseInt(s.replace(slotPrefix, ''), 10))
+        .filter(n => !isNaN(n));
+      const nextNum = (slotsUsed.length ? Math.max(...slotsUsed) : 0) + 1;
+      const newSlot = slotPrefix + nextNum;
+      const newSection = `${TYPE_TO_PLURAL[src.catalog_type]}.${newSlot}`;
+      const newKeyPrefix = keyPrefixFor(src.catalog_type, newSlot);
+
+      // display_order al final
+      const { rows: mx } = await client.query(
+        `SELECT COALESCE(MAX(display_order),0)+1 AS next FROM catalog_sections WHERE catalog_type=$1`,
+        [src.catalog_type]
+      );
+
+      // Insertar nueva catalog_section
+      await client.query(
+        `INSERT INTO catalog_sections (section, catalog_type, display_order, tag, updated_by)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [newSection, src.catalog_type, mx[0].next, src.tag, actor || 'system']
+      );
+
+      // Copiar todos los content_blocks de la sección original con keys reescritas
+      const { rows: srcBlocks } = await client.query(
+        `SELECT i18n_key, field_label, value_es, value_en, value_type, display_order
+         FROM content_blocks WHERE section = $1`,
+        [sourceSection]
+      );
+
+      const oldKeyPrefix = keyPrefixFor(src.catalog_type, slotFromSection(sourceSection));
+      for (const b of srcBlocks) {
+        // Reemplazar el prefix viejo por el nuevo en la key
+        const newKey = b.i18n_key.replace(oldKeyPrefix, newKeyPrefix);
+        // Para el título, agregar "(copia)" al final
+        let valueEs = b.value_es;
+        let valueEn = b.value_en;
+        if (newKey.endsWith('.h')) {
+          valueEs = (b.value_es || '') + ' (copia)';
+          valueEn = (b.value_en || '') + ' (copy)';
+        }
+        await client.query(
+          `INSERT INTO content_blocks (i18n_key, section, field_label, value_es, value_en, value_type, display_order, updated_by)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+           ON CONFLICT (i18n_key) DO NOTHING`,
+          [newKey, newSection, b.field_label, valueEs, valueEn, b.value_type, b.display_order, actor || 'system']
+        );
+      }
+
+      await client.query('COMMIT');
+      return { section: newSection, slot: newSlot };
+    } catch (err) {
+      await client.query('ROLLBACK');
+      throw err;
+    }
+  });
+}
+
 // ---------- DELETE ----------
 export async function deleteCatalogItem (section) {
   return await withClient(async (client) => {

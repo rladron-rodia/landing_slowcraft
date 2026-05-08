@@ -2202,7 +2202,8 @@
 
     function renderPrograms (programs) {
       const grid = document.querySelector('[data-render="programs"]');
-      if (!grid || !Array.isArray(programs) || !programs.length) return;
+      if (!grid || !Array.isArray(programs)) return;
+      if (!programs.length) { grid.innerHTML = ''; return; }
       grid.innerHTML = programs.map((p, i) => {
         const num = String(p.display_order || i + 1).padStart(2, '0');
         const modulesHtml = (p.module_keys || []).map(k => `<li>${escapeHtml(v(k))}</li>`).join('');
@@ -2226,7 +2227,8 @@
 
     function renderServicios (servicios) {
       const grid = document.querySelector('[data-render="servicios"]');
-      if (!grid || !Array.isArray(servicios) || !servicios.length) return;
+      if (!grid || !Array.isArray(servicios)) return;
+      if (!servicios.length) { grid.innerHTML = ''; return; }
       grid.innerHTML = servicios.map((s, i) => {
         const num = String(s.display_order || i + 1).padStart(2, '0');
         const itemsHtml = (s.item_keys || []).map(k => `<li>${escapeHtml(v(k))}</li>`).join('');
@@ -2242,7 +2244,8 @@
 
     function renderFases (fases) {
       const grid = document.querySelector('[data-render="fases"]');
-      if (!grid || !Array.isArray(fases) || !fases.length) return;
+      if (!grid || !Array.isArray(fases)) return;
+      if (!fases.length) { grid.innerHTML = ''; return; }
       grid.innerHTML = fases.map((f, i) => {
         const num = String(f.display_order || i + 1).padStart(2, '0');
         return `
@@ -2267,7 +2270,40 @@
       }
     };
 
-    // Fetch contenido + catálogos
+    // Inyecta GA4 / GTM dinámicamente (si están configurados en el admin)
+    function loadAnalytics (settings) {
+      if (!settings) return;
+      const gtmId = (settings['analytics.gtm_id'] || '').trim();
+      const ga4Id = (settings['analytics.ga4_id'] || '').trim();
+
+      // GTM tiene prioridad — si está, lo usamos (cubre GA4 también via GTM)
+      if (gtmId && /^GTM-[A-Z0-9]+$/i.test(gtmId)) {
+        if (document.getElementById('gtm-script')) return;
+        const s = document.createElement('script');
+        s.id = 'gtm-script';
+        s.innerHTML = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`;
+        document.head.appendChild(s);
+        const noscript = document.createElement('noscript');
+        noscript.innerHTML = `<iframe src="https://www.googletagmanager.com/ns.html?id=${gtmId}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
+        document.body.insertBefore(noscript, document.body.firstChild);
+        return;
+      }
+
+      // GA4 directo
+      if (ga4Id && /^G-[A-Z0-9]+$/i.test(ga4Id)) {
+        if (document.getElementById('ga4-script')) return;
+        const s1 = document.createElement('script');
+        s1.id = 'ga4-script';
+        s1.async = true;
+        s1.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4Id;
+        document.head.appendChild(s1);
+        const s2 = document.createElement('script');
+        s2.innerHTML = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${ga4Id}');`;
+        document.head.appendChild(s2);
+      }
+    }
+
+    // Fetch contenido + catálogos + settings
     (function fetchContent () {
       const baseEndpoint = window.SLOWCRAFT_FORM_ENDPOINT || '';
       const apiBase = baseEndpoint.replace(/\/api\/contact$/, '');
@@ -2280,6 +2316,7 @@
           if (data.es) Object.assign(I18N.es, data.es);
           if (data.en) Object.assign(I18N.en, data.en);
           applyLang(currentLang);
+          loadAnalytics(data.settings);
         })
         .catch(err => console.warn('[content] no pude cargar:', err.message));
     })();

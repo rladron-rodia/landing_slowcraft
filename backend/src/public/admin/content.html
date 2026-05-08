@@ -30,11 +30,12 @@
 
     <!-- Sub-tabs por tipo de contenido -->
     <nav class="content-subtabs" id="subtabs">
-      <a href="#programs"   data-tab="programs">Programs</a>
-      <a href="#servicios"  data-tab="servicios">Servicios</a>
-      <a href="#metodo"     data-tab="metodo">Método</a>
-      <a href="#contenido"  data-tab="contenido">Contenido general</a>
-      <a href="#cta"        data-tab="cta">CTA Final</a>
+      <a href="#programs"      data-tab="programs">Programs</a>
+      <a href="#servicios"     data-tab="servicios">Servicios</a>
+      <a href="#metodo"        data-tab="metodo">Método</a>
+      <a href="#contenido"     data-tab="contenido">Contenido general</a>
+      <a href="#cta"           data-tab="cta">CTA Final</a>
+      <a href="#configuracion" data-tab="configuracion">Configuración</a>
     </nav>
 
     <section class="content-pane" id="pane">
@@ -76,11 +77,12 @@
     ];
 
     const TAB_TITLES = {
-      programs:  'Programs',
-      servicios: 'Servicios',
-      metodo:    'Método',
-      contenido: 'Contenido general',
-      cta:       'CTA Final'
+      programs:     'Programs',
+      servicios:    'Servicios',
+      metodo:       'Método',
+      contenido:    'Contenido general',
+      cta:          'CTA Final',
+      configuracion:'Configuración'
     };
 
     // ---------- Auth + API ----------
@@ -163,8 +165,9 @@
       syncTabsUI();
       const tab = activeTab();
       try {
-        if (tab === 'contenido') return await renderContenido();
-        if (tab === 'cta')       return await renderCTA();
+        if (tab === 'contenido')     return await renderContenido();
+        if (tab === 'cta')           return await renderCTA();
+        if (tab === 'configuracion') return await renderConfiguracion();
         return await renderCatalog(tab); // programs | servicios | metodo
       } catch (err) {
         document.getElementById('pane').innerHTML = `<div class="state"><h3>Error</h3>${escapeHtml(err.message)}</div>`;
@@ -224,6 +227,7 @@
                 <h3 class="catalog-card-title">${escapeHtml(titleField ? titleField.value_es : '(sin título)')}</h3>
               </div>
               <div class="catalog-card-actions">
+                <button class="btn btn-sm btn-secondary" data-action="clone-item" data-section="${escapeHtml(item.section)}" data-title="${escapeHtml(titleField ? titleField.value_es : item.section)}">⎘ Clonar</button>
                 <button class="btn btn-sm btn-secondary" data-action="edit-meta" data-section="${escapeHtml(item.section)}" data-tag="${escapeHtml(item.tag || '')}" data-order="${item.display_order}">⚙ Meta</button>
                 <button class="btn btn-sm btn-danger" data-action="delete-item" data-section="${escapeHtml(item.section)}" data-title="${escapeHtml(titleField ? titleField.value_es : item.section)}">🗑 Eliminar</button>
               </div>
@@ -324,6 +328,16 @@
         const tag = btn.dataset.tag;
         const order = btn.dataset.order;
         promptEditMeta(section, tag, order);
+      }
+      else if (action === 'clone-item') {
+        const section = btn.dataset.section;
+        const title = btn.dataset.title;
+        if (!confirm(`¿Clonar "${title}"? Se creará una copia editable.`)) return;
+        try {
+          await api(`/api/admin/catalog/section/${encodeURIComponent(section)}/clone`, { method: 'POST' });
+          toast('Clonado ✓ — buscalo abajo en la lista', 'success');
+          renderActiveTab();
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
       }
     }
 
@@ -519,7 +533,7 @@
     }
 
     // ============================================================
-    // CTA FINAL VIEW
+    // CTA FINAL VIEW (con labels editables)
     // ============================================================
     async function renderCTA () {
       const data = await api('/api/admin/content');
@@ -527,27 +541,32 @@
       const dirty = {};
 
       const fieldsHtml = fields.map(f => `
-        <div class="content-field" data-key="${escapeHtml(f.i18n_key)}">
-          <div class="content-field-header">
-            <span class="content-field-label">${escapeHtml(f.field_label)}</span>
-            <span class="content-field-key">${escapeHtml(f.i18n_key)}</span>
-            <span class="content-field-type ${f.value_type === 'html' ? 'is-html' : ''}">${f.value_type === 'html' ? 'HTML' : 'Texto'}</span>
+        <div class="content-field cta-field" data-key="${escapeHtml(f.i18n_key)}">
+          <div class="cta-field-row">
+            <div class="cta-field-label-edit">
+              <label class="content-field-lang-label">Etiqueta del campo</label>
+              <input type="text" class="cta-label-input" data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="field_label" value="${escapeHtml(f.field_label || '')}" placeholder="Ej: Headline, Párrafo…">
+            </div>
+            <div class="cta-field-key-meta">
+              <span class="content-field-key">${escapeHtml(f.i18n_key)}</span>
+              <span class="content-field-type ${f.value_type === 'html' ? 'is-html' : ''}">${f.value_type === 'html' ? 'HTML' : 'Texto'}</span>
+            </div>
           </div>
           <div class="content-field-grid">
             <div class="content-field-lang">
-              <span class="content-field-lang-label">ES</span>
-              <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="es" rows="3">${escapeHtml(f.value_es)}</textarea>
+              <span class="content-field-lang-label">Valor · ES</span>
+              <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="value_es" rows="3">${escapeHtml(f.value_es)}</textarea>
             </div>
             <div class="content-field-lang">
-              <span class="content-field-lang-label">EN</span>
-              <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="en" rows="3">${escapeHtml(f.value_en)}</textarea>
+              <span class="content-field-lang-label">Valor · EN</span>
+              <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="value_en" rows="3">${escapeHtml(f.value_en)}</textarea>
             </div>
           </div>
         </div>`).join('');
 
       document.getElementById('pane').innerHTML = `
         <h2 class="content-section-title">CTA Final</h2>
-        <p class="content-section-meta">El bloque de "Diseñemos juntos…" antes del formulario.</p>
+        <p class="content-section-meta">El bloque de "Diseñemos juntos…" antes del formulario. Podés editar tanto los valores como las etiquetas internas de cada campo.</p>
         ${fieldsHtml}
         <div class="content-action-bar">
           <span class="content-action-status" id="cta-status">Sin cambios</span>
@@ -556,14 +575,14 @@
 
       document.querySelectorAll('#pane [data-edit-key]').forEach(input => {
         input.addEventListener('input', () => {
-          const k = input.dataset.editKey, lang = input.dataset.lang;
+          const k = input.dataset.editKey, prop = input.dataset.prop;
           const original = fields.find(f => f.i18n_key === k);
           if (!original) return;
-          if (!dirty[k]) dirty[k] = { value_es: original.value_es, value_en: original.value_en };
-          dirty[k]['value_' + lang] = input.value;
-          if (dirty[k].value_es === original.value_es && dirty[k].value_en === original.value_en) delete dirty[k];
+          if (!dirty[k]) dirty[k] = { value_es: original.value_es, value_en: original.value_en, field_label: original.field_label || '' };
+          dirty[k][prop] = input.value;
+          if (dirty[k].value_es === original.value_es && dirty[k].value_en === original.value_en && dirty[k].field_label === (original.field_label || '')) delete dirty[k];
           const total = Object.keys(dirty).length;
-          document.getElementById('cta-status').textContent = total > 0 ? `${total} cambio(s)` : 'Sin cambios';
+          document.getElementById('cta-status').textContent = total > 0 ? `${total} cambio(s) sin guardar` : 'Sin cambios';
           const btn = document.getElementById('cta-save');
           btn.disabled = total === 0; btn.textContent = `Guardar (${total})`;
           input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
@@ -571,7 +590,9 @@
       });
 
       document.getElementById('cta-save').addEventListener('click', async () => {
-        const changes = Object.entries(dirty).map(([k, v]) => ({ i18n_key: k, value_es: v.value_es, value_en: v.value_en }));
+        const changes = Object.entries(dirty).map(([k, v]) => ({
+          i18n_key: k, value_es: v.value_es, value_en: v.value_en, field_label: v.field_label
+        }));
         if (!changes.length) return;
         const btn = document.getElementById('cta-save');
         btn.disabled = true; btn.textContent = 'Guardando…';
@@ -581,6 +602,93 @@
           renderActiveTab();
         } catch (err) { toast('Error: ' + err.message, 'error'); btn.disabled = false; btn.textContent = 'Reintentar'; }
       });
+    }
+
+    // ============================================================
+    // CONFIGURACIÓN VIEW (settings: Analytics + GTM, etc.)
+    // ============================================================
+    const CONFIG_SUB_SECTIONS = [
+      { key: 'analytics', title: 'Analytics', description: 'Google Analytics 4 y Google Tag Manager. Si configurás GTM, tiene prioridad sobre GA4 directo.' }
+    ];
+
+    async function renderConfiguracion () {
+      const data = await api('/api/admin/settings');
+      const categories = data.categories || {};
+      const dirty = {};
+
+      // Sub-tabs
+      const subtabsHtml = CONFIG_SUB_SECTIONS.map((s, i) =>
+        `<button type="button" class="config-subtab ${i === 0 ? 'is-active' : ''}" data-subtab="${escapeHtml(s.key)}">${escapeHtml(s.title)}</button>`
+      ).join('');
+
+      document.getElementById('pane').innerHTML = `
+        <h2 class="content-section-title">Configuración</h2>
+        <p class="content-section-meta">Ajustes globales del sitio.</p>
+        <nav class="config-subtabs">${subtabsHtml}</nav>
+        <div id="config-pane"></div>`;
+
+      function renderSub (subKey) {
+        const meta = CONFIG_SUB_SECTIONS.find(s => s.key === subKey);
+        const items = categories[subKey] || [];
+        const itemsHtml = items.map(it => `
+          <div class="content-field" data-key="${escapeHtml(it.key)}">
+            <div class="content-field-header">
+              <span class="content-field-label">${escapeHtml(it.label)}</span>
+              <span class="content-field-key">${escapeHtml(it.key)}</span>
+            </div>
+            ${it.description ? `<p class="config-help">${escapeHtml(it.description)}</p>` : ''}
+            <input type="text" class="input config-input" data-setting-key="${escapeHtml(it.key)}" value="${escapeHtml(it.value || '')}" placeholder="${escapeHtml(it.placeholder || '')}">
+          </div>`).join('');
+
+        document.getElementById('config-pane').innerHTML = `
+          <div class="config-block">
+            <p class="config-intro">${escapeHtml(meta.description)}</p>
+            ${itemsHtml || '<div class="state">Sin configuraciones en esta categoría.</div>'}
+            <div class="content-action-bar">
+              <span class="content-action-status" id="config-status">Sin cambios</span>
+              <button class="btn btn-sm" id="config-save" disabled>Guardar (0)</button>
+            </div>
+          </div>`;
+
+        document.querySelectorAll('[data-setting-key]').forEach(input => {
+          input.addEventListener('input', () => {
+            const k = input.dataset.settingKey;
+            const original = items.find(x => x.key === k);
+            if (!original) return;
+            const newVal = input.value;
+            if (newVal === (original.value || '')) delete dirty[k];
+            else dirty[k] = newVal;
+            const total = Object.keys(dirty).length;
+            document.getElementById('config-status').textContent = total > 0 ? `${total} cambio(s) sin guardar` : 'Sin cambios';
+            const btn = document.getElementById('config-save');
+            btn.disabled = total === 0; btn.textContent = `Guardar (${total})`;
+            input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
+          });
+        });
+
+        document.getElementById('config-save').addEventListener('click', async () => {
+          const changes = Object.entries(dirty).map(([key, value]) => ({ key, value }));
+          if (!changes.length) return;
+          const btn = document.getElementById('config-save');
+          btn.disabled = true; btn.textContent = 'Guardando…';
+          try {
+            await api('/api/admin/settings/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
+            toast(`Configuración guardada ✓ (${changes.length})`, 'success');
+            renderActiveTab();
+          } catch (err) { toast('Error: ' + err.message, 'error'); btn.disabled = false; btn.textContent = 'Reintentar'; }
+        });
+      }
+
+      // Wire sub-tabs
+      document.querySelectorAll('[data-subtab]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-subtab]').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          renderSub(btn.dataset.subtab);
+        });
+      });
+
+      renderSub(CONFIG_SUB_SECTIONS[0].key);
     }
 
     // ============================================================

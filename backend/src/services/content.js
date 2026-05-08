@@ -31,7 +31,7 @@ export async function getAllForAdmin () {
   return sections;
 }
 
-// Bulk update — recibe array de {i18n_key, value_es, value_en}
+// Bulk update — recibe array de {i18n_key, value_es?, value_en?, field_label?}
 // Solo actualiza filas existentes; ignora keys que no existen.
 export async function bulkUpdate (changes, actor) {
   if (!Array.isArray(changes) || changes.length === 0) return { updated: 0 };
@@ -50,6 +50,10 @@ export async function bulkUpdate (changes, actor) {
         if (typeof c.value_en === 'string') {
           params.push(c.value_en);
           sets.push(`value_en = $${params.length}`);
+        }
+        if (typeof c.field_label === 'string') {
+          params.push(c.field_label);
+          sets.push(`field_label = $${params.length}`);
         }
         if (!sets.length) continue;
         params.push(actor || 'system');

@@ -19,6 +19,7 @@ import adminRouter from './routes/admin.js';
 import { bootstrapFromEnv } from './services/admin-users.js';
 import { getPublicContent } from './services/content.js';
 import { getPublicCatalogs } from './services/catalog.js';
+import { getPublicSettings } from './services/settings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
@@ -75,12 +76,14 @@ app.get('/', (_req, res) => {
 // ============================================================
 app.get('/api/content', async (_req, res) => {
   try {
-    const [content, catalogs] = await Promise.all([
+    const [content, catalogs, settings] = await Promise.all([
       getPublicContent(),
-      getPublicCatalogs()
+      getPublicCatalogs(),
+      getPublicSettings()
     ]);
-    res.set('Cache-Control', 'public, max-age=60');
-    res.json({ ...content, catalogs });
+    // Sin cache para que los cambios del admin se vean inmediato
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.json({ ...content, catalogs, settings, _ts: Date.now() });
   } catch (err) {
     console.error('[api/content]', err);
     res.status(500).json({ error: 'Error obteniendo contenido' });

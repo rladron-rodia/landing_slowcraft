@@ -16,8 +16,12 @@ import { sendPasswordResetEmail } from '../email.js';
 import { getAllForAdmin, bulkUpdate } from '../services/content.js';
 import {
   listCatalog, getOne, createCatalogItem, deleteCatalogItem,
-  updateMetadata, addItem, removeItem
+  updateMetadata, addItem, removeItem, cloneCatalogItem
 } from '../services/catalog.js';
+import {
+  getAllForAdmin as getSettingsForAdmin,
+  bulkUpdate as bulkUpdateSettings
+} from '../services/settings.js';
 
 const router = Router();
 const isProd = process.env.NODE_ENV === 'production';
@@ -455,6 +459,41 @@ router.delete('/catalog/items/:i18nKey', requireAuth, async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('[catalog remove item]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/catalog/section/:section/clone', requireAuth, async (req, res) => {
+  try {
+    const result = await cloneCatalogItem(req.params.section, req.session.email);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('[catalog clone]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ============================================================
+// SETTINGS (analytics, GTM, etc.)
+// ============================================================
+router.get('/settings', requireAuth, async (_req, res) => {
+  try {
+    const grouped = await getSettingsForAdmin();
+    res.json({ categories: grouped });
+  } catch (err) {
+    console.error('[settings GET]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/settings/bulk', requireAuth, async (req, res) => {
+  try {
+    const changes = (req.body && req.body.changes) || [];
+    if (!Array.isArray(changes)) return res.status(400).json({ error: 'changes debe ser array' });
+    const result = await bulkUpdateSettings(changes, req.session.email);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('[settings PATCH]', err);
     res.status(500).json({ error: err.message });
   }
 });

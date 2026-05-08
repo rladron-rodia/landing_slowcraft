@@ -1072,6 +1072,100 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
 }
 
 /* ============================================================
+   CTA EDITOR — labels editables
+   ============================================================ */
+.cta-field {
+  background: #fff;
+  border: 1px solid var(--piedra-light);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.cta-field-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-4);
+  align-items: end;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px dashed var(--piedra-light);
+}
+.cta-field-label-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.cta-label-input {
+  padding: 6px 10px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--piedra-soft);
+  background: var(--crema);
+  border-radius: 2px;
+}
+.cta-label-input:focus {
+  outline: none;
+  border-color: var(--cobre);
+  box-shadow: 0 0 0 2px rgba(168, 89, 61, 0.15);
+}
+.cta-field-key-meta {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* ============================================================
+   CONFIGURACIÓN — sub-tabs + bloques
+   ============================================================ */
+.config-subtabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: var(--space-6);
+  border-bottom: 1px solid var(--piedra-light);
+}
+.config-subtab {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--piedra);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+}
+.config-subtab:hover { color: var(--tinta); }
+.config-subtab.is-active { color: var(--tinta); border-bottom-color: var(--cobre); }
+
+.config-block {
+  background: #fff;
+  border: 1px solid var(--piedra-light);
+  padding: var(--space-6);
+}
+.config-intro {
+  font-size: 13px;
+  color: var(--piedra);
+  line-height: 1.6;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--piedra-light);
+}
+.config-help {
+  font-size: 12px;
+  color: var(--piedra);
+  line-height: 1.5;
+  margin-bottom: var(--space-2);
+  font-style: italic;
+}
+.config-input {
+  font-family: var(--mono) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.3px;
+}
+
+/* ============================================================
    CONTENT EDITOR (Contenido general — i18n)
    ============================================================ */
 .content-shell {
