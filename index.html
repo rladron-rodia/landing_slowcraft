@@ -6,23 +6,88 @@
   <title>Slowcraft — Strategy & Programs · IA deliberadamente diseñada</title>
   <meta name="description" content="Diseñamos los flujos donde el talento humano y la IA hacen lo que mejor saben hacer. Strategy para repensar la operación, Programs para resolver dolores específicos.">
   <meta name="version" content="3.0">
+  <meta name="design-system" content="2.0">
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   
   <style>
+    /* ==========================================================================
+       SLOWCRAFT DESIGN SYSTEM v2.0 — TOKENS
+       Fuente de verdad: docs/design-system.html
+       ========================================================================== */
     :root {
+      /* --- Color primitives --- */
       --tinta: #0F0F0E;
+      --tinta-80: #2A2A28;
       --crema: #F5F1EA;
       --crema-soft: #EFEAE0;
+      --crema-deep: #E8E3DA;
       --salvia: #3A4F41;
+      --salvia-light: #5C705F;
       --cobre: #A8593D;
+      --cobre-light: #C77A57;
       --piedra: #7A7570;
       --piedra-soft: #B5B0A8;
-      
+      --piedra-light: #DDD8D0;
+
+      /* --- States --- */
+      --success: #4A6B5C;
+      --warning: #B88339;
+      --danger:  #A04A3D;
+      --info:    #4A6175;
+
+      /* --- Semantic color tokens --- */
+      --bg-primary:    var(--crema);
+      --bg-secondary:  var(--crema-soft);
+      --bg-inverse:    var(--tinta);
+      --text-primary:   var(--tinta);
+      --text-secondary: var(--piedra);
+      --text-accent:    var(--salvia);
+      --text-highlight: var(--cobre);
+      --border-default: rgba(15, 15, 14, 0.15);
+      --border-strong:  var(--tinta);
+
+      /* --- Type --- */
       --serif: 'Newsreader', 'Times New Roman', serif;
-      --sans: 'Inter', -apple-system, sans-serif;
+      --sans:  'Inter', -apple-system, sans-serif;
+      --mono:  'JetBrains Mono', 'Courier New', monospace;
+
+      /* --- Spacing scale --- */
+      --space-1:  4px;
+      --space-2:  8px;
+      --space-3:  12px;
+      --space-4:  16px;
+      --space-6:  24px;
+      --space-8:  32px;
+      --space-12: 48px;
+      --space-16: 64px;
+      --space-24: 96px;
+      --space-32: 128px;
+      --space-48: 192px;
+
+      /* --- Spacing semantic --- */
+      --space-section: 128px;  /* padding vertical entre secciones */
+      --space-block:    64px;  /* entre bloques dentro de una sección */
+      --space-element:  24px;  /* entre elementos relacionados */
+      --space-tight:     8px;  /* entre elementos muy ligados */
+
+      /* --- Containers --- */
+      --container-sm:  640px;
+      --container-md:  768px;
+      --container-lg: 1024px;
+      --container-xl: 1280px;
+      --container-2xl: 1440px;
+
+      /* --- Motion --- */
+      --ease-out:       cubic-bezier(0.22, 1, 0.36, 1);
+      --ease-editorial: cubic-bezier(0.4, 0, 0.2, 1);
+      --duration-fast:        200ms;
+      --duration-default:     300ms;
+      --duration-slow:        500ms;
+      --duration-slower:      800ms;
+      --duration-deliberate: 1000ms;
     }
     
     * { box-sizing: border-box; margin: 0; padding: 0; }

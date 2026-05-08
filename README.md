@@ -5,8 +5,8 @@ Landing page de **Slowcraft**: Strategy & Programs para diseñar flujos donde el
 ## Stack
 
 - HTML estático single-file (sin build step)
-- CSS in-line con variables custom (paleta tinta / crema / salvia / cobre / piedra)
-- Tipografías: [Newsreader](https://fonts.google.com/specimen/Newsreader) (serif) + [Inter](https://fonts.google.com/specimen/Inter) (sans), cargadas desde Google Fonts
+- CSS in-line con variables custom (design system v2.0 completo en `:root`)
+- Tipografías: [Newsreader](https://fonts.google.com/specimen/Newsreader) (serif) + [Inter](https://fonts.google.com/specimen/Inter) (sans) + [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) (mono), cargadas desde Google Fonts
 
 ## Estructura
 
@@ -47,15 +47,18 @@ El repo está pensado para deploy estático (GitHub Pages, Netlify, Vercel, Clou
 
 ## Branding
 
-| Token        | Hex       | Uso                       |
-|--------------|-----------|---------------------------|
-| `--tinta`    | `#0F0F0E` | Texto principal           |
-| `--crema`    | `#F5F1EA` | Fondo                     |
-| `--crema-soft` | `#EFEAE0` | Fondo secundario        |
-| `--salvia`   | `#3A4F41` | Acentos / CTA secundario  |
-| `--cobre`    | `#A8593D` | Acentos cálidos / links   |
-| `--piedra`   | `#7A7570` | Texto secundario          |
-| `--piedra-soft` | `#B5B0A8` | Bordes / divisores     |
+Paleta extendida del design system v2.0 (todos los tokens disponibles en `index.html`):
+
+| Familia    | Tokens                                                    |
+|------------|-----------------------------------------------------------|
+| Tinta      | `--tinta` `#0F0F0E` · `--tinta-80` `#2A2A28`              |
+| Crema      | `--crema` `#F5F1EA` · `--crema-soft` `#EFEAE0` · `--crema-deep` `#E8E3DA` |
+| Salvia     | `--salvia` `#3A4F41` · `--salvia-light` `#5C705F`         |
+| Cobre      | `--cobre` `#A8593D` · `--cobre-light` `#C77A57`           |
+| Piedra     | `--piedra` `#7A7570` · `--piedra-soft` `#B5B0A8` · `--piedra-light` `#DDD8D0` |
+| Estados    | `--success` · `--warning` · `--danger` · `--info`         |
+
+Además: tokens semánticos (`--bg-*`, `--text-*`, `--border-*`), escala de spacing (`--space-1` a `--space-48` + semánticos), containers (`--container-sm` a `--container-2xl`) y motion (`--ease-*`, `--duration-*`). Ver [`docs/design-system.html`](docs/design-system.html) para referencia visual completa.
 
 ## Licencia
 
