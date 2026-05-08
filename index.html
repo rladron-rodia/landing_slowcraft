@@ -856,7 +856,7 @@
       text-align: left;
       display: flex;
       flex-direction: column;
-      gap: var(--space-4);
+      gap: var(--space-3);
     }
 
     .form-row {
@@ -979,9 +979,9 @@
       cursor: pointer;
       transition: background var(--duration-default) var(--ease-out),
                   transform var(--duration-default) var(--ease-out);
-      align-self: flex-start;
-      min-width: 220px;
-      margin-top: var(--space-2);
+      align-self: center;
+      min-width: 240px;
+      margin-top: var(--space-3);
     }
 
     .form-submit:hover:not(:disabled) {
@@ -1020,7 +1020,9 @@
       display: flex;
       align-items: center;
       gap: var(--space-3);
-      margin: var(--space-4) 0 var(--space-2);
+      margin: var(--space-3) auto var(--space-2);
+      max-width: 360px;
+      width: 100%;
       font-family: var(--mono);
       font-size: 11px;
       letter-spacing: 2px;
@@ -1055,8 +1057,8 @@
                   color var(--duration-default) var(--ease-out),
                   transform var(--duration-default) var(--ease-out),
                   box-shadow var(--duration-default) var(--ease-out);
-      align-self: flex-start;
-      min-width: 220px;
+      align-self: center;
+      min-width: 240px;
       text-decoration: none;
     }
     .form-whatsapp:hover {
@@ -1332,71 +1334,71 @@
       <span class="logo-text">Slowcraft</span>
     </a>
     <div class="nav-links">
-      <a href="#metodo">Método</a>
-      <a href="#strategy">Strategy</a>
-      <a href="#programs">Programs</a>
-      <a href="#sobre">Nosotros</a>
-      <button class="lang-switch">EN</button>
-      <a href="#contacto" class="nav-cta">Conversemos</a>
+      <a href="#metodo" data-i18n="nav.metodo">Método</a>
+      <a href="#strategy" data-i18n="nav.strategy">Strategy</a>
+      <a href="#programs" data-i18n="nav.programs">Programs</a>
+      <a href="#sobre" data-i18n="nav.sobre">Nosotros</a>
+      <button class="lang-switch" type="button" aria-label="Cambiar idioma">EN</button>
+      <a href="#contacto" class="nav-cta" data-i18n="nav.cta">Conversemos</a>
     </div>
   </nav>
   
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-eyebrow eyebrow">SLOWCRAFT · AI STRATEGY · MÉXICO</div>
-    <h1>La IA es la mano derecha del <em>talento humano.</em></h1>
-    <p>Diseñamos los flujos donde tu equipo y la inteligencia artificial hacen lo que cada uno mejor sabe hacer. Sin reemplazos. Sin atajos. Con criterio.</p>
-    <a href="#contacto" class="hero-cta">Agenda una conversación</a>
-    
+    <div class="hero-eyebrow eyebrow" data-i18n="hero.eyebrow">SLOWCRAFT · AI STRATEGY · MÉXICO</div>
+    <h1 data-i18n-html="hero.h1">La IA es la mano derecha del <em>talento humano.</em></h1>
+    <p data-i18n="hero.p">Diseñamos los flujos donde tu equipo y la inteligencia artificial hacen lo que cada uno mejor sabe hacer. Sin reemplazos. Sin atajos. Con criterio.</p>
+    <a href="#contacto" class="hero-cta" data-i18n="hero.cta">Agenda una conversación</a>
+
     <div class="hero-meta">
       <div class="hero-meta-label">Slowcraft</div>
-      <div class="hero-meta-text">"Estrategia AI, deliberadamente diseñada."</div>
+      <div class="hero-meta-text" data-i18n="hero.meta-text">"Estrategia AI, deliberadamente diseñada."</div>
     </div>
   </section>
   
   <!-- TESIS -->
   <section class="tesis">
     <div class="tesis-inner">
-      <div class="eyebrow">01 · NUESTRA TESIS</div>
-      <h2>La IA no reemplaza al humano. <em>Lo amplifica.</em> El humano no frena a la IA. La dirige. Slowcraft diseña esa colaboración.</h2>
-      
+      <div class="eyebrow" data-i18n="tesis.eyebrow">01 · NUESTRA TESIS</div>
+      <h2 data-i18n-html="tesis.h2">La IA no reemplaza al humano. <em>Lo amplifica.</em> El humano no frena a la IA. La dirige. Slowcraft diseña esa colaboración.</h2>
+
       <div class="tesis-text">
         <div class="tesis-block">
           <div class="tesis-block-num">i.</div>
-          <p>La inteligencia artificial es el copiloto más poderoso que ha existido. Pero un copiloto sin un piloto que sepa hacia dónde va, no llega lejos.</p>
+          <p data-i18n="tesis.b1">La inteligencia artificial es el copiloto más poderoso que ha existido. Pero un copiloto sin un piloto que sepa hacia dónde va, no llega lejos.</p>
         </div>
         <div class="tesis-block">
           <div class="tesis-block-num">ii.</div>
-          <p>El error no es adoptar la IA tarde. Es adoptarla sin diseño. Las empresas que ganarán esta década son las que diseñaron mejor cómo trabajan con ella.</p>
+          <p data-i18n="tesis.b2">El error no es adoptar la IA tarde. Es adoptarla sin diseño. Las empresas que ganarán esta década son las que diseñaron mejor cómo trabajan con ella.</p>
         </div>
         <div class="tesis-block">
           <div class="tesis-block-num">iii.</div>
-          <p>Tu equipo y la IA son tus dos recursos más valiosos. Nuestro trabajo es diseñar cómo se dan la mano para que ambos hagan lo que mejor saben hacer.</p>
+          <p data-i18n="tesis.b3">Tu equipo y la IA son tus dos recursos más valiosos. Nuestro trabajo es diseñar cómo se dan la mano para que ambos hagan lo que mejor saben hacer.</p>
         </div>
       </div>
     </div>
   </section>
-  
+
   <!-- MÉTODO -->
   <section id="metodo" class="metodo">
-    <div class="eyebrow">02 · CÓMO TRABAJAMOS</div>
-    <h2>Tres fases. Una arquitectura. Resultados medibles.</h2>
-    
+    <div class="eyebrow" data-i18n="metodo.eyebrow">02 · CÓMO TRABAJAMOS</div>
+    <h2 data-i18n="metodo.h2">Tres fases. Una arquitectura. Resultados medibles.</h2>
+
     <div class="fases">
       <div class="fase">
         <div class="fase-num">01</div>
-        <h3>Diagnóstico</h3>
-        <p>Mapeamos cómo trabaja hoy tu empresa. Identificamos dónde la IA puede ser un copiloto poderoso para tu equipo — y dónde es mejor no tocar nada todavía.</p>
+        <h3 data-i18n="metodo.f1.h">Diagnóstico</h3>
+        <p data-i18n="metodo.f1.p">Mapeamos cómo trabaja hoy tu empresa. Identificamos dónde la IA puede ser un copiloto poderoso para tu equipo — y dónde es mejor no tocar nada todavía.</p>
       </div>
       <div class="fase">
         <div class="fase-num">02</div>
-        <h3>Arquitectura</h3>
-        <p>Diseñamos los flujos humano–IA con propósito. Definimos qué hace mejor la máquina, qué hace mejor la persona, y cómo se complementan en cada paso.</p>
+        <h3 data-i18n="metodo.f2.h">Arquitectura</h3>
+        <p data-i18n="metodo.f2.p">Diseñamos los flujos humano–IA con propósito. Definimos qué hace mejor la máquina, qué hace mejor la persona, y cómo se complementan en cada paso.</p>
       </div>
       <div class="fase">
         <div class="fase-num">03</div>
-        <h3>Implementación</h3>
-        <p>Integramos las herramientas correctas, capacitamos al equipo, y medimos resultados reales. Nos quedamos hasta que el sistema funciona en sintonía.</p>
+        <h3 data-i18n="metodo.f3.h">Implementación</h3>
+        <p data-i18n="metodo.f3.p">Integramos las herramientas correctas, capacitamos al equipo, y medimos resultados reales. Nos quedamos hasta que el sistema funciona en sintonía.</p>
       </div>
     </div>
   </section>
@@ -1404,44 +1406,44 @@
   <!-- SERVICIOS -->
   <section id="strategy" class="servicios">
     <div class="servicios-inner">
-      <div class="eyebrow">03 · STRATEGY</div>
-      <h2>Engagements de arquitectura.</h2>
-      <p class="servicios-intro">Para empresas que quieren repensar cómo trabajan con IA. Proyectos transformacionales, con alcance abierto al diagnóstico. Tres tipos.</p>
-      
+      <div class="eyebrow" data-i18n="serv.eyebrow">03 · STRATEGY</div>
+      <h2 data-i18n="serv.h2">Engagements de arquitectura.</h2>
+      <p class="servicios-intro" data-i18n="serv.intro">Para empresas que quieren repensar cómo trabajan con IA. Proyectos transformacionales, con alcance abierto al diagnóstico. Tres tipos.</p>
+
       <div class="servicios-grid">
         <div class="servicio">
           <div class="servicio-num">01 · STRATEGY</div>
-          <h3>AI Readiness</h3>
-          <p>Diagnóstico estratégico para empresas que quieren entrar bien a la era de IA. Sin desperdiciar capital ni tiempo.</p>
+          <h3 data-i18n="serv.s1.h">AI Readiness</h3>
+          <p data-i18n="serv.s1.p">Diagnóstico estratégico para empresas que quieren entrar bien a la era de IA. Sin desperdiciar capital ni tiempo.</p>
           <ul class="servicio-list">
-            <li>Audit de procesos actuales</li>
-            <li>Roadmap de adopción 12 meses</li>
-            <li>Business case por iniciativa</li>
-            <li>Plan de capacitación interna</li>
+            <li data-i18n="serv.s1.li1">Audit de procesos actuales</li>
+            <li data-i18n="serv.s1.li2">Roadmap de adopción 12 meses</li>
+            <li data-i18n="serv.s1.li3">Business case por iniciativa</li>
+            <li data-i18n="serv.s1.li4">Plan de capacitación interna</li>
           </ul>
         </div>
-        
+
         <div class="servicio">
           <div class="servicio-num">02 · DESIGN</div>
-          <h3>Workflow Architecture</h3>
-          <p>Diseño detallado de flujos humano–IA para áreas críticas: marketing, operaciones, ventas, atención al cliente.</p>
+          <h3 data-i18n="serv.s2.h">Workflow Architecture</h3>
+          <p data-i18n="serv.s2.p">Diseño detallado de flujos humano–IA para áreas críticas: marketing, operaciones, ventas, atención al cliente.</p>
           <ul class="servicio-list">
-            <li>Mapeo de tareas humano + IA</li>
-            <li>Selección de herramientas</li>
-            <li>Diseño de handoffs</li>
-            <li>Métricas y guardrails</li>
+            <li data-i18n="serv.s2.li1">Mapeo de tareas humano + IA</li>
+            <li data-i18n="serv.s2.li2">Selección de herramientas</li>
+            <li data-i18n="serv.s2.li3">Diseño de handoffs</li>
+            <li data-i18n="serv.s2.li4">Métricas y guardrails</li>
           </ul>
         </div>
-        
+
         <div class="servicio">
           <div class="servicio-num">03 · DEPLOY</div>
-          <h3>Implementation Partner</h3>
-          <p>Acompañamos la implementación end-to-end. Nos quedamos hasta que el sistema funciona y el equipo lo opera con confianza.</p>
+          <h3 data-i18n="serv.s3.h">Implementation Partner</h3>
+          <p data-i18n="serv.s3.p">Acompañamos la implementación end-to-end. Nos quedamos hasta que el sistema funciona y el equipo lo opera con confianza.</p>
           <ul class="servicio-list">
-            <li>Integración técnica</li>
-            <li>Training del equipo</li>
-            <li>Iteración basada en datos</li>
-            <li>Handoff documentado</li>
+            <li data-i18n="serv.s3.li1">Integración técnica</li>
+            <li data-i18n="serv.s3.li2">Training del equipo</li>
+            <li data-i18n="serv.s3.li3">Iteración basada en datos</li>
+            <li data-i18n="serv.s3.li4">Handoff documentado</li>
           </ul>
         </div>
       </div>
@@ -1453,191 +1455,191 @@
     <div class="programs-inner">
       <div class="programs-head">
         <div>
-          <div class="eyebrow">04 · PROGRAMS</div>
-          <h2>Productos modulares con <em>objetivos específicos.</em></h2>
+          <div class="eyebrow" data-i18n="prog.eyebrow">04 · PROGRAMS</div>
+          <h2 data-i18n-html="prog.h2">Productos modulares con <em>objetivos específicos.</em></h2>
         </div>
-        <p class="programs-bridge">Aplicaciones modulares de la tesis Slowcraft, cada una con un objetivo específico. Los módulos se activan según la madurez del cliente.</p>
+        <p class="programs-bridge" data-i18n="prog.bridge">Aplicaciones modulares de la tesis Slowcraft, cada una con un objetivo específico. Los módulos se activan según la madurez del cliente.</p>
       </div>
-      
+
       <div class="programs-grid">
-        
+
         <div class="program-card">
           <div class="program-card-head">
             <div class="program-card-num">01</div>
             <div class="program-card-tag">FOUNDATIONS</div>
           </div>
-          <h3>Founder OS</h3>
-          <div class="program-card-pitch">El sistema operativo de tu startup, diseñado desde el día uno con IA adentro.</div>
-          
+          <h3 data-i18n="prog.p1.h">Founder OS</h3>
+          <div class="program-card-pitch" data-i18n="prog.p1.pitch">El sistema operativo de tu startup, diseñado desde el día uno con IA adentro.</div>
+
           <div class="program-card-meta">
-            <div class="program-card-meta-label">PARA QUIÉN</div>
-            <div class="program-card-meta-text">Founders y emprendedores arrancando su startup, o empresas con trayectoria reinventando cómo operan.</div>
+            <div class="program-card-meta-label" data-i18n="prog.label.parawho">PARA QUIÉN</div>
+            <div class="program-card-meta-text" data-i18n="prog.p1.who">Founders y emprendedores arrancando su startup, o empresas con trayectoria reinventando cómo operan.</div>
           </div>
-          
+
           <ul class="program-card-modules">
-            <li>Brand Book de Marca</li>
-            <li>Sistema de diseño · Gobernanza visual</li>
-            <li>Oficina Digital · Gobernanza de información</li>
-            <li>Integración de herramientas IA</li>
-            <li>KPIs y dashboard de negocio</li>
-            <li>Vibe Coding (exclusivo startups)</li>
+            <li data-i18n="prog.p1.m1">Brand Book de Marca</li>
+            <li data-i18n="prog.p1.m2">Sistema de diseño · Gobernanza visual</li>
+            <li data-i18n="prog.p1.m3">Oficina Digital · Gobernanza de información</li>
+            <li data-i18n="prog.p1.m4">Integración de herramientas IA</li>
+            <li data-i18n="prog.p1.m5">KPIs y dashboard de negocio</li>
+            <li data-i18n="prog.p1.m6">Vibe Coding (exclusivo startups)</li>
           </ul>
-          <div class="program-card-note">Módulos activados según madurez del cliente.</div>
+          <div class="program-card-note" data-i18n="prog.p1.note">Módulos activados según madurez del cliente.</div>
         </div>
-        
+
         <div class="program-card">
           <div class="program-card-head">
             <div class="program-card-num">02</div>
             <div class="program-card-tag">GROWTH</div>
           </div>
-          <h3>Site Performance Lab</h3>
-          <div class="program-card-pitch">Cada segundo que tarda tu sitio, pierdes una conversión.</div>
-          
+          <h3 data-i18n="prog.p2.h">Site Performance Lab</h3>
+          <div class="program-card-pitch" data-i18n="prog.p2.pitch">Cada segundo que tarda tu sitio, pierdes una conversión.</div>
+
           <div class="program-card-meta">
-            <div class="program-card-meta-label">PARA QUIÉN</div>
-            <div class="program-card-meta-text">CEOs, CTOs, CMOs, Marketing y Digital Managers, Ecommerce Directors, agencias.</div>
+            <div class="program-card-meta-label" data-i18n="prog.label.parawho">PARA QUIÉN</div>
+            <div class="program-card-meta-text" data-i18n="prog.p2.who">CEOs, CTOs, CMOs, Marketing y Digital Managers, Ecommerce Directors, agencias.</div>
           </div>
-          
+
           <ul class="program-card-modules">
-            <li>Auditoría técnica y estratégica</li>
-            <li>Core Web Vitals · LCP, INP, CLS</li>
-            <li>SEO técnico · Lighthouse</li>
-            <li>Plan de acción priorizado</li>
-            <li>Implementación de mejoras</li>
-            <li>Modelo de medición adhoc · Mejora continua</li>
+            <li data-i18n="prog.p2.m1">Auditoría técnica y estratégica</li>
+            <li data-i18n="prog.p2.m2">Core Web Vitals · LCP, INP, CLS</li>
+            <li data-i18n="prog.p2.m3">SEO técnico · Lighthouse</li>
+            <li data-i18n="prog.p2.m4">Plan de acción priorizado</li>
+            <li data-i18n="prog.p2.m5">Implementación de mejoras</li>
+            <li data-i18n="prog.p2.m6">Modelo de medición adhoc · Mejora continua</li>
           </ul>
-          <div class="program-card-note">Alcance se define con base en la auditoría inicial.</div>
+          <div class="program-card-note" data-i18n="prog.p2.note">Alcance se define con base en la auditoría inicial.</div>
         </div>
-        
+
         <div class="program-card">
           <div class="program-card-head">
             <div class="program-card-num">03</div>
             <div class="program-card-tag">GROWTH</div>
           </div>
-          <h3>Conversion Architecture</h3>
-          <div class="program-card-pitch">Si te encuentran pero tu sitio no convierte, no funciona.</div>
-          
+          <h3 data-i18n="prog.p3.h">Conversion Architecture</h3>
+          <div class="program-card-pitch" data-i18n="prog.p3.pitch">Si te encuentran pero tu sitio no convierte, no funciona.</div>
+
           <div class="program-card-meta">
-            <div class="program-card-meta-label">PARA QUIÉN</div>
-            <div class="program-card-meta-text">CEOs, CTOs, CMOs, Marketing y Digital Managers, Ecommerce Directors, agencias.</div>
+            <div class="program-card-meta-label" data-i18n="prog.label.parawho">PARA QUIÉN</div>
+            <div class="program-card-meta-text" data-i18n="prog.p3.who">CEOs, CTOs, CMOs, Marketing y Digital Managers, Ecommerce Directors, agencias.</div>
           </div>
-          
+
           <ul class="program-card-modules">
-            <li>Auditoría UX/UI</li>
-            <li>Mapas de calor y session recordings</li>
-            <li>Customer journey y customer persona</li>
-            <li>Rediseño de paths de conversión</li>
-            <li>A/B testing</li>
-            <li>Modelo de medición adhoc · Mejora continua</li>
+            <li data-i18n="prog.p3.m1">Auditoría UX/UI</li>
+            <li data-i18n="prog.p3.m2">Mapas de calor y session recordings</li>
+            <li data-i18n="prog.p3.m3">Customer journey y customer persona</li>
+            <li data-i18n="prog.p3.m4">Rediseño de paths de conversión</li>
+            <li data-i18n="prog.p3.m5">A/B testing</li>
+            <li data-i18n="prog.p3.m6">Modelo de medición adhoc · Mejora continua</li>
           </ul>
-          <div class="program-card-note">Profundidad según volumen de tráfico y madurez analítica.</div>
+          <div class="program-card-note" data-i18n="prog.p3.note">Profundidad según volumen de tráfico y madurez analítica.</div>
         </div>
-        
+
         <div class="program-card">
           <div class="program-card-head">
             <div class="program-card-num">04</div>
             <div class="program-card-tag">OPERATIONS</div>
           </div>
-          <h3>Studio Automation</h3>
-          <div class="program-card-pitch">Produces mucho y rentabilizas poco. Automatiza la operación.</div>
-          
+          <h3 data-i18n="prog.p4.h">Studio Automation</h3>
+          <div class="program-card-pitch" data-i18n="prog.p4.pitch">Produces mucho y rentabilizas poco. Automatiza la operación.</div>
+
           <div class="program-card-meta">
-            <div class="program-card-meta-label">PARA QUIÉN</div>
-            <div class="program-card-meta-text">Owners, CEOs, CMOs, Marketing y Brand Managers, agencias, internal hubs.</div>
+            <div class="program-card-meta-label" data-i18n="prog.label.parawho">PARA QUIÉN</div>
+            <div class="program-card-meta-text" data-i18n="prog.p4.who">Owners, CEOs, CMOs, Marketing y Brand Managers, agencias, internal hubs.</div>
           </div>
-          
+
           <ul class="program-card-modules">
-            <li>Auditoría del ecosistema de comunicación</li>
-            <li>Integración n8n / Make</li>
-            <li>Email marketing · CRM · Chatbots</li>
-            <li>Agentes IA en flujos de producción</li>
-            <li>Aseguramiento de procesos del equipo</li>
-            <li>Modelo de medición adhoc · Mejora continua</li>
+            <li data-i18n="prog.p4.m1">Auditoría del ecosistema de comunicación</li>
+            <li data-i18n="prog.p4.m2">Integración n8n / Make</li>
+            <li data-i18n="prog.p4.m3">Email marketing · CRM · Chatbots</li>
+            <li data-i18n="prog.p4.m4">Agentes IA en flujos de producción</li>
+            <li data-i18n="prog.p4.m5">Aseguramiento de procesos del equipo</li>
+            <li data-i18n="prog.p4.m6">Modelo de medición adhoc · Mejora continua</li>
           </ul>
-          <div class="program-card-note">Stack se elige sobre las herramientas que ya use el cliente.</div>
+          <div class="program-card-note" data-i18n="prog.p4.note">Stack se elige sobre las herramientas que ya use el cliente.</div>
         </div>
-        
+
       </div>
     </div>
   </section>
   
   <!-- PRINCIPIOS -->
   <section class="principios">
-    <div class="eyebrow">05 · PRINCIPIOS</div>
-    <h2>Cinco cosas en las que sí creemos.</h2>
-    
+    <div class="eyebrow" data-i18n="pri.eyebrow">05 · PRINCIPIOS</div>
+    <h2 data-i18n="pri.h2">Cinco cosas en las que sí creemos.</h2>
+
     <div class="principios-list">
       <div class="principio">
         <div class="principio-num">i.</div>
         <div>
-          <h3>Diseñar antes de implementar.</h3>
-          <p>No instalamos herramientas. Arquitectamos cómo trabaja una organización con sus dos recursos más valiosos.</p>
+          <h3 data-i18n="pri.1.h">Diseñar antes de implementar.</h3>
+          <p data-i18n="pri.1.p">No instalamos herramientas. Arquitectamos cómo trabaja una organización con sus dos recursos más valiosos.</p>
         </div>
       </div>
-      
+
       <div class="principio">
         <div class="principio-num">ii.</div>
         <div>
-          <h3>La IA es el copiloto. El humano dirige.</h3>
-          <p>Cada uno hace lo que mejor sabe hacer. Diseñar bien esa colaboración es lo que define el resultado.</p>
+          <h3 data-i18n="pri.2.h">La IA es el copiloto. El humano dirige.</h3>
+          <p data-i18n="pri.2.p">Cada uno hace lo que mejor sabe hacer. Diseñar bien esa colaboración es lo que define el resultado.</p>
         </div>
       </div>
-      
+
       <div class="principio">
         <div class="principio-num">iii.</div>
         <div>
-          <h3>Claridad sobre complejidad.</h3>
-          <p>Si no podemos explicarlo en una frase, no lo hemos entendido todavía.</p>
+          <h3 data-i18n="pri.3.h">Claridad sobre complejidad.</h3>
+          <p data-i18n="pri.3.p">Si no podemos explicarlo en una frase, no lo hemos entendido todavía.</p>
         </div>
       </div>
-      
+
       <div class="principio">
         <div class="principio-num">iv.</div>
         <div>
-          <h3>Resultados, no demos.</h3>
-          <p>Vendemos cambios medibles, no presentaciones bonitas.</p>
+          <h3 data-i18n="pri.4.h">Resultados, no demos.</h3>
+          <p data-i18n="pri.4.p">Vendemos cambios medibles, no presentaciones bonitas.</p>
         </div>
       </div>
-      
+
       <div class="principio">
         <div class="principio-num">v.</div>
         <div>
-          <h3>Inteligencia con criterio.</h3>
-          <p>La IA propone alternativas. El equipo decide cuáles amplificar. Esa es la combinación ganadora.</p>
+          <h3 data-i18n="pri.5.h">Inteligencia con criterio.</h3>
+          <p data-i18n="pri.5.p">La IA propone alternativas. El equipo decide cuáles amplificar. Esa es la combinación ganadora.</p>
         </div>
       </div>
     </div>
   </section>
-  
+
   <!-- SOBRE -->
   <section id="sobre" class="sobre">
     <div class="sobre-inner">
-      <div class="eyebrow">05 · NOSOTROS</div>
-      <h2>Slowcraft es una consultora boutique con base en <em>Ciudad de México.</em></h2>
-      <p>Nacimos en 2026 con una convicción simple: la IA es la oportunidad más grande de esta década, pero la mayoría de las empresas la están adoptando mal. Sin diseño, sin criterio, sin un plan que considere a las personas que la van a usar día con día.</p>
-      <p>Trabajamos con CEOs y líderes de empresas en crecimiento que quieren entrar a esta era con cabeza. No vendemos hype, no prometemos atajos. Diseñamos los flujos donde el talento humano y la IA hacen lo que cada uno mejor sabe hacer — porque esa es la única forma de generar ventaja real y sostenida.</p>
-      
+      <div class="eyebrow" data-i18n="sobre.eyebrow">06 · NOSOTROS</div>
+      <h2 data-i18n-html="sobre.h2">Slowcraft es una consultora boutique con base en <em>Ciudad de México.</em></h2>
+      <p data-i18n="sobre.p1">Nacimos en 2026 con una convicción simple: la IA es la oportunidad más grande de esta década, pero la mayoría de las empresas la están adoptando mal. Sin diseño, sin criterio, sin un plan que considere a las personas que la van a usar día con día.</p>
+      <p data-i18n="sobre.p2">Trabajamos con CEOs y líderes de empresas en crecimiento que quieren entrar a esta era con cabeza. No vendemos hype, no prometemos atajos. Diseñamos los flujos donde el talento humano y la IA hacen lo que cada uno mejor sabe hacer — porque esa es la única forma de generar ventaja real y sostenida.</p>
+
       <div class="sobre-meta">
         <div class="sobre-meta-item">
-          <div class="label">FUNDADO</div>
+          <div class="label" data-i18n="sobre.meta.fundado">FUNDADO</div>
           <div class="value">2026</div>
         </div>
         <div class="sobre-meta-item">
-          <div class="label">BASE</div>
+          <div class="label" data-i18n="sobre.meta.base">BASE</div>
           <div class="value">Ciudad de México</div>
         </div>
         <div class="sobre-meta-item">
-          <div class="label">ALCANCE</div>
-          <div class="value">LATAM · Global</div>
+          <div class="label" data-i18n="sobre.meta.alcance">ALCANCE</div>
+          <div class="value" data-i18n="sobre.meta.alcance.v">LATAM · Global</div>
         </div>
       </div>
     </div>
   </section>
-  
+
   <!-- CTA FINAL -->
   <section id="contacto" class="cta-final">
-    <h2>Diseñemos juntos cómo trabaja tu empresa <em>con IA.</em></h2>
-    <p>Agenda una conversación de 30 minutos. Sin pitch, sin presentación. Solo una charla honesta sobre dónde está tu empresa y cómo podríamos ayudarte.</p>
+    <h2 data-i18n-html="cta.h2">Diseñemos juntos cómo trabaja tu empresa <em>con IA.</em></h2>
+    <p data-i18n="cta.p">Agenda una conversación de 30 minutos. Sin pitch, sin presentación. Solo una charla honesta sobre dónde está tu empresa y cómo podríamos ayudarte.</p>
     <form id="contact-form" class="contact-form" novalidate>
       <!-- Honeypot anti-spam: invisible para humanos -->
       <div class="hp-field" aria-hidden="true">
@@ -1647,54 +1649,59 @@
 
       <div class="form-row">
         <div class="form-field">
-          <label class="form-label" for="cf-nombre">Nombre completo <span class="req" aria-hidden="true">*</span></label>
+          <label class="form-label" for="cf-nombre"><span data-i18n="form.l.nombre">Nombre completo</span> <span class="req" aria-hidden="true">*</span></label>
           <input class="form-input" id="cf-nombre" name="nombre" type="text"
                  required minlength="3" maxlength="80" autocomplete="name"
-                 placeholder="Ada Lovelace" aria-describedby="err-nombre">
+                 placeholder="Ada Lovelace" data-i18n-placeholder="form.ph.nombre"
+                 aria-describedby="err-nombre">
           <p class="form-hint" id="err-nombre" role="alert"></p>
         </div>
         <div class="form-field">
-          <label class="form-label" for="cf-email">Email empresa <span class="req" aria-hidden="true">*</span></label>
+          <label class="form-label" for="cf-email"><span data-i18n="form.l.email">Email empresa</span> <span class="req" aria-hidden="true">*</span></label>
           <input class="form-input" id="cf-email" name="email" type="email"
                  required autocomplete="email"
-                 placeholder="ada@empresa.com" aria-describedby="err-email">
+                 placeholder="ada@empresa.com" data-i18n-placeholder="form.ph.email"
+                 aria-describedby="err-email">
           <p class="form-hint" id="err-email" role="alert"></p>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-field">
-          <label class="form-label" for="cf-cargo">Cargo / posición <span class="req" aria-hidden="true">*</span></label>
+          <label class="form-label" for="cf-cargo"><span data-i18n="form.l.cargo">Cargo / posición</span> <span class="req" aria-hidden="true">*</span></label>
           <input class="form-input" id="cf-cargo" name="cargo" type="text"
                  required minlength="2" maxlength="80" autocomplete="organization-title"
-                 placeholder="CEO, COO, Head of Operations…" aria-describedby="err-cargo">
+                 placeholder="CEO, COO, Head of Operations…" data-i18n-placeholder="form.ph.cargo"
+                 aria-describedby="err-cargo">
           <p class="form-hint" id="err-cargo" role="alert"></p>
         </div>
         <div class="form-field">
-          <label class="form-label" for="cf-empresa">www de la empresa <span class="req" aria-hidden="true">*</span></label>
+          <label class="form-label" for="cf-empresa"><span data-i18n="form.l.web">www de la empresa</span> <span class="req" aria-hidden="true">*</span></label>
           <input class="form-input" id="cf-empresa" name="empresa_web" type="text"
                  required autocomplete="url" inputmode="url"
-                 placeholder="empresa.com" aria-describedby="err-empresa">
+                 placeholder="empresa.com" data-i18n-placeholder="form.ph.web"
+                 aria-describedby="err-empresa">
           <p class="form-hint" id="err-empresa" role="alert"></p>
         </div>
       </div>
 
       <div class="form-field">
-        <label class="form-label" for="cf-motivo">Motivo de contacto <span class="req" aria-hidden="true">*</span></label>
+        <label class="form-label" for="cf-motivo"><span data-i18n="form.l.motivo">Motivo de contacto</span> <span class="req" aria-hidden="true">*</span></label>
         <select class="form-input form-select" id="cf-motivo" name="motivo" required aria-describedby="err-motivo">
-          <option value="" disabled selected>Selecciona un motivo</option>
-          <option value="proyectos">Proyectos</option>
-          <option value="informes">Informes</option>
-          <option value="bolsa-de-trabajo">Bolsa de trabajo</option>
+          <option value="" disabled selected data-i18n="form.opt.placeholder">Selecciona un motivo</option>
+          <option value="proyectos" data-i18n="form.opt.proyectos">Proyectos</option>
+          <option value="informes" data-i18n="form.opt.informes">Informes</option>
+          <option value="bolsa-de-trabajo" data-i18n="form.opt.bolsa">Bolsa de trabajo</option>
         </select>
         <p class="form-hint" id="err-motivo" role="alert"></p>
       </div>
 
       <div class="form-field">
-        <label class="form-label" for="cf-descripcion">Descripción <span class="req" aria-hidden="true">*</span></label>
+        <label class="form-label" for="cf-descripcion"><span data-i18n="form.l.desc">Descripción</span> <span class="req" aria-hidden="true">*</span></label>
         <textarea class="form-input form-textarea" id="cf-descripcion" name="descripcion"
                   rows="5" required minlength="20" maxlength="1000"
                   placeholder="Cuéntanos brevemente sobre tu empresa, el contexto y qué te gustaría explorar."
+                  data-i18n-placeholder="form.ph.desc"
                   aria-describedby="err-descripcion"></textarea>
         <div class="form-meta">
           <p class="form-hint" id="err-descripcion" role="alert"></p>
@@ -1703,19 +1710,19 @@
       </div>
 
       <button type="submit" class="form-submit" id="cf-submit">
-        <span class="form-submit-label">Enviar mensaje</span>
+        <span class="form-submit-label" data-i18n="form.submit">Enviar mensaje</span>
         <span class="form-submit-spinner" aria-hidden="true"></span>
       </button>
 
-      <p class="form-disclaimer">Respondemos en máximo 48h hábiles. Tu información es confidencial y solo la usamos para responder tu consulta.</p>
+      <p class="form-disclaimer" data-i18n="form.disclaimer">Respondemos en máximo 48h hábiles. Tu información es confidencial y solo la usamos para responder tu consulta.</p>
 
-      <div class="form-alt-divider" role="separator" aria-label="o">o</div>
+      <div class="form-alt-divider" role="separator" data-i18n="form.alt.divider">o</div>
 
-      <button type="button" class="form-whatsapp" id="cf-whatsapp" aria-label="Contáctanos por WhatsApp">
+      <button type="button" class="form-whatsapp" id="cf-whatsapp" data-i18n-aria-label="form.whatsapp" aria-label="Contáctanos por WhatsApp">
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413"/>
         </svg>
-        <span>Contáctanos por WhatsApp</span>
+        <span data-i18n="form.whatsapp">Contáctanos por WhatsApp</span>
       </button>
     </form>
   </section>
@@ -1731,25 +1738,25 @@
           <div class="logo-symbol"></div>
           <span class="logo-text">Slowcraft</span>
         </a>
-        <p>Estrategia AI, deliberadamente diseñada. La mano derecha del talento humano.</p>
+        <p data-i18n="footer.tagline">Estrategia AI, deliberadamente diseñada. La mano derecha del talento humano.</p>
       </div>
       <div class="footer-col">
-        <h4>Navegación</h4>
-        <a href="#metodo">Método</a>
-        <a href="#strategy">Strategy</a>
-        <a href="#programs">Programs</a>
-        <a href="#sobre">Nosotros</a>
+        <h4 data-i18n="footer.col.nav">Navegación</h4>
+        <a href="#metodo" data-i18n="nav.metodo">Método</a>
+        <a href="#strategy" data-i18n="nav.strategy">Strategy</a>
+        <a href="#programs" data-i18n="nav.programs">Programs</a>
+        <a href="#sobre" data-i18n="nav.sobre">Nosotros</a>
       </div>
       <div class="footer-col">
-        <h4>Contacto</h4>
+        <h4 data-i18n="footer.col.contact">Contacto</h4>
         <a href="mailto:hola@slowcraft.ai">hola@slowcraft.ai</a>
         <a href="#" target="_blank">LinkedIn</a>
         <a href="#" target="_blank">Twitter / X</a>
       </div>
     </div>
-    
+
     <div class="footer-bottom">
-      <div>© 2026 Slowcraft. Diseñado con criterio en Ciudad de México.</div>
+      <div data-i18n="footer.copy">© 2026 Slowcraft. Diseñado con criterio en Ciudad de México.</div>
       <div>v3.0</div>
     </div>
   </footer>
@@ -1763,12 +1770,424 @@
   </script>
 
   <script>
-    // Language switch (placeholder - en una versión futura cambia el contenido)
-    document.querySelector('.lang-switch').addEventListener('click', function() {
-      const current = this.textContent;
-      this.textContent = current === 'EN' ? 'ES' : 'EN';
-      // TODO: implementar contenido en inglés en versión 2.1
+    // ============================================================
+    // I18N — diccionario + applyLang + persistencia
+    // Sistema basado en data-i18n / data-i18n-html / data-i18n-placeholder
+    // ============================================================
+    const I18N = {
+      es: {
+        // Document title
+        'doc.title': 'Slowcraft — Strategy & Programs · IA deliberadamente diseñada',
+
+        // Nav
+        'nav.metodo': 'Método', 'nav.strategy': 'Strategy', 'nav.programs': 'Programs',
+        'nav.sobre': 'Nosotros', 'nav.cta': 'Conversemos',
+
+        // Hero
+        'hero.eyebrow': 'SLOWCRAFT · AI STRATEGY · MÉXICO',
+        'hero.h1': 'La IA es la mano derecha del <em>talento humano.</em>',
+        'hero.p': 'Diseñamos los flujos donde tu equipo y la inteligencia artificial hacen lo que cada uno mejor sabe hacer. Sin reemplazos. Sin atajos. Con criterio.',
+        'hero.cta': 'Agenda una conversación',
+        'hero.meta-text': '"Estrategia AI, deliberadamente diseñada."',
+
+        // Tesis
+        'tesis.eyebrow': '01 · NUESTRA TESIS',
+        'tesis.h2': 'La IA no reemplaza al humano. <em>Lo amplifica.</em> El humano no frena a la IA. La dirige. Slowcraft diseña esa colaboración.',
+        'tesis.b1': 'La inteligencia artificial es el copiloto más poderoso que ha existido. Pero un copiloto sin un piloto que sepa hacia dónde va, no llega lejos.',
+        'tesis.b2': 'El error no es adoptar la IA tarde. Es adoptarla sin diseño. Las empresas que ganarán esta década son las que diseñaron mejor cómo trabajan con ella.',
+        'tesis.b3': 'Tu equipo y la IA son tus dos recursos más valiosos. Nuestro trabajo es diseñar cómo se dan la mano para que ambos hagan lo que mejor saben hacer.',
+
+        // Método
+        'metodo.eyebrow': '02 · CÓMO TRABAJAMOS',
+        'metodo.h2': 'Tres fases. Una arquitectura. Resultados medibles.',
+        'metodo.f1.h': 'Diagnóstico',
+        'metodo.f1.p': 'Mapeamos cómo trabaja hoy tu empresa. Identificamos dónde la IA puede ser un copiloto poderoso para tu equipo — y dónde es mejor no tocar nada todavía.',
+        'metodo.f2.h': 'Arquitectura',
+        'metodo.f2.p': 'Diseñamos los flujos humano–IA con propósito. Definimos qué hace mejor la máquina, qué hace mejor la persona, y cómo se complementan en cada paso.',
+        'metodo.f3.h': 'Implementación',
+        'metodo.f3.p': 'Integramos las herramientas correctas, capacitamos al equipo, y medimos resultados reales. Nos quedamos hasta que el sistema funciona en sintonía.',
+
+        // Servicios
+        'serv.eyebrow': '03 · STRATEGY',
+        'serv.h2': 'Engagements de arquitectura.',
+        'serv.intro': 'Para empresas que quieren repensar cómo trabajan con IA. Proyectos transformacionales, con alcance abierto al diagnóstico. Tres tipos.',
+        'serv.s1.h': 'AI Readiness',
+        'serv.s1.p': 'Diagnóstico estratégico para empresas que quieren entrar bien a la era de IA. Sin desperdiciar capital ni tiempo.',
+        'serv.s1.li1': 'Audit de procesos actuales',
+        'serv.s1.li2': 'Roadmap de adopción 12 meses',
+        'serv.s1.li3': 'Business case por iniciativa',
+        'serv.s1.li4': 'Plan de capacitación interna',
+        'serv.s2.h': 'Workflow Architecture',
+        'serv.s2.p': 'Diseño detallado de flujos humano–IA para áreas críticas: marketing, operaciones, ventas, atención al cliente.',
+        'serv.s2.li1': 'Mapeo de tareas humano + IA',
+        'serv.s2.li2': 'Selección de herramientas',
+        'serv.s2.li3': 'Diseño de handoffs',
+        'serv.s2.li4': 'Métricas y guardrails',
+        'serv.s3.h': 'Implementation Partner',
+        'serv.s3.p': 'Acompañamos la implementación end-to-end. Nos quedamos hasta que el sistema funciona y el equipo lo opera con confianza.',
+        'serv.s3.li1': 'Integración técnica',
+        'serv.s3.li2': 'Training del equipo',
+        'serv.s3.li3': 'Iteración basada en datos',
+        'serv.s3.li4': 'Handoff documentado',
+
+        // Programs
+        'prog.eyebrow': '04 · PROGRAMS',
+        'prog.h2': 'Productos modulares con <em>objetivos específicos.</em>',
+        'prog.bridge': 'Aplicaciones modulares de la tesis Slowcraft, cada una con un objetivo específico. Los módulos se activan según la madurez del cliente.',
+        'prog.label.parawho': 'PARA QUIÉN',
+        // p1
+        'prog.p1.h': 'Founder OS',
+        'prog.p1.pitch': 'El sistema operativo de tu startup, diseñado desde el día uno con IA adentro.',
+        'prog.p1.who': 'Founders y emprendedores arrancando su startup, o empresas con trayectoria reinventando cómo operan.',
+        'prog.p1.m1': 'Brand Book de Marca',
+        'prog.p1.m2': 'Sistema de diseño · Gobernanza visual',
+        'prog.p1.m3': 'Oficina Digital · Gobernanza de información',
+        'prog.p1.m4': 'Integración de herramientas IA',
+        'prog.p1.m5': 'KPIs y dashboard de negocio',
+        'prog.p1.m6': 'Vibe Coding (exclusivo startups)',
+        'prog.p1.note': 'Módulos activados según madurez del cliente.',
+        // p2
+        'prog.p2.h': 'Site Performance Lab',
+        'prog.p2.pitch': 'Cada segundo que tarda tu sitio, pierdes una conversión.',
+        'prog.p2.who': 'CEOs, CTOs, CMOs, Marketing y Digital Managers, Ecommerce Directors, agencias.',
+        'prog.p2.m1': 'Auditoría técnica y estratégica',
+        'prog.p2.m2': 'Core Web Vitals · LCP, INP, CLS',
+        'prog.p2.m3': 'SEO técnico · Lighthouse',
+        'prog.p2.m4': 'Plan de acción priorizado',
+        'prog.p2.m5': 'Implementación de mejoras',
+        'prog.p2.m6': 'Modelo de medición adhoc · Mejora continua',
+        'prog.p2.note': 'Alcance se define con base en la auditoría inicial.',
+        // p3
+        'prog.p3.h': 'Conversion Architecture',
+        'prog.p3.pitch': 'Si te encuentran pero tu sitio no convierte, no funciona.',
+        'prog.p3.who': 'CEOs, CTOs, CMOs, Marketing y Digital Managers, Ecommerce Directors, agencias.',
+        'prog.p3.m1': 'Auditoría UX/UI',
+        'prog.p3.m2': 'Mapas de calor y session recordings',
+        'prog.p3.m3': 'Customer journey y customer persona',
+        'prog.p3.m4': 'Rediseño de paths de conversión',
+        'prog.p3.m5': 'A/B testing',
+        'prog.p3.m6': 'Modelo de medición adhoc · Mejora continua',
+        'prog.p3.note': 'Profundidad según volumen de tráfico y madurez analítica.',
+        // p4
+        'prog.p4.h': 'Studio Automation',
+        'prog.p4.pitch': 'Produces mucho y rentabilizas poco. Automatiza la operación.',
+        'prog.p4.who': 'Owners, CEOs, CMOs, Marketing y Brand Managers, agencias, internal hubs.',
+        'prog.p4.m1': 'Auditoría del ecosistema de comunicación',
+        'prog.p4.m2': 'Integración n8n / Make',
+        'prog.p4.m3': 'Email marketing · CRM · Chatbots',
+        'prog.p4.m4': 'Agentes IA en flujos de producción',
+        'prog.p4.m5': 'Aseguramiento de procesos del equipo',
+        'prog.p4.m6': 'Modelo de medición adhoc · Mejora continua',
+        'prog.p4.note': 'Stack se elige sobre las herramientas que ya use el cliente.',
+
+        // Principios
+        'pri.eyebrow': '05 · PRINCIPIOS',
+        'pri.h2': 'Cinco cosas en las que sí creemos.',
+        'pri.1.h': 'Diseñar antes de implementar.',
+        'pri.1.p': 'No instalamos herramientas. Arquitectamos cómo trabaja una organización con sus dos recursos más valiosos.',
+        'pri.2.h': 'La IA es el copiloto. El humano dirige.',
+        'pri.2.p': 'Cada uno hace lo que mejor sabe hacer. Diseñar bien esa colaboración es lo que define el resultado.',
+        'pri.3.h': 'Claridad sobre complejidad.',
+        'pri.3.p': 'Si no podemos explicarlo en una frase, no lo hemos entendido todavía.',
+        'pri.4.h': 'Resultados, no demos.',
+        'pri.4.p': 'Vendemos cambios medibles, no presentaciones bonitas.',
+        'pri.5.h': 'Inteligencia con criterio.',
+        'pri.5.p': 'La IA propone alternativas. El equipo decide cuáles amplificar. Esa es la combinación ganadora.',
+
+        // Sobre
+        'sobre.eyebrow': '06 · NOSOTROS',
+        'sobre.h2': 'Slowcraft es una consultora boutique con base en <em>Ciudad de México.</em>',
+        'sobre.p1': 'Nacimos en 2026 con una convicción simple: la IA es la oportunidad más grande de esta década, pero la mayoría de las empresas la están adoptando mal. Sin diseño, sin criterio, sin un plan que considere a las personas que la van a usar día con día.',
+        'sobre.p2': 'Trabajamos con CEOs y líderes de empresas en crecimiento que quieren entrar a esta era con cabeza. No vendemos hype, no prometemos atajos. Diseñamos los flujos donde el talento humano y la IA hacen lo que cada uno mejor sabe hacer — porque esa es la única forma de generar ventaja real y sostenida.',
+        'sobre.meta.fundado': 'FUNDADO',
+        'sobre.meta.base': 'BASE',
+        'sobre.meta.alcance': 'ALCANCE',
+        'sobre.meta.alcance.v': 'LATAM · Global',
+
+        // CTA final
+        'cta.h2': 'Diseñemos juntos cómo trabaja tu empresa <em>con IA.</em>',
+        'cta.p': 'Agenda una conversación de 30 minutos. Sin pitch, sin presentación. Solo una charla honesta sobre dónde está tu empresa y cómo podríamos ayudarte.',
+
+        // Form
+        'form.l.nombre': 'Nombre completo',
+        'form.l.email':  'Email empresa',
+        'form.l.cargo':  'Cargo / posición',
+        'form.l.web':    'www de la empresa',
+        'form.l.motivo': 'Motivo de contacto',
+        'form.l.desc':   'Descripción',
+        'form.ph.nombre': 'Ada Lovelace',
+        'form.ph.email':  'ada@empresa.com',
+        'form.ph.cargo':  'CEO, COO, Head of Operations…',
+        'form.ph.web':    'empresa.com',
+        'form.ph.desc':   'Cuéntanos brevemente sobre tu empresa, el contexto y qué te gustaría explorar.',
+        'form.opt.placeholder': 'Selecciona un motivo',
+        'form.opt.proyectos': 'Proyectos',
+        'form.opt.informes':  'Informes',
+        'form.opt.bolsa':     'Bolsa de trabajo',
+        'form.submit':       'Enviar mensaje',
+        'form.submit.loading': 'Enviando…',
+        'form.disclaimer':   'Respondemos en máximo 48h hábiles. Tu información es confidencial y solo la usamos para responder tu consulta.',
+        'form.alt.divider':  'o',
+        'form.whatsapp':     'Contáctanos por WhatsApp',
+
+        // Form messages (toasts)
+        'msg.received':   'Mensaje recibido',
+        'msg.success':    '¡Mensaje enviado! Te respondemos en máximo 48h hábiles.',
+        'msg.errFields':  'Revisá los campos marcados antes de enviar.',
+        'msg.errSend':    'No pudimos enviar el mensaje. Intentá de nuevo o escribinos a hola@slowcraft.ai',
+        'msg.wa.soon':    'Chat de WhatsApp — próximamente. Por ahora envianos el formulario.',
+
+        // Form validations
+        'err.nom.req':   'El nombre es obligatorio.',
+        'err.nom.short': 'Demasiado corto. Escribí tu nombre completo.',
+        'err.nom.full':  'Incluí nombre y apellido.',
+        'err.nom.long':  'Demasiado largo (máx. 80 caracteres).',
+        'err.email.req': 'El email es obligatorio.',
+        'err.email.bad': 'Email inválido. Revisá el formato.',
+        'err.email.free':'Usá tu email corporativo, no uno personal (gmail, outlook, etc.).',
+        'err.cargo.req': 'Cargo obligatorio.',
+        'err.cargo.short':'Demasiado corto.',
+        'err.cargo.long':'Demasiado largo (máx. 80).',
+        'err.web.req':   'Sitio web obligatorio.',
+        'err.web.bad':   'Dominio inválido. Ej: empresa.com',
+        'err.motivo':    'Seleccioná un motivo.',
+        'err.desc.req':  'Descripción obligatoria.',
+        'err.desc.short':'Demasiado breve ({n}/20). Contanos un poco más.',
+        'err.desc.long': 'Demasiado largo (máx. 1000).',
+
+        // Footer
+        'footer.tagline': 'Estrategia AI, deliberadamente diseñada. La mano derecha del talento humano.',
+        'footer.col.nav': 'Navegación',
+        'footer.col.contact': 'Contacto',
+        'footer.copy': '© 2026 Slowcraft. Diseñado con criterio en Ciudad de México.'
+      },
+      en: {
+        'doc.title': 'Slowcraft — Strategy & Programs · Deliberately designed AI',
+
+        'nav.metodo': 'Method', 'nav.strategy': 'Strategy', 'nav.programs': 'Programs',
+        'nav.sobre': 'About', 'nav.cta': "Let's talk",
+
+        'hero.eyebrow': 'SLOWCRAFT · AI STRATEGY · MEXICO',
+        'hero.h1': 'AI is the right hand of <em>human talent.</em>',
+        'hero.p': 'We design the workflows where your team and artificial intelligence each do what they do best. No replacements. No shortcuts. With judgment.',
+        'hero.cta': 'Schedule a conversation',
+        'hero.meta-text': '"AI strategy, deliberately designed."',
+
+        'tesis.eyebrow': '01 · OUR THESIS',
+        'tesis.h2': 'AI does not replace humans. <em>It amplifies them.</em> Humans do not slow AI down. They steer it. Slowcraft designs that collaboration.',
+        'tesis.b1': 'AI is the most powerful copilot ever to exist. But a copilot without a pilot who knows where to go does not get far.',
+        'tesis.b2': 'The mistake is not adopting AI late. It is adopting it without design. The companies that win this decade will be the ones that designed best how they work with it.',
+        'tesis.b3': 'Your team and AI are your two most valuable resources. Our job is to design how they shake hands so each does what it does best.',
+
+        'metodo.eyebrow': '02 · HOW WE WORK',
+        'metodo.h2': 'Three phases. One architecture. Measurable results.',
+        'metodo.f1.h': 'Diagnostic',
+        'metodo.f1.p': 'We map how your company works today. We identify where AI can be a powerful copilot for your team — and where it is best not to touch anything yet.',
+        'metodo.f2.h': 'Architecture',
+        'metodo.f2.p': 'We design human–AI workflows with intent. We define what the machine does best, what the person does best, and how they complement each other at every step.',
+        'metodo.f3.h': 'Implementation',
+        'metodo.f3.p': 'We integrate the right tools, train the team, and measure real results. We stay until the system runs in sync.',
+
+        'serv.eyebrow': '03 · STRATEGY',
+        'serv.h2': 'Architecture engagements.',
+        'serv.intro': 'For companies that want to rethink how they work with AI. Transformational projects with scope open to discovery. Three types.',
+        'serv.s1.h': 'AI Readiness',
+        'serv.s1.p': 'Strategic diagnostic for companies that want to enter the AI era well — without wasting capital or time.',
+        'serv.s1.li1': 'Audit of current processes',
+        'serv.s1.li2': '12-month adoption roadmap',
+        'serv.s1.li3': 'Business case per initiative',
+        'serv.s1.li4': 'Internal training plan',
+        'serv.s2.h': 'Workflow Architecture',
+        'serv.s2.p': 'Detailed design of human–AI workflows for critical areas: marketing, operations, sales, customer service.',
+        'serv.s2.li1': 'Human + AI task mapping',
+        'serv.s2.li2': 'Tool selection',
+        'serv.s2.li3': 'Handoff design',
+        'serv.s2.li4': 'Metrics and guardrails',
+        'serv.s3.h': 'Implementation Partner',
+        'serv.s3.p': 'We support implementation end-to-end. We stay until the system works and the team operates it with confidence.',
+        'serv.s3.li1': 'Technical integration',
+        'serv.s3.li2': 'Team training',
+        'serv.s3.li3': 'Data-driven iteration',
+        'serv.s3.li4': 'Documented handoff',
+
+        'prog.eyebrow': '04 · PROGRAMS',
+        'prog.h2': 'Modular products with <em>specific goals.</em>',
+        'prog.bridge': 'Modular applications of the Slowcraft thesis, each with a specific objective. Modules are activated according to the client\'s maturity.',
+        'prog.label.parawho': 'WHO IT IS FOR',
+        'prog.p1.h': 'Founder OS',
+        'prog.p1.pitch': 'The operating system for your startup, designed from day one with AI inside.',
+        'prog.p1.who': 'Founders and entrepreneurs starting their startup, or established companies reinventing how they operate.',
+        'prog.p1.m1': 'Brand Book',
+        'prog.p1.m2': 'Design system · Visual governance',
+        'prog.p1.m3': 'Digital Office · Information governance',
+        'prog.p1.m4': 'AI tools integration',
+        'prog.p1.m5': 'Business KPIs and dashboard',
+        'prog.p1.m6': 'Vibe Coding (startups only)',
+        'prog.p1.note': 'Modules activated according to client maturity.',
+        'prog.p2.h': 'Site Performance Lab',
+        'prog.p2.pitch': 'Every second your site takes, you lose a conversion.',
+        'prog.p2.who': 'CEOs, CTOs, CMOs, Marketing and Digital Managers, Ecommerce Directors, agencies.',
+        'prog.p2.m1': 'Technical and strategic audit',
+        'prog.p2.m2': 'Core Web Vitals · LCP, INP, CLS',
+        'prog.p2.m3': 'Technical SEO · Lighthouse',
+        'prog.p2.m4': 'Prioritized action plan',
+        'prog.p2.m5': 'Improvements implementation',
+        'prog.p2.m6': 'Custom measurement model · Continuous improvement',
+        'prog.p2.note': 'Scope is defined based on the initial audit.',
+        'prog.p3.h': 'Conversion Architecture',
+        'prog.p3.pitch': "If they find you but your site doesn't convert, it doesn't work.",
+        'prog.p3.who': 'CEOs, CTOs, CMOs, Marketing and Digital Managers, Ecommerce Directors, agencies.',
+        'prog.p3.m1': 'UX/UI audit',
+        'prog.p3.m2': 'Heatmaps and session recordings',
+        'prog.p3.m3': 'Customer journey and persona',
+        'prog.p3.m4': 'Conversion path redesign',
+        'prog.p3.m5': 'A/B testing',
+        'prog.p3.m6': 'Custom measurement model · Continuous improvement',
+        'prog.p3.note': 'Depth depends on traffic volume and analytical maturity.',
+        'prog.p4.h': 'Studio Automation',
+        'prog.p4.pitch': 'You produce a lot and monetize little. Automate operations.',
+        'prog.p4.who': 'Owners, CEOs, CMOs, Marketing and Brand Managers, agencies, internal hubs.',
+        'prog.p4.m1': 'Communication ecosystem audit',
+        'prog.p4.m2': 'n8n / Make integration',
+        'prog.p4.m3': 'Email marketing · CRM · Chatbots',
+        'prog.p4.m4': 'AI agents in production flows',
+        'prog.p4.m5': 'Team process assurance',
+        'prog.p4.m6': 'Custom measurement model · Continuous improvement',
+        'prog.p4.note': 'Stack is chosen on top of the tools the client already uses.',
+
+        'pri.eyebrow': '05 · PRINCIPLES',
+        'pri.h2': 'Five things we do believe in.',
+        'pri.1.h': 'Design before implementing.',
+        'pri.1.p': 'We do not install tools. We architect how an organization works with its two most valuable resources.',
+        'pri.2.h': 'AI is the copilot. The human steers.',
+        'pri.2.p': 'Each does what it does best. Designing that collaboration well is what defines the outcome.',
+        'pri.3.h': 'Clarity over complexity.',
+        'pri.3.p': "If we can't explain it in one sentence, we haven't understood it yet.",
+        'pri.4.h': 'Results, not demos.',
+        'pri.4.p': 'We sell measurable changes, not pretty presentations.',
+        'pri.5.h': 'Intelligence with judgment.',
+        'pri.5.p': 'AI proposes alternatives. The team decides which to amplify. That is the winning combination.',
+
+        'sobre.eyebrow': '06 · ABOUT',
+        'sobre.h2': 'Slowcraft is a boutique consulting firm based in <em>Mexico City.</em>',
+        'sobre.p1': 'We were born in 2026 with a simple conviction: AI is the biggest opportunity of this decade, but most companies are adopting it badly. Without design, without judgment, without a plan that considers the people who will use it every day.',
+        'sobre.p2': "We work with CEOs and leaders of growing companies who want to enter this era with their head on straight. We don't sell hype, we don't promise shortcuts. We design the workflows where human talent and AI each do what they do best — because that's the only way to generate real, sustained advantage.",
+        'sobre.meta.fundado': 'FOUNDED',
+        'sobre.meta.base': 'BASE',
+        'sobre.meta.alcance': 'REACH',
+        'sobre.meta.alcance.v': 'LATAM · Global',
+
+        'cta.h2': "Let's design together how your company works <em>with AI.</em>",
+        'cta.p': "Schedule a 30-minute conversation. No pitch, no presentation. Just an honest chat about where your company stands and how we could help.",
+
+        'form.l.nombre': 'Full name',
+        'form.l.email':  'Work email',
+        'form.l.cargo':  'Role / position',
+        'form.l.web':    'Company website',
+        'form.l.motivo': 'Reason for contact',
+        'form.l.desc':   'Description',
+        'form.ph.nombre': 'Ada Lovelace',
+        'form.ph.email':  'ada@company.com',
+        'form.ph.cargo':  'CEO, COO, Head of Operations…',
+        'form.ph.web':    'company.com',
+        'form.ph.desc':   'Briefly tell us about your company, the context, and what you would like to explore.',
+        'form.opt.placeholder': 'Select a reason',
+        'form.opt.proyectos': 'Projects',
+        'form.opt.informes':  'Inquiries',
+        'form.opt.bolsa':     'Job openings',
+        'form.submit':       'Send message',
+        'form.submit.loading': 'Sending…',
+        'form.disclaimer':   'We reply within 48 business hours. Your information is confidential and used only to respond to your inquiry.',
+        'form.alt.divider':  'or',
+        'form.whatsapp':     'Contact us on WhatsApp',
+
+        'msg.received':   'Message received',
+        'msg.success':    'Message sent! We will reply within 48 business hours.',
+        'msg.errFields':  'Please review the highlighted fields before sending.',
+        'msg.errSend':    'We could not send your message. Try again or write to hola@slowcraft.ai',
+        'msg.wa.soon':    'WhatsApp chat — coming soon. For now please use the form.',
+
+        'err.nom.req':   'Name is required.',
+        'err.nom.short': 'Too short. Please write your full name.',
+        'err.nom.full':  'Include first and last name.',
+        'err.nom.long':  'Too long (max. 80 characters).',
+        'err.email.req': 'Email is required.',
+        'err.email.bad': 'Invalid email. Check the format.',
+        'err.email.free':'Use your work email, not a personal one (gmail, outlook, etc.).',
+        'err.cargo.req': 'Role is required.',
+        'err.cargo.short':'Too short.',
+        'err.cargo.long':'Too long (max. 80).',
+        'err.web.req':   'Website is required.',
+        'err.web.bad':   'Invalid domain. Ex: company.com',
+        'err.motivo':    'Please select a reason.',
+        'err.desc.req':  'Description is required.',
+        'err.desc.short':'Too short ({n}/20). Tell us a bit more.',
+        'err.desc.long': 'Too long (max. 1000).',
+
+        'footer.tagline': 'AI strategy, deliberately designed. The right hand of human talent.',
+        'footer.col.nav': 'Navigation',
+        'footer.col.contact': 'Contact',
+        'footer.copy': '© 2026 Slowcraft. Designed with judgment in Mexico City.'
+      }
+    };
+
+    let currentLang = (function () {
+      try {
+        const saved = localStorage.getItem('slowcraft_lang');
+        if (saved === 'es' || saved === 'en') return saved;
+      } catch {}
+      return (navigator.language || 'es').toLowerCase().startsWith('en') ? 'en' : 'es';
+    })();
+
+    // Devuelve la traducción para la lang actual, con interpolación simple {n}
+    function t (key, vars) {
+      const dict = I18N[currentLang] || I18N.es;
+      let s = dict[key] || (I18N.es[key] || key);
+      if (vars) Object.keys(vars).forEach(k => { s = s.replace('{' + k + '}', vars[k]); });
+      return s;
+    }
+
+    function applyLang (lang) {
+      if (!I18N[lang]) lang = 'es';
+      currentLang = lang;
+      try { localStorage.setItem('slowcraft_lang', lang); } catch {}
+      document.documentElement.lang = lang;
+      const titleKey = 'doc.title';
+      if (I18N[lang][titleKey]) document.title = I18N[lang][titleKey];
+
+      // textContent
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.dataset.i18n;
+        if (I18N[lang][k] !== undefined) el.textContent = I18N[lang][k];
+      });
+      // innerHTML (para tags con <em> u otros)
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const k = el.dataset.i18nHtml;
+        if (I18N[lang][k] !== undefined) el.innerHTML = I18N[lang][k];
+      });
+      // placeholder
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const k = el.dataset.i18nPlaceholder;
+        if (I18N[lang][k] !== undefined) el.setAttribute('placeholder', I18N[lang][k]);
+      });
+      // aria-label
+      document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+        const k = el.dataset.i18nAriaLabel;
+        if (I18N[lang][k] !== undefined) el.setAttribute('aria-label', I18N[lang][k]);
+      });
+
+      // Lang switch button: muestra el idioma "al que cambiarías" (no el activo)
+      const sw = document.querySelector('.lang-switch');
+      if (sw) sw.textContent = (lang === 'es') ? 'EN' : 'ES';
+    }
+
+    // Lang switch
+    document.querySelector('.lang-switch').addEventListener('click', function () {
+      applyLang(currentLang === 'es' ? 'en' : 'es');
     });
+
+    // Apply on load
+    applyLang(currentLang);
     
     // Smooth scroll for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1832,14 +2251,14 @@
         // Honeypot check (bots completan campos invisibles)
         if (form.elements.website && form.elements.website.value !== '') {
           // Mensaje de éxito falso — el bot no debe saber que lo descartamos
-          showToast('Mensaje recibido', 'success');
+          showToast(t('msg.received'), 'success');
           form.reset();
           return;
         }
 
         const allValid = Object.keys(fields).every(name => runValidation(name));
         if (!allValid) {
-          showToast('Revisá los campos marcados antes de enviar.', 'error');
+          showToast(t('msg.errFields'), 'error');
           const firstInvalid = form.querySelector('.form-input.is-invalid');
           if (firstInvalid) firstInvalid.focus();
           return;
@@ -1870,7 +2289,7 @@
             const data = await res.json().catch(() => ({}));
             throw new Error(data.error || 'HTTP ' + res.status);
           }
-          showToast('¡Mensaje enviado! Te respondemos en máximo 48h hábiles.', 'success', 7000);
+          showToast(t('msg.success'), 'success', 7000);
           form.reset();
           counter.textContent = '0';
           Object.values(fields).forEach(({ el }) => {
@@ -1880,7 +2299,7 @@
           form.querySelectorAll('.form-hint').forEach(h => { h.textContent = ''; });
         } catch (err) {
           console.error('[contact-form]', err);
-          showToast('No pudimos enviar el mensaje. Intentá de nuevo o escribinos a hola@slowcraft.ai', 'error', 9000);
+          showToast(t('msg.errSend'), 'error', 9000);
         } finally {
           setSubmitting(false);
         }
@@ -1890,7 +2309,7 @@
         const btn = document.getElementById('cf-submit');
         btn.disabled = on;
         btn.classList.toggle('is-loading', on);
-        btn.querySelector('.form-submit-label').textContent = on ? 'Enviando…' : 'Enviar mensaje';
+        btn.querySelector('.form-submit-label').textContent = on ? t('form.submit.loading') : t('form.submit');
       }
 
       function runValidation (name) {
@@ -1911,62 +2330,60 @@
         return result.ok;
       }
 
-      // ---- Validators ----
+      // ---- Validators (mensajes via t() para soportar i18n) ----
       function validateNombre (v) {
-        const t = v.trim();
-        if (!t) return { ok: false, msg: 'El nombre es obligatorio.' };
-        if (t.length < 3) return { ok: false, msg: 'Demasiado corto. Escribí tu nombre completo.' };
-        if (!/\s/.test(t)) return { ok: false, msg: 'Incluí nombre y apellido.' };
-        if (t.length > 80) return { ok: false, msg: 'Demasiado largo (máx. 80 caracteres).' };
+        const s = v.trim();
+        if (!s) return { ok: false, msg: t('err.nom.req') };
+        if (s.length < 3) return { ok: false, msg: t('err.nom.short') };
+        if (!/\s/.test(s)) return { ok: false, msg: t('err.nom.full') };
+        if (s.length > 80) return { ok: false, msg: t('err.nom.long') };
         return { ok: true };
       }
 
       function validateEmail (v) {
-        const t = v.trim().toLowerCase();
-        if (!t) return { ok: false, msg: 'El email es obligatorio.' };
+        const s = v.trim().toLowerCase();
+        if (!s) return { ok: false, msg: t('err.email.req') };
         const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-        if (!re.test(t)) return { ok: false, msg: 'Email inválido. Revisá el formato.' };
-        const domain = t.split('@')[1];
-        if (FREE_EMAIL_DOMAINS.has(domain)) {
-          return { ok: false, msg: 'Usá tu email corporativo, no uno personal (gmail, outlook, etc.).' };
-        }
+        if (!re.test(s)) return { ok: false, msg: t('err.email.bad') };
+        const domain = s.split('@')[1];
+        if (FREE_EMAIL_DOMAINS.has(domain)) return { ok: false, msg: t('err.email.free') };
         return { ok: true };
       }
 
       function validateCargo (v) {
-        const t = v.trim();
-        if (!t) return { ok: false, msg: 'Cargo obligatorio.' };
-        if (t.length < 2) return { ok: false, msg: 'Demasiado corto.' };
-        if (t.length > 80) return { ok: false, msg: 'Demasiado largo (máx. 80).' };
+        const s = v.trim();
+        if (!s) return { ok: false, msg: t('err.cargo.req') };
+        if (s.length < 2) return { ok: false, msg: t('err.cargo.short') };
+        if (s.length > 80) return { ok: false, msg: t('err.cargo.long') };
         return { ok: true };
       }
 
       function validateUrl (v) {
-        const t = v.trim().toLowerCase();
-        if (!t) return { ok: false, msg: 'Sitio web obligatorio.' };
-        const stripped = t.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
+        const s = v.trim().toLowerCase();
+        if (!s) return { ok: false, msg: t('err.web.req') };
+        const stripped = s.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/.*$/, '');
         const domainRe = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/;
-        if (!domainRe.test(stripped)) return { ok: false, msg: 'Dominio inválido. Ej: empresa.com' };
+        if (!domainRe.test(stripped)) return { ok: false, msg: t('err.web.bad') };
         return { ok: true };
       }
 
       function normalizeUrl (v) {
-        const t = v.trim();
-        if (!/^https?:\/\//i.test(t)) return 'https://' + t;
-        return t;
+        const s = v.trim();
+        if (!/^https?:\/\//i.test(s)) return 'https://' + s;
+        return s;
       }
 
       function validateMotivo (v) {
         const allowed = ['proyectos', 'informes', 'bolsa-de-trabajo'];
-        if (!v || !allowed.includes(v)) return { ok: false, msg: 'Seleccioná un motivo.' };
+        if (!v || !allowed.includes(v)) return { ok: false, msg: t('err.motivo') };
         return { ok: true };
       }
 
       function validateDescripcion (v) {
-        const t = v.trim();
-        if (!t) return { ok: false, msg: 'Descripción obligatoria.' };
-        if (t.length < 20) return { ok: false, msg: 'Demasiado breve (' + t.length + '/20). Contanos un poco más.' };
-        if (t.length > 1000) return { ok: false, msg: 'Demasiado largo (máx. 1000).' };
+        const s = v.trim();
+        if (!s) return { ok: false, msg: t('err.desc.req') };
+        if (s.length < 20) return { ok: false, msg: t('err.desc.short', { n: s.length }) };
+        if (s.length > 1000) return { ok: false, msg: t('err.desc.long') };
         return { ok: true };
       }
 
@@ -1975,7 +2392,7 @@
       if (wa) {
         wa.addEventListener('click', () => {
           // TODO (backlog): abrir chat-widget de WhatsApp embebido
-          showToast('Chat de WhatsApp — próximamente. Por ahora envianos el formulario.', 'success', 5000);
+          showToast(t('msg.wa.soon'), 'success', 5000);
         });
       }
 
