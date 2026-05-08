@@ -1,12 +1,18 @@
 // Endpoints del admin.
-// Todas las rutas excepto /login y /logout requieren auth (cookie de sesión válida).
+// Todas las rutas excepto /login, /forgot, /reset, /logout requieren auth (cookie de sesión válida).
 
 import { Router } from 'express';
+import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import { query, withClient } from '../db.js';
 import {
   verifyPassword, signSession, cookieOptions, requireAuth, SESSION_COOKIE
 } from '../auth.js';
+import {
+  findByEmail, updatePassword, createResetToken, consumeResetToken,
+  RESET_TOKEN_EXPIRY_MINUTES
+} from '../services/admin-users.js';
+import { sendPasswordResetEmail } from '../email.js';
 
 const router = Router();
 const isProd = process.env.NODE_ENV === 'production';
@@ -24,28 +30,136 @@ const loginLimiter = rateLimit({
 // POST /api/admin/login
 // ============================================================
 router.post('/login', loginLimiter, async (req, res) => {
-  const { email, password } = req.body || {};
-  if (!email || !password) {
-    return res.status(400).json({ error: 'email y password requeridos' });
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({ error: 'email y password requeridos' });
+    }
+    if (!process.env.JWT_SECRET) {
+      console.error('[admin/login] JWT_SECRET no configurada');
+      return res.status(500).json({ error: 'Servidor mal configurado: falta JWT_SECRET' });
+    }
+
+    const admin = await findByEmail(String(email));
+    if (!admin) {
+      // Misma respuesta que password mal — no leak de qué emails existen
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    const ok = await verifyPassword(String(password), admin.password_hash);
+    if (!ok) {
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    const token = signSession({ email: admin.email, role: 'admin', uid: admin.id });
+    res.cookie(SESSION_COOKIE, token, cookieOptions(isProd));
+    res.json({ ok: true, email: admin.email });
+  } catch (err) {
+    console.error('[admin/login] error inesperado:', err);
+    res.status(500).json({ error: 'Error interno' });
   }
+});
 
-  const adminEmail = process.env.ADMIN_EMAIL || '';
-  const adminHash  = process.env.ADMIN_PASSWORD_HASH || '';
+// ============================================================
+// POST /api/admin/forgot — envía link de reset al email del admin
+// ============================================================
+const forgotLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,  // 1h
+  max: 5,                     // 5 emails/hora máx
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes. Esperá 1 hora.' }
+});
 
-  // Comparación de email case-insensitive y password vía bcrypt
-  if (String(email).toLowerCase() !== adminEmail.toLowerCase()) {
-    // Misma respuesta que password mal — no le decimos a un atacante si el email existe
-    return res.status(401).json({ error: 'Credenciales inválidas' });
+router.post('/forgot', forgotLimiter, async (req, res) => {
+  // Respuesta genérica siempre — no leakear si el email existe
+  const generic = { ok: true, message: 'Si el email coincide con un admin, te llegará un link en breve.' };
+
+  try {
+    const { email } = req.body || {};
+    if (!email || typeof email !== 'string') {
+      return res.json(generic);
+    }
+    const admin = await findByEmail(email);
+    if (!admin) {
+      console.log(`[admin/forgot] email no coincide: ${email}`);
+      return res.json(generic);
+    }
+
+    const { raw } = await createResetToken(admin.id);
+
+    const baseUrl = process.env.APP_BASE_URL
+      || `${req.protocol}://${req.get('host')}`;
+    const resetUrl = `${baseUrl.replace(/\/$/, '')}/admin/reset?token=${raw}`;
+
+    try {
+      await sendPasswordResetEmail({
+        email: admin.email,
+        resetUrl,
+        expiresInMinutes: RESET_TOKEN_EXPIRY_MINUTES
+      });
+      console.log(`[admin/forgot] reset email enviado a ${admin.email}`);
+    } catch (err) {
+      console.error('[admin/forgot] envío falló:', err.message);
+      // Igual respondemos OK para no leakear nada al cliente
+    }
+
+    res.json(generic);
+  } catch (err) {
+    console.error('[admin/forgot] error inesperado:', err);
+    res.json(generic);  // sigue siendo respuesta genérica
   }
+});
 
-  const ok = await verifyPassword(String(password), adminHash);
-  if (!ok) {
-    return res.status(401).json({ error: 'Credenciales inválidas' });
+// ============================================================
+// POST /api/admin/reset — consume token + setea password nueva
+// ============================================================
+const resetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes.' }
+});
+
+router.post('/reset', resetLimiter, async (req, res) => {
+  try {
+    const { token, password } = req.body || {};
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Token y password requeridos' });
+    }
+    if (typeof password !== 'string' || password.length < 10) {
+      return res.status(400).json({ error: 'Password debe tener al menos 10 caracteres' });
+    }
+
+    const admin = await consumeResetToken(String(token));
+    if (!admin) {
+      return res.status(400).json({ error: 'Token inválido o expirado. Pedí uno nuevo.' });
+    }
+
+    const newHash = await bcrypt.hash(password, 12);
+    await updatePassword(admin.id, newHash);
+
+    console.log(`[admin/reset] password actualizada para ${admin.email}`);
+    res.json({ ok: true, message: 'Password actualizada. Ya podés entrar.' });
+  } catch (err) {
+    console.error('[admin/reset] error inesperado:', err);
+    res.status(500).json({ error: 'Error interno' });
   }
+});
 
-  const token = signSession({ email: adminEmail, role: 'admin' });
-  res.cookie(SESSION_COOKIE, token, cookieOptions(isProd));
-  res.json({ ok: true, email: adminEmail });
+// ============================================================
+// GET /api/admin/reset/check — verifica si un token es válido (para preflight desde la página)
+// ============================================================
+router.get('/reset/check', async (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.json({ valid: false });
+  try {
+    const admin = await consumeResetToken(String(token));
+    res.json({ valid: !!admin });
+  } catch {
+    res.json({ valid: false });
+  }
 });
 
 // ============================================================

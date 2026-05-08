@@ -67,15 +67,18 @@ UA:       ${meta.user_agent || '—'}
   return { subject, text, html };
 }
 
-export async function sendContactEmail (lead, meta = {}) {
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY no configurada');
-  }
-  if (!process.env.CONTACT_FROM_EMAIL || !process.env.CONTACT_TO_EMAIL) {
-    throw new Error('CONTACT_FROM_EMAIL y CONTACT_TO_EMAIL son obligatorios');
-  }
+async function sendViaResend ({ to, subject, text, html, replyTo }) {
+  if (!process.env.RESEND_API_KEY) throw new Error('RESEND_API_KEY no configurada');
+  if (!process.env.CONTACT_FROM_EMAIL) throw new Error('CONTACT_FROM_EMAIL no configurado');
 
-  const { subject, text, html } = buildContactEmail(lead, meta);
+  const body = {
+    from: process.env.CONTACT_FROM_EMAIL,
+    to: Array.isArray(to) ? to : [to],
+    subject,
+    text,
+    html
+  };
+  if (replyTo) body.reply_to = replyTo;
 
   const res = await fetch(RESEND_ENDPOINT, {
     method: 'POST',
@@ -83,14 +86,7 @@ export async function sendContactEmail (lead, meta = {}) {
       'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      from: process.env.CONTACT_FROM_EMAIL,
-      to: [process.env.CONTACT_TO_EMAIL],
-      reply_to: lead.email,
-      subject,
-      text,
-      html
-    }),
+    body: JSON.stringify(body),
     signal: AbortSignal.timeout(SEND_TIMEOUT_MS)
   });
 
@@ -100,4 +96,61 @@ export async function sendContactEmail (lead, meta = {}) {
   }
 
   return await res.json();
+}
+
+export async function sendContactEmail (lead, meta = {}) {
+  if (!process.env.CONTACT_TO_EMAIL) throw new Error('CONTACT_TO_EMAIL no configurado');
+  const { subject, text, html } = buildContactEmail(lead, meta);
+  return await sendViaResend({
+    to: process.env.CONTACT_TO_EMAIL,
+    replyTo: lead.email,
+    subject, text, html
+  });
+}
+
+// ============================================================
+// Password reset email
+// ============================================================
+export function buildPasswordResetEmail ({ email, resetUrl, expiresInMinutes }) {
+  const subject = 'Restablecer contraseña — Slowcraft Admin';
+
+  const text =
+`Hola,
+
+Recibiste este email porque alguien (esperamos que vos) pidió restablecer la contraseña del admin de Slowcraft.
+
+Para crear una nueva contraseña, abrí este link:
+${resetUrl}
+
+El link expira en ${expiresInMinutes} minutos.
+
+Si no fuiste vos, ignorá este mensaje — tu contraseña actual sigue siendo válida.
+
+— Slowcraft Admin
+`;
+
+  const safe = (s) => String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const html = `
+<!DOCTYPE html>
+<html><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#0F0F0E;background:#F5F1EA;padding:32px;margin:0;">
+  <div style="max-width:520px;margin:0 auto;background:#FFFFFF;padding:32px;border:1px solid #DDD8D0;">
+    <p style="font-size:11px;letter-spacing:2px;color:#7A7570;text-transform:uppercase;margin:0 0 8px;font-weight:500;">Slowcraft · Admin</p>
+    <h2 style="font-family:'Newsreader',Georgia,serif;font-weight:400;font-size:28px;margin:0 0 24px;color:#0F0F0E;">Restablecer <em style="color:#3A4F41;">contraseña.</em></h2>
+    <p style="font-size:15px;line-height:1.6;margin:0 0 24px;">Recibiste este email porque alguien (esperamos que vos) pidió restablecer la contraseña del admin de Slowcraft.</p>
+    <p style="margin:32px 0;">
+      <a href="${safe(resetUrl)}" style="display:inline-block;padding:14px 28px;background:#0F0F0E;color:#F5F1EA;text-decoration:none;font-size:14px;font-weight:500;letter-spacing:0.3px;border-radius:2px;">Crear nueva contraseña →</a>
+    </p>
+    <p style="font-size:13px;color:#7A7570;line-height:1.5;margin:0 0 8px;">El link expira en ${expiresInMinutes} minutos.</p>
+    <p style="font-size:13px;color:#7A7570;line-height:1.5;margin:0;">Si no fuiste vos, ignorá este mensaje — tu contraseña actual sigue siendo válida.</p>
+    <hr style="border:none;border-top:1px solid #DDD8D0;margin:24px 0;">
+    <p style="font-size:11px;color:#B5B0A8;font-family:'Courier New',monospace;line-height:1.5;margin:0;word-break:break-all;">${safe(resetUrl)}</p>
+  </div>
+</body></html>`;
+
+  return { subject, text, html };
+}
+
+export async function sendPasswordResetEmail ({ email, resetUrl, expiresInMinutes }) {
+  const { subject, text, html } = buildPasswordResetEmail({ email, resetUrl, expiresInMinutes });
+  return await sendViaResend({ to: email, subject, text, html });
 }

@@ -120,10 +120,27 @@ input, textarea, select { font-family: var(--sans); }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   padding: var(--space-12);
   background: #fff;
   border: 1px solid var(--piedra-light);
+}
+
+.login-aux {
+  margin-top: var(--space-6);
+  text-align: center;
+  font-size: 13px;
+  color: var(--piedra);
+}
+.login-aux a { font-weight: 500; }
+
+.success-block {
+  background: rgba(74, 107, 92, 0.08);
+  border-left: 3px solid var(--success);
+  color: var(--success);
+  font-size: 13px;
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .login-header { margin-bottom: var(--space-12); }
@@ -177,6 +194,37 @@ input, textarea, select { font-family: var(--sans); }
 .input.is-invalid { border-color: var(--danger); }
 
 textarea.input { resize: vertical; min-height: 80px; font-family: var(--sans); }
+
+/* Input con toggle (mostrar/ocultar password) */
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+.input-wrap .input { padding-right: 44px; }
+
+.input-toggle {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 40px;
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--piedra);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-out);
+  border-radius: 0 2px 2px 0;
+}
+.input-toggle:hover { color: var(--tinta); }
+.input-toggle:focus { outline: none; color: var(--salvia); }
+
+.input-toggle svg { width: 18px; height: 18px; display: block; }
+.input-toggle .icon-show { display: block; }
+.input-toggle .icon-hide { display: none; }
+.input-toggle.is-revealed .icon-show { display: none; }
+.input-toggle.is-revealed .icon-hide { display: block; }
 
 select.input {
   cursor: pointer;

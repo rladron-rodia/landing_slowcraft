@@ -16,6 +16,7 @@ import rateLimit from 'express-rate-limit';
 import { pool, query } from './db.js';
 import { sendContactEmail } from './email.js';
 import adminRouter from './routes/admin.js';
+import { bootstrapFromEnv } from './services/admin-users.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
@@ -216,8 +217,14 @@ app.use((err, _req, res, _next) => {
 });
 
 // ---------- Start ----------
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`[server] escuchando en puerto ${PORT}`);
+  // Bootstrap del admin desde env vars si la DB está vacía
+  try {
+    await bootstrapFromEnv();
+  } catch (err) {
+    console.error('[server] bootstrap admin falló:', err.message);
+  }
 });
 
 // Shutdown limpio

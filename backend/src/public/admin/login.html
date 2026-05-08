@@ -28,17 +28,46 @@
 
         <div class="field">
           <label class="label" for="password">Password</label>
-          <input class="input" type="password" id="password" name="password" autocomplete="current-password" required minlength="10">
+          <div class="input-wrap">
+            <input class="input" type="password" id="password" name="password" autocomplete="current-password" required minlength="10">
+            <button type="button" class="input-toggle" data-target="password" aria-label="Mostrar password">
+              <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.5 19.5 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a19.5 19.5 0 0 1-2.16 3.19"/>
+                <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <button type="submit" class="btn btn-block" id="submit-btn">
           <span id="btn-label">Entrar</span>
         </button>
       </form>
+
+      <p class="login-aux">
+        <a href="/admin/forgot">Olvidé mi contraseña</a>
+      </p>
     </div>
   </main>
 
   <script>
+    // ---------- Show/hide password toggle ----------
+    document.querySelectorAll('.input-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        btn.setAttribute('aria-label', isHidden ? 'Esconder password' : 'Mostrar password');
+        btn.classList.toggle('is-revealed', isHidden);
+      });
+    });
+
     (async function () {
       // Si ya hay sesión, redirigir directo al dashboard
       try {

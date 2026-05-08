@@ -28,6 +28,8 @@ services:
           property: connectionString
       - key: ALLOWED_ORIGINS
         value: "https://rladron-rodia.github.io,https://slowcraft.ai,https://www.slowcraft.ai"
+      - key: APP_BASE_URL
+        value: "https://slowcraft-api.onrender.com"
       # Los siguientes son secrets — los configurás en el dashboard de Render
       - key: RESEND_API_KEY
         sync: false

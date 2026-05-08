@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slowcraft · Nueva contraseña</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="login-shell">
+    <div class="login-card">
+      <header class="login-header">
+        <a href="/admin/login" class="brand" aria-label="Slowcraft">
+          <span class="brand-symbol" aria-hidden="true"></span>
+          <span class="brand-text">Slowcraft</span>
+          <span class="brand-eyebrow">Admin</span>
+        </a>
+        <h1>Nueva <em>contraseña.</em></h1>
+        <p style="margin-top:12px;font-size:14px;color:var(--piedra);line-height:1.5;">
+          Mínimo 10 caracteres.
+        </p>
+      </header>
+
+      <div class="form-error" id="error" role="alert"></div>
+      <div class="success-block" id="success" style="display:none;" role="status">
+        Contraseña actualizada ✓ <a href="/admin/login" style="color:inherit;text-decoration:underline;">Entrar →</a>
+      </div>
+
+      <div id="invalid-token" style="display:none;">
+        <div class="form-error is-visible">
+          El link es inválido o expiró. Pedí uno nuevo desde la pantalla de recuperación.
+        </div>
+        <p class="login-aux">
+          <a href="/admin/forgot">Pedir nuevo link</a>
+        </p>
+      </div>
+
+      <form id="reset-form" novalidate style="display:none;">
+        <div class="field">
+          <label class="label" for="password">Nueva contraseña</label>
+          <div class="input-wrap">
+            <input class="input" type="password" id="password" name="password" autocomplete="new-password" required minlength="10">
+            <button type="button" class="input-toggle" data-target="password" aria-label="Mostrar password">
+              <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.5 19.5 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a19.5 19.5 0 0 1-2.16 3.19"/>
+                <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label" for="password2">Repetí la contraseña</label>
+          <div class="input-wrap">
+            <input class="input" type="password" id="password2" name="password2" autocomplete="new-password" required minlength="10">
+            <button type="button" class="input-toggle" data-target="password2" aria-label="Mostrar password">
+              <svg class="icon-show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="icon-hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.5 19.5 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a19.5 19.5 0 0 1-2.16 3.19"/>
+                <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-block" id="submit-btn">
+          <span id="btn-label">Guardar contraseña</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    // ---------- Show/hide password toggle ----------
+    document.querySelectorAll('.input-toggle').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const input = document.getElementById(btn.dataset.target);
+        const isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        btn.setAttribute('aria-label', isHidden ? 'Esconder password' : 'Mostrar password');
+        btn.classList.toggle('is-revealed', isHidden);
+      });
+    });
+
+    // ---------- Token check ----------
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    const form = document.getElementById('reset-form');
+    const invalid = document.getElementById('invalid-token');
+    const errBox = document.getElementById('error');
+    const successBox = document.getElementById('success');
+
+    function showError (msg) { errBox.textContent = msg; errBox.classList.add('is-visible'); }
+    function clearError () { errBox.classList.remove('is-visible'); }
+
+    (async function () {
+      if (!token) { invalid.style.display = 'block'; return; }
+      try {
+        const res = await fetch('/api/admin/reset/check?token=' + encodeURIComponent(token));
+        const data = await res.json();
+        if (!data.valid) { invalid.style.display = 'block'; return; }
+        form.style.display = 'block';
+      } catch {
+        invalid.style.display = 'block';
+      }
+    })();
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearError();
+
+      const password  = form.elements.password.value;
+      const password2 = form.elements.password2.value;
+      if (!password || password.length < 10) { showError('La contraseña debe tener al menos 10 caracteres.'); return; }
+      if (password !== password2) { showError('Las contraseñas no coinciden.'); return; }
+
+      const btn = document.getElementById('submit-btn');
+      const label = document.getElementById('btn-label');
+      btn.disabled = true; label.textContent = 'Guardando…';
+
+      try {
+        const res = await fetch('/api/admin/reset', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password })
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          showError(data.error || ('Error ' + res.status));
+          btn.disabled = false; label.textContent = 'Guardar contraseña';
+          return;
+        }
+        successBox.style.display = 'block';
+        form.style.display = 'none';
+      } catch {
+        showError('Error de red. Intentá de nuevo.');
+        btn.disabled = false; label.textContent = 'Guardar contraseña';
+      }
+    });
+  </script>
+</body>
+</html>
