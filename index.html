@@ -856,19 +856,19 @@
       text-align: left;
       display: flex;
       flex-direction: column;
-      gap: var(--space-6);
+      gap: var(--space-4);
     }
 
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: var(--space-6);
+      gap: var(--space-4);
     }
 
     .form-field {
       display: flex;
       flex-direction: column;
-      gap: var(--space-2);
+      gap: 6px;
       min-width: 0;
     }
 
@@ -888,7 +888,7 @@
 
     .form-input {
       width: 100%;
-      padding: 14px 16px;
+      padding: 12px 14px;
       background: var(--crema);
       color: var(--text-primary);
       font-family: var(--sans);
@@ -941,9 +941,11 @@
       font-family: var(--sans);
       font-size: 12px;
       color: var(--danger);
-      min-height: 16px;
+      min-height: 0;
       line-height: 1.3;
+      transition: min-height var(--duration-fast) var(--ease-out);
     }
+    .form-hint:not(:empty) { min-height: 16px; margin-top: 2px; }
 
     .form-meta {
       display: flex;
@@ -965,7 +967,7 @@
       align-items: center;
       justify-content: center;
       gap: 12px;
-      padding: 18px 36px;
+      padding: 16px 32px;
       background: var(--tinta);
       color: var(--crema);
       font-family: var(--sans);
@@ -978,7 +980,8 @@
       transition: background var(--duration-default) var(--ease-out),
                   transform var(--duration-default) var(--ease-out);
       align-self: flex-start;
-      min-width: 200px;
+      min-width: 220px;
+      margin-top: var(--space-2);
     }
 
     .form-submit:hover:not(:disabled) {
@@ -1009,7 +1012,63 @@
       font-size: 13px;
       color: var(--text-secondary);
       line-height: 1.5;
-      margin-top: var(--space-2);
+      margin-top: var(--space-1);
+    }
+
+    /* Divider "o" entre form submit y CTA alternativo */
+    .form-alt-divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin: var(--space-4) 0 var(--space-2);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--piedra-soft);
+      text-transform: uppercase;
+    }
+    .form-alt-divider::before,
+    .form-alt-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--piedra-light);
+    }
+
+    /* CTA WhatsApp — secundario, salvia, contrasta con el submit primario */
+    .form-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--salvia);
+      font-family: var(--sans);
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      border: 1.5px solid var(--salvia);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background var(--duration-default) var(--ease-out),
+                  color var(--duration-default) var(--ease-out),
+                  transform var(--duration-default) var(--ease-out),
+                  box-shadow var(--duration-default) var(--ease-out);
+      align-self: flex-start;
+      min-width: 220px;
+      text-decoration: none;
+    }
+    .form-whatsapp:hover {
+      background: var(--salvia);
+      color: var(--crema);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(58, 79, 65, 0.18);
+    }
+    .form-whatsapp svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
     }
 
     /* Honeypot — visualmente oculto pero accesible */
@@ -1228,9 +1287,21 @@
         gap: 32px;
       }
 
-      .form-row { grid-template-columns: 1fr; }
-      .cta-final { padding: 100px 24px; }
-      .form-submit { width: 100%; align-self: stretch; }
+      .form-row { grid-template-columns: 1fr; gap: var(--space-3); }
+      .contact-form { gap: var(--space-3); }
+      .cta-final { padding: 64px 20px; }
+      .cta-final p { margin-bottom: 32px; }
+      .form-submit,
+      .form-whatsapp {
+        width: 100%;
+        align-self: stretch;
+        min-width: 0;
+        padding: 16px 24px;
+        font-size: 15px;
+      }
+      .form-alt-divider { margin: var(--space-3) 0; }
+      .form-disclaimer { font-size: 12.5px; }
+      .form-input { padding: 12px 14px; font-size: 16px; }  /* 16px evita zoom en iOS al focus */
       .toast-region {
         top: 16px;
         right: 16px;
@@ -1637,6 +1708,15 @@
       </button>
 
       <p class="form-disclaimer">Respondemos en máximo 48h hábiles. Tu información es confidencial y solo la usamos para responder tu consulta.</p>
+
+      <div class="form-alt-divider" role="separator" aria-label="o">o</div>
+
+      <button type="button" class="form-whatsapp" id="cf-whatsapp" aria-label="Contáctanos por WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413"/>
+        </svg>
+        <span>Contáctanos por WhatsApp</span>
+      </button>
     </form>
   </section>
 
@@ -1888,6 +1968,15 @@
         if (t.length < 20) return { ok: false, msg: 'Demasiado breve (' + t.length + '/20). Contanos un poco más.' };
         if (t.length > 1000) return { ok: false, msg: 'Demasiado largo (máx. 1000).' };
         return { ok: true };
+      }
+
+      // ---- WhatsApp CTA (placeholder hasta que conectemos el chat widget) ----
+      const wa = document.getElementById('cf-whatsapp');
+      if (wa) {
+        wa.addEventListener('click', () => {
+          // TODO (backlog): abrir chat-widget de WhatsApp embebido
+          showToast('Chat de WhatsApp — próximamente. Por ahora envianos el formulario.', 'success', 5000);
+        });
       }
 
       // ---- Toasts ----
