@@ -27,13 +27,34 @@ backend/
     └── migrate.js           # Runner de migraciones
 ```
 
-## Endpoints (Fase 1)
+## Endpoints
+
+### Públicos (Fase 1)
 
 | Método | Ruta            | Descripción                                        |
 |--------|-----------------|----------------------------------------------------|
 | GET    | `/`             | Info básica del servicio                           |
 | GET    | `/healthz`      | Health check (incluye ping a DB)                   |
 | POST   | `/api/contact`  | Recibe form de contacto · valida · guarda · envía  |
+
+### Admin (Fase 2 — todos requieren cookie de sesión salvo `/login`)
+
+| Método | Ruta                       | Descripción                                          |
+|--------|----------------------------|------------------------------------------------------|
+| POST   | `/api/admin/login`         | Login con email + password                           |
+| POST   | `/api/admin/logout`        | Cierra sesión                                        |
+| GET    | `/api/admin/me`            | Verifica sesión activa                               |
+| GET    | `/api/admin/stats`         | Counts por status                                    |
+| GET    | `/api/admin/leads`         | Lista leads (filtros: status, motivo, q, from, to)  |
+| GET    | `/api/admin/leads/:id`     | Detalle de un lead + timeline de eventos             |
+| PATCH  | `/api/admin/leads/:id`     | Actualiza status y/o notas (con audit en lead_events)|
+
+### Frontend admin
+
+| Ruta                  | Descripción          |
+|-----------------------|----------------------|
+| `GET /admin/login`    | Página de login      |
+| `GET /admin/dashboard`| Dashboard de leads   |
 
 ### POST /api/contact
 
@@ -83,15 +104,33 @@ Ver paso a paso completo en el README principal del repo (sección **Deploy del 
 
 ## Variables de entorno
 
-| Variable             | Quién la setea | Ejemplo                                |
-|----------------------|----------------|----------------------------------------|
-| `DATABASE_URL`       | Render auto    | `postgres://…` (inyectada por blueprint) |
-| `ALLOWED_ORIGINS`    | render.yaml    | `https://rladron-rodia.github.io,…`    |
-| `RESEND_API_KEY`     | secret manual  | `re_xxxxxxxxxxxx`                      |
-| `CONTACT_TO_EMAIL`   | secret manual  | `hola@slowcraft.ai`                    |
-| `CONTACT_FROM_EMAIL` | secret manual  | `Slowcraft <noreply@slowcraft.ai>`     |
-| `NODE_ENV`           | render.yaml    | `production`                           |
-| `PORT`               | Render auto    | `10000` (lo asigna Render)             |
+| Variable               | Quién la setea | Ejemplo                                  |
+|------------------------|----------------|------------------------------------------|
+| `DATABASE_URL`         | Render auto    | `postgres://…` (inyectada por blueprint) |
+| `ALLOWED_ORIGINS`      | render.yaml    | `https://rladron-rodia.github.io,…`      |
+| `RESEND_API_KEY`       | secret manual  | `re_xxxxxxxxxxxx`                        |
+| `CONTACT_TO_EMAIL`     | secret manual  | `hola@slowcraft.ai`                      |
+| `CONTACT_FROM_EMAIL`   | secret manual  | `Slowcraft <noreply@slowcraft.ai>`       |
+| `ADMIN_EMAIL`          | secret manual  | tu email                                 |
+| `ADMIN_PASSWORD_HASH`  | secret manual  | `$2a$12$...` (bcrypt — usar `npm run hash-password`) |
+| `JWT_SECRET`           | secret manual  | string random ≥48 chars                  |
+| `NODE_ENV`             | render.yaml    | `production`                             |
+| `PORT`                 | Render auto    | `10000` (lo asigna Render)               |
+
+## Generar el password hash del admin
+
+```bash
+cd backend
+npm install
+npm run hash-password -- "tuPasswordSeguro123"
+# copiar el hash que imprime y pegar en Render como ADMIN_PASSWORD_HASH
+```
+
+Para `JWT_SECRET`:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
+```
 
 ## Notas operativas
 

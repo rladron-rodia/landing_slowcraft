@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slowcraft · Admin login</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="login-shell">
+    <div class="login-card">
+      <header class="login-header">
+        <a href="/" class="brand" aria-label="Slowcraft">
+          <span class="brand-symbol" aria-hidden="true"></span>
+          <span class="brand-text">Slowcraft</span>
+          <span class="brand-eyebrow">Admin</span>
+        </a>
+        <h1>Bienvenido <em>de vuelta.</em></h1>
+      </header>
+
+      <div class="form-error" id="error" role="alert"></div>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label class="label" for="email">Email</label>
+          <input class="input" type="email" id="email" name="email" autocomplete="username" required>
+        </div>
+
+        <div class="field">
+          <label class="label" for="password">Password</label>
+          <input class="input" type="password" id="password" name="password" autocomplete="current-password" required minlength="10">
+        </div>
+
+        <button type="submit" class="btn btn-block" id="submit-btn">
+          <span id="btn-label">Entrar</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script>
+    (async function () {
+      // Si ya hay sesión, redirigir directo al dashboard
+      try {
+        const res = await fetch('/api/admin/me', { credentials: 'same-origin' });
+        if (res.ok) { window.location.replace('/admin/dashboard'); return; }
+      } catch {}
+
+      const form = document.getElementById('login-form');
+      const errBox = document.getElementById('error');
+      const btn = document.getElementById('submit-btn');
+      const btnLabel = document.getElementById('btn-label');
+
+      function showError (msg) {
+        errBox.textContent = msg;
+        errBox.classList.add('is-visible');
+      }
+      function clearError () { errBox.classList.remove('is-visible'); }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+
+        const email = form.elements.email.value.trim();
+        const password = form.elements.password.value;
+        if (!email || !password) { showError('Completá email y password.'); return; }
+
+        btn.disabled = true;
+        btnLabel.textContent = 'Entrando…';
+
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            showError(data.error || `Error ${res.status}`);
+            btn.disabled = false;
+            btnLabel.textContent = 'Entrar';
+            return;
+          }
+          window.location.replace('/admin/dashboard');
+        } catch (err) {
+          showError('Error de red. Intentá de nuevo.');
+          btn.disabled = false;
+          btnLabel.textContent = 'Entrar';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

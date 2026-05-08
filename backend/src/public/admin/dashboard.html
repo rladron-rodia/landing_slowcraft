@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slowcraft · Admin · Leads</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="app-header">
+    <a href="/admin/dashboard" class="brand" aria-label="Slowcraft Admin">
+      <span class="brand-symbol" aria-hidden="true"></span>
+      <span class="brand-text">Slowcraft</span>
+      <span class="brand-eyebrow">Admin</span>
+    </a>
+    <div class="app-header-nav">
+      <span class="user-email" id="user-email"></span>
+      <button class="btn btn-ghost btn-sm" id="logout-btn">Salir</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <h1 class="app-h1">Leads <em>recientes.</em></h1>
+    <p class="app-subtitle">Gestioná los contactos que llegan desde el formulario de la landing.</p>
+
+    <!-- Stats -->
+    <section class="stats-grid" id="stats">
+      <div class="stat-card" data-status="" id="stat-total">
+        <div class="stat-label">Total</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" data-status="new">
+        <div class="stat-label">Nuevos</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" data-status="in-progress">
+        <div class="stat-label">En proceso</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" data-status="contacted">
+        <div class="stat-label">Contactados</div>
+        <div class="stat-value">—</div>
+      </div>
+      <div class="stat-card" data-status="closed">
+        <div class="stat-label">Cerrados</div>
+        <div class="stat-value">—</div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="filters" id="filters">
+      <div class="filter">
+        <label class="label" for="f-status">Status</label>
+        <select class="input" id="f-status">
+          <option value="">Todos</option>
+          <option value="new">Nuevos</option>
+          <option value="in-progress">En proceso</option>
+          <option value="contacted">Contactados</option>
+          <option value="closed">Cerrados</option>
+          <option value="spam">Spam</option>
+        </select>
+      </div>
+      <div class="filter">
+        <label class="label" for="f-motivo">Motivo</label>
+        <select class="input" id="f-motivo">
+          <option value="">Todos</option>
+          <option value="proyectos">Proyectos</option>
+          <option value="informes">Informes</option>
+          <option value="bolsa-de-trabajo">Bolsa de trabajo</option>
+        </select>
+      </div>
+      <div class="filter filter-search">
+        <label class="label" for="f-q">Buscar</label>
+        <input class="input" type="search" id="f-q" placeholder="Nombre, email, empresa, cargo…">
+      </div>
+      <button class="btn btn-secondary btn-sm" id="f-clear" type="button">Limpiar</button>
+    </section>
+
+    <!-- Meta + Table -->
+    <div class="leads-meta">
+      <span id="leads-count">—</span>
+      <span id="last-refresh"></span>
+    </div>
+
+    <div class="leads-table-wrap">
+      <table class="leads">
+        <thead>
+          <tr>
+            <th>Recibido</th>
+            <th>Nombre</th>
+            <th class="col-hide-mobile">Empresa</th>
+            <th class="col-hide-mobile">Motivo</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="leads-body">
+          <tr><td colspan="5" class="state">Cargando…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination" style="display: none;">
+      <button id="prev-page">← Anterior</button>
+      <span class="page-info" id="page-info">—</span>
+      <button id="next-page">Siguiente →</button>
+    </div>
+  </main>
+
+  <!-- Detail drawer -->
+  <div class="drawer-overlay" id="drawer-overlay"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <header class="drawer-header">
+      <div>
+        <h2 class="drawer-title" id="d-title">—</h2>
+        <p class="drawer-subtitle" id="d-subtitle">—</p>
+      </div>
+      <button class="drawer-close" id="drawer-close" aria-label="Cerrar">×</button>
+    </header>
+
+    <div class="drawer-body" id="drawer-body">
+      <!-- contenido dinámico -->
+    </div>
+
+    <div class="drawer-actions">
+      <button class="btn btn-secondary btn-sm" id="d-cancel">Cancelar</button>
+      <button class="btn btn-sm" id="d-save">Guardar cambios</button>
+    </div>
+  </aside>
+
+  <!-- Toast region -->
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script>
+    // ============================================================
+    // Slowcraft Admin · Dashboard
+    // ============================================================
+    const STATUS_LABEL = { 'new': 'Nuevo', 'in-progress': 'En proceso', 'contacted': 'Contactado', 'closed': 'Cerrado', 'spam': 'Spam' };
+    const MOTIVO_LABEL = { 'proyectos': 'Proyectos', 'informes': 'Informes', 'bolsa-de-trabajo': 'Bolsa de trabajo' };
+    const EVENT_LABEL = { 'created': 'Lead creado', 'status_changed': 'Status cambiado', 'note_changed': 'Nota actualizada', 'email_sent': 'Email enviado', 'email_failed': 'Email falló' };
+
+    const state = {
+      page: 1,
+      limit: 25,
+      filters: { status: '', motivo: '', q: '' },
+      currentLead: null,
+      currentEvents: []
+    };
+
+    // ---------- Auth gate ----------
+    async function checkAuth () {
+      try {
+        const res = await fetch('/api/admin/me', { credentials: 'same-origin' });
+        if (!res.ok) { window.location.replace('/admin/login'); return null; }
+        return await res.json();
+      } catch {
+        window.location.replace('/admin/login');
+        return null;
+      }
+    }
+
+    // ---------- API helpers ----------
+    async function api (path, opts = {}) {
+      const res = await fetch(path, {
+        ...opts,
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) }
+      });
+      if (res.status === 401) { window.location.replace('/admin/login'); throw new Error('unauth'); }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+      return data;
+    }
+
+    // ---------- Toast ----------
+    function toast (msg, type = 'success', timeout = 4000) {
+      const region = document.getElementById('toasts');
+      const t = document.createElement('div');
+      t.className = 'toast toast-' + type;
+      t.textContent = msg;
+      region.appendChild(t);
+      requestAnimationFrame(() => t.classList.add('is-visible'));
+      setTimeout(() => { t.classList.remove('is-visible'); setTimeout(() => t.remove(), 300); }, timeout);
+    }
+
+    // ---------- Format helpers ----------
+    function fmtDate (iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      const now = new Date();
+      const sameDay = d.toDateString() === now.toDateString();
+      const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
+      const isYesterday = d.toDateString() === yesterday.toDateString();
+      const time = d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+      if (sameDay) return 'Hoy ' + time;
+      if (isYesterday) return 'Ayer ' + time;
+      return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) + ' ' + time;
+    }
+
+    function fmtFullDate (iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleString('es-MX', {
+        day: '2-digit', month: 'short', year: 'numeric',
+        hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    function escapeHtml (s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    // ---------- Stats ----------
+    async function loadStats () {
+      try {
+        const stats = await api('/api/admin/stats');
+        document.querySelector('#stat-total .stat-value').textContent = stats.total;
+        document.querySelectorAll('.stat-card[data-status]').forEach(card => {
+          const s = card.dataset.status;
+          if (s === '') return;
+          card.querySelector('.stat-value').textContent = stats[s] || 0;
+        });
+      } catch (err) { console.error('stats', err); }
+    }
+
+    // ---------- Leads list ----------
+    async function loadLeads () {
+      const tbody = document.getElementById('leads-body');
+      tbody.innerHTML = '<tr><td colspan="5" class="state">Cargando…</td></tr>';
+
+      const params = new URLSearchParams();
+      if (state.filters.status) params.set('status', state.filters.status);
+      if (state.filters.motivo) params.set('motivo', state.filters.motivo);
+      if (state.filters.q) params.set('q', state.filters.q);
+      params.set('page', String(state.page));
+      params.set('limit', String(state.limit));
+
+      try {
+        const data = await api('/api/admin/leads?' + params.toString());
+        renderLeads(data);
+        document.getElementById('last-refresh').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" class="state"><h3>Error</h3>${escapeHtml(err.message)}</td></tr>`;
+      }
+    }
+
+    function renderLeads (data) {
+      const tbody = document.getElementById('leads-body');
+      const countEl = document.getElementById('leads-count');
+      countEl.textContent = `${data.total} lead${data.total === 1 ? '' : 's'} · página ${data.page} de ${data.pages}`;
+
+      if (!data.leads.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="state"><h3>Sin leads</h3>Cuando alguien complete el form, aparecerá acá.</td></tr>';
+        document.getElementById('pagination').style.display = 'none';
+        return;
+      }
+
+      tbody.innerHTML = data.leads.map(l => {
+        const motivo = MOTIVO_LABEL[l.motivo] || l.motivo;
+        const status = STATUS_LABEL[l.status] || l.status;
+        const errBadge = l.email_error ? '<span class="badge badge-warn" title="Error de email" style="margin-left:6px;">EMAIL ✗</span>' : '';
+        return `
+          <tr data-id="${l.id}">
+            <td><span class="cell-date">${fmtDate(l.created_at)}</span></td>
+            <td>
+              <div class="cell-name">${escapeHtml(l.nombre)}</div>
+              <div class="cell-meta">${escapeHtml(l.email)}</div>
+            </td>
+            <td class="col-hide-mobile">
+              <div>${escapeHtml(l.empresa_web)}</div>
+              <div class="cell-meta">${escapeHtml(l.cargo)}</div>
+            </td>
+            <td class="col-hide-mobile"><span class="badge badge-motivo">${escapeHtml(motivo)}</span></td>
+            <td><span class="badge badge-status-${l.status}">${escapeHtml(status)}</span>${errBadge}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Click handlers
+      tbody.querySelectorAll('tr[data-id]').forEach(tr => {
+        tr.addEventListener('click', () => openDrawer(parseInt(tr.dataset.id, 10)));
+      });
+
+      // Pagination
+      const pg = document.getElementById('pagination');
+      pg.style.display = data.pages > 1 ? '' : 'none';
+      document.getElementById('page-info').textContent = `${data.page} / ${data.pages}`;
+      document.getElementById('prev-page').disabled = data.page <= 1;
+      document.getElementById('next-page').disabled = data.page >= data.pages;
+    }
+
+    // ---------- Drawer / Detail ----------
+    function openDrawer (id) {
+      const overlay = document.getElementById('drawer-overlay');
+      const drawer = document.getElementById('drawer');
+      overlay.classList.add('is-open');
+      drawer.classList.add('is-open');
+      drawer.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      // Highlight selected row
+      document.querySelectorAll('table.leads tr.is-selected').forEach(r => r.classList.remove('is-selected'));
+      const tr = document.querySelector(`table.leads tr[data-id="${id}"]`);
+      if (tr) tr.classList.add('is-selected');
+      loadLeadDetail(id);
+    }
+
+    function closeDrawer () {
+      document.getElementById('drawer-overlay').classList.remove('is-open');
+      const drawer = document.getElementById('drawer');
+      drawer.classList.remove('is-open');
+      drawer.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      document.querySelectorAll('table.leads tr.is-selected').forEach(r => r.classList.remove('is-selected'));
+      state.currentLead = null;
+      state.currentEvents = [];
+    }
+
+    async function loadLeadDetail (id) {
+      const body = document.getElementById('drawer-body');
+      body.innerHTML = '<div class="state">Cargando lead…</div>';
+      document.getElementById('d-title').textContent = '—';
+      document.getElementById('d-subtitle').textContent = '—';
+
+      try {
+        const data = await api('/api/admin/leads/' + id);
+        state.currentLead = data.lead;
+        state.currentEvents = data.events;
+        renderLeadDetail(data.lead, data.events);
+      } catch (err) {
+        body.innerHTML = `<div class="state"><h3>Error</h3>${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    function renderLeadDetail (lead, events) {
+      document.getElementById('d-title').textContent = lead.nombre;
+      document.getElementById('d-subtitle').textContent = lead.cargo + ' · ' + lead.empresa_web;
+
+      const empresaUrl = lead.empresa_web.startsWith('http') ? lead.empresa_web : 'https://' + lead.empresa_web;
+      const motivo = MOTIVO_LABEL[lead.motivo] || lead.motivo;
+
+      const errorBlock = lead.email_error
+        ? `<section class="drawer-section">
+            <div class="drawer-section-label">Error de email</div>
+            <div class="error-block">${escapeHtml(lead.email_error)}</div>
+          </section>`
+        : '';
+
+      const timelineHtml = events.length
+        ? `<ul class="timeline">${events.map(e => {
+            const detail = e.event_type === 'status_changed'
+              ? `${escapeHtml(STATUS_LABEL[e.prev_value] || e.prev_value)} → ${escapeHtml(STATUS_LABEL[e.new_value] || e.new_value)}`
+              : e.event_type === 'note_changed'
+                ? 'Nota actualizada'
+                : e.new_value ? escapeHtml(e.new_value) : '';
+            return `
+              <li class="timeline-event" data-event="${escapeHtml(e.event_type)}">
+                <span class="timeline-dot"></span>
+                <div>
+                  <div class="timeline-summary">
+                    <span class="timeline-type">${escapeHtml(EVENT_LABEL[e.event_type] || e.event_type)}</span>
+                    <span class="timeline-when">${fmtFullDate(e.created_at)}</span>
+                  </div>
+                  ${detail ? `<div class="timeline-detail">${detail}${e.actor && e.actor !== 'system' ? ' · por ' + escapeHtml(e.actor) : ''}</div>` : ''}
+                </div>
+              </li>`;
+          }).join('')}</ul>`
+        : '<div class="state" style="padding:var(--space-6);">Sin eventos registrados.</div>';
+
+      document.getElementById('drawer-body').innerHTML = `
+        <section class="drawer-section">
+          <div class="drawer-section-label">Datos</div>
+          <dl class="drawer-meta">
+            <dt>Email</dt>     <dd><a href="mailto:${escapeHtml(lead.email)}">${escapeHtml(lead.email)}</a></dd>
+            <dt>Empresa</dt>   <dd><a href="${escapeHtml(empresaUrl)}" target="_blank" rel="noopener">${escapeHtml(lead.empresa_web)}</a></dd>
+            <dt>Cargo</dt>     <dd>${escapeHtml(lead.cargo)}</dd>
+            <dt>Motivo</dt>    <dd>${escapeHtml(motivo)}</dd>
+            <dt>Recibido</dt>  <dd>${fmtFullDate(lead.created_at)}</dd>
+            ${lead.email_sent_at ? `<dt>Email enviado</dt><dd>${fmtFullDate(lead.email_sent_at)}</dd>` : ''}
+          </dl>
+        </section>
+
+        <section class="drawer-section">
+          <div class="drawer-section-label">Descripción</div>
+          <div class="description-block">${escapeHtml(lead.descripcion)}</div>
+        </section>
+
+        ${errorBlock}
+
+        <section class="drawer-section">
+          <div class="drawer-section-label">Status</div>
+          <select class="input" id="d-status">
+            ${Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}" ${k === lead.status ? 'selected' : ''}>${v}</option>`).join('')}
+          </select>
+        </section>
+
+        <section class="drawer-section">
+          <div class="drawer-section-label">Notas internas</div>
+          <textarea class="input" id="d-notes" rows="5" placeholder="Próximo paso, contexto, lo que sea…">${escapeHtml(lead.notes || '')}</textarea>
+        </section>
+
+        <section class="drawer-section">
+          <div class="drawer-section-label">Timeline</div>
+          ${timelineHtml}
+        </section>
+
+        <section class="drawer-section">
+          <div class="drawer-section-label">Metadata</div>
+          <dl class="drawer-meta">
+            <dt>Lead ID</dt>   <dd><span class="cell-meta">#${lead.id}</span></dd>
+            <dt>IP</dt>        <dd><span class="cell-meta">${escapeHtml(lead.ip || '—')}</span></dd>
+            <dt>Referrer</dt>  <dd><span class="cell-meta">${escapeHtml(lead.referrer || '—')}</span></dd>
+            <dt>UA</dt>        <dd><span class="cell-meta" style="font-size:11px;">${escapeHtml(lead.user_agent || '—')}</span></dd>
+          </dl>
+        </section>
+      `;
+    }
+
+    async function saveLead () {
+      if (!state.currentLead) return;
+      const id = state.currentLead.id;
+      const status = document.getElementById('d-status').value;
+      const notes = document.getElementById('d-notes').value;
+      const btn = document.getElementById('d-save');
+      btn.disabled = true; btn.textContent = 'Guardando…';
+      try {
+        const data = await api('/api/admin/leads/' + id, {
+          method: 'PATCH',
+          body: JSON.stringify({ status, notes })
+        });
+        if (data.unchanged) {
+          toast('Sin cambios.', 'success');
+        } else {
+          toast('Lead actualizado ✓', 'success');
+        }
+        // Refrescar lista + detalle + stats
+        await Promise.all([loadLeads(), loadStats(), loadLeadDetail(id)]);
+      } catch (err) {
+        toast('Error guardando: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false; btn.textContent = 'Guardar cambios';
+      }
+    }
+
+    // ---------- Filters ----------
+    function wireFilters () {
+      const status = document.getElementById('f-status');
+      const motivo = document.getElementById('f-motivo');
+      const q = document.getElementById('f-q');
+      const clear = document.getElementById('f-clear');
+
+      let qTimer = null;
+      const apply = () => {
+        state.filters.status = status.value;
+        state.filters.motivo = motivo.value;
+        state.filters.q = q.value.trim();
+        state.page = 1;
+        loadLeads();
+      };
+
+      status.addEventListener('change', apply);
+      motivo.addEventListener('change', apply);
+      q.addEventListener('input', () => {
+        clearTimeout(qTimer);
+        qTimer = setTimeout(apply, 300);
+      });
+      clear.addEventListener('click', () => {
+        status.value = ''; motivo.value = ''; q.value = '';
+        document.querySelectorAll('.stat-card.is-active').forEach(c => c.classList.remove('is-active'));
+        apply();
+      });
+
+      // Stats cards as filter shortcuts
+      document.querySelectorAll('.stat-card[data-status]').forEach(card => {
+        card.addEventListener('click', () => {
+          const s = card.dataset.status;
+          if (s === '') {
+            status.value = '';
+          } else {
+            status.value = (status.value === s) ? '' : s;
+          }
+          document.querySelectorAll('.stat-card.is-active').forEach(c => c.classList.remove('is-active'));
+          if (status.value) card.classList.add('is-active');
+          apply();
+        });
+      });
+    }
+
+    // ---------- Pagination ----------
+    function wirePagination () {
+      document.getElementById('prev-page').addEventListener('click', () => { state.page = Math.max(1, state.page - 1); loadLeads(); });
+      document.getElementById('next-page').addEventListener('click', () => { state.page += 1; loadLeads(); });
+    }
+
+    // ---------- Drawer wiring ----------
+    function wireDrawer () {
+      document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+      document.getElementById('d-cancel').addEventListener('click', closeDrawer);
+      document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+      document.getElementById('d-save').addEventListener('click', saveLead);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && document.getElementById('drawer').classList.contains('is-open')) closeDrawer();
+      });
+    }
+
+    // ---------- Logout ----------
+    async function wireLogout () {
+      document.getElementById('logout-btn').addEventListener('click', async () => {
+        try { await api('/api/admin/logout', { method: 'POST' }); } catch {}
+        window.location.replace('/admin/login');
+      });
+    }
+
+    // ---------- Boot ----------
+    (async function () {
+      const me = await checkAuth();
+      if (!me) return;
+      document.getElementById('user-email').textContent = me.email;
+      wireFilters();
+      wirePagination();
+      wireDrawer();
+      wireLogout();
+      await Promise.all([loadStats(), loadLeads()]);
+    })();
+  </script>
+</body>
+</html>

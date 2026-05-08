@@ -1,17 +1,24 @@
-// Slowcraft API · Express + Postgres + Resend SMTP
+// Slowcraft API · Express + Postgres + Resend HTTP API
 // Fase 1: endpoint público de contacto.
-// Próximas fases (TODO):
-//   - /api/admin/login + sesión
-//   - /api/admin/leads (CRUD)
+// Fase 2: admin con login + dashboard de leads.
+// Próxima fase (TODO):
 //   - /api/content (público) + /api/admin/content (CRUD para CMS de textos/CTAs)
+
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 
 import { pool, query } from './db.js';
 import { sendContactEmail } from './email.js';
+import adminRouter from './routes/admin.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname  = dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT || 8080);
@@ -21,9 +28,10 @@ app.set('trust proxy', 1);
 
 // ---------- Hardening ----------
 app.use(helmet({
-  contentSecurityPolicy: false  // la API no sirve HTML público todavía
+  contentSecurityPolicy: false  // habilitamos inline script en /admin (HTML server-served)
 }));
 app.use(express.json({ limit: '32kb' }));
+app.use(cookieParser());
 
 // ---------- CORS ----------
 const ALLOWED = (process.env.ALLOWED_ORIGINS || '')
@@ -154,23 +162,50 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
   // esperar al SMTP.
   res.json({ ok: true, leadId: lead.id });
 
+  // Audit: log de creación (no bloqueante)
+  query(
+    `INSERT INTO lead_events (lead_id, event_type, new_value, actor) VALUES ($1, 'created', $2, 'system')`,
+    [lead.id, lead.motivo]
+  ).catch(err => console.error(`[contact] lead #${lead.id} no pude loggear created:`, err.message));
+
   console.log(`[contact] lead #${lead.id} guardado. Disparando email…`);
   sendContactEmail(lead, {
     created_at: lead.created_at,
     ip, user_agent: userAgent, referrer
   })
-    .then(() => query('UPDATE leads SET email_sent_at = NOW() WHERE id = $1', [lead.id]))
-    .then(() => console.log(`[contact] lead #${lead.id} email enviado ✓`))
+    .then(async () => {
+      await query('UPDATE leads SET email_sent_at = NOW() WHERE id = $1', [lead.id]);
+      await query(
+        `INSERT INTO lead_events (lead_id, event_type, actor) VALUES ($1, 'email_sent', 'system')`,
+        [lead.id]
+      );
+      console.log(`[contact] lead #${lead.id} email enviado ✓`);
+    })
     .catch(async (err) => {
-      console.error(`[contact] lead #${lead.id} email error:`, err.message || err);
+      const msg = String(err.message || err).slice(0, 500);
+      console.error(`[contact] lead #${lead.id} email error:`, msg);
       try {
-        await query('UPDATE leads SET email_error = $1 WHERE id = $2',
-          [String(err.message || err).slice(0, 500), lead.id]);
+        await query('UPDATE leads SET email_error = $1 WHERE id = $2', [msg, lead.id]);
+        await query(
+          `INSERT INTO lead_events (lead_id, event_type, new_value, actor) VALUES ($1, 'email_failed', $2, 'system')`,
+          [lead.id, msg]
+        );
       } catch (dbErr) {
         console.error(`[contact] lead #${lead.id} no pude registrar email_error:`, dbErr.message);
       }
     });
 });
+
+// ============================================================
+// Admin · API + estáticos
+// ============================================================
+app.use('/api/admin', adminRouter);
+
+// El admin es servido como estáticos desde /admin
+const ADMIN_DIR = join(__dirname, 'public', 'admin');
+app.use('/admin', express.static(ADMIN_DIR, { extensions: ['html'] }));
+// Default: si pegan /admin sin nada, redirigimos al login (la página decide a dónde según sesión)
+app.get('/admin', (_req, res) => res.redirect('/admin/login'));
 
 // ---------- 404 + error handler ----------
 app.use((req, res) => res.status(404).json({ error: 'Not found' }));
