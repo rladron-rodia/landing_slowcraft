@@ -647,6 +647,19 @@
       const items = (data.categories && data.categories['analytics']) || [];
       const dirty = {};
 
+      // Detectar el valor actual de cada uno
+      const ga4 = items.find(i => i.key === 'analytics.ga4_id');
+      const gtm = items.find(i => i.key === 'analytics.gtm_id');
+      const activeMode = (gtm && gtm.value && /^GTM-/i.test(gtm.value))
+        ? { type: 'gtm', id: gtm.value }
+        : (ga4 && ga4.value && /^G-/i.test(ga4.value))
+          ? { type: 'ga4', id: ga4.value }
+          : null;
+
+      const statusBadge = activeMode
+        ? `<span class="config-status is-active">● Activo · ${activeMode.type.toUpperCase()} ${escapeHtml(activeMode.id)}</span>`
+        : `<span class="config-status">○ Sin configurar</span>`;
+
       const itemsHtml = items.map(it => `
         <div class="content-field" data-key="${escapeHtml(it.key)}">
           <div class="content-field-header">
@@ -655,11 +668,16 @@
           </div>
           ${it.description ? `<p class="config-help">${escapeHtml(it.description)}</p>` : ''}
           <input type="text" class="input config-input" data-setting-key="${escapeHtml(it.key)}" value="${escapeHtml(it.value || '')}" placeholder="${escapeHtml(it.placeholder || '')}">
+          <p class="config-validation" data-validation-for="${escapeHtml(it.key)}"></p>
         </div>`).join('');
 
       document.getElementById('pane').innerHTML = `
         <div class="config-block">
-          <p class="config-intro">Google Analytics 4 y Google Tag Manager. Si configurás GTM, tiene prioridad sobre GA4 directo (recomendado para tracking centralizado).</p>
+          <div class="config-status-row">
+            ${statusBadge}
+            <a href="https://rladron-rodia.github.io/landing_slowcraft/" target="_blank" rel="noopener" class="btn btn-sm btn-secondary">Abrir landing en nueva pestaña →</a>
+          </div>
+          <p class="config-intro">Google Analytics 4 y Google Tag Manager. <strong>Si ambos están configurados, GTM tiene prioridad</strong> (recomendado — todos los tags se gestionan desde GTM, incluyendo GA4 vía GTM).</p>
           ${itemsHtml || '<div class="state">Sin configuraciones.</div>'}
           <div class="content-action-bar">
             <span class="content-action-status" id="analytics-status">Sin cambios</span>
@@ -667,24 +685,79 @@
           </div>
         </div>
 
-        <details class="config-events-doc">
-          <summary>📋 Eventos GTM disponibles en el sitio</summary>
-          <p class="config-help">Estos son los eventos que el sitio empuja a <code>dataLayer</code> y que podés usar como triggers en GTM:</p>
+        <details class="config-events-doc" open>
+          <summary>📋 Eventos disponibles para usar como Triggers en GTM</summary>
+          <p class="config-help">Estos eventos se empujan a <code>dataLayer</code> automáticamente. En GTM podés crear un Trigger del tipo "Custom Event" para cada uno y conectarlo a un Tag (ej: GA4 Event tag).</p>
           <table class="events-table">
-            <thead><tr><th>Evento</th><th>Disparado por</th><th>Datos extra</th></tr></thead>
+            <thead><tr><th>Event Name</th><th>Cuándo se dispara</th><th>Variables disponibles</th></tr></thead>
             <tbody>
-              <tr><td><code>cta_click</code></td><td>Cualquier CTA del sitio</td><td><code>cta_id</code> · <code>cta_text</code> · <code>cta_lang</code></td></tr>
-              <tr><td><code>form_view</code></td><td>Formulario entra en viewport</td><td><code>form_id</code> = <code>contact</code></td></tr>
-              <tr><td><code>form_submit_attempt</code></td><td>Click en "Enviar mensaje"</td><td><code>form_id</code> · <code>motivo</code></td></tr>
-              <tr><td><code>form_submit_success</code></td><td>Backend confirma envío</td><td><code>form_id</code> · <code>motivo</code> · <code>lang</code></td></tr>
-              <tr><td><code>form_submit_error</code></td><td>Falla el envío</td><td><code>form_id</code> · <code>error</code></td></tr>
-              <tr><td><code>lang_change</code></td><td>Cambio de idioma</td><td><code>from</code> · <code>to</code></td></tr>
+              <tr><td><code>cta_click</code></td><td>Click en cualquier CTA del sitio (todos los botones marcados con <code>data-gtm-id</code>)</td><td><code>cta_id</code><br><code>cta_text</code><br><code>cta_lang</code></td></tr>
+              <tr><td><code>form_view</code></td><td>El formulario de contacto entra en el viewport del usuario</td><td><code>form_id</code> = <code>contact</code><br><code>lang</code></td></tr>
+              <tr><td><code>form_submit_attempt</code></td><td>El usuario hace click en "Enviar mensaje"</td><td><code>form_id</code><br><code>motivo</code><br><code>lang</code></td></tr>
+              <tr><td><code>form_submit_invalid</code></td><td>Validación del cliente falla</td><td><code>form_id</code></td></tr>
+              <tr><td><code>form_submit_success</code></td><td>Backend confirma envío exitoso del lead</td><td><code>form_id</code><br><code>motivo</code><br><code>lang</code></td></tr>
+              <tr><td><code>form_submit_error</code></td><td>Error al enviar (cold start, network, validación servidor)</td><td><code>form_id</code><br><code>error</code></td></tr>
+              <tr><td><code>lang_change</code></td><td>El usuario cambia el idioma del sitio</td><td><code>from</code> (es/en)<br><code>to</code> (es/en)</td></tr>
             </tbody>
           </table>
-          <p class="config-help"><strong>cta_id values:</strong> <code>cta_nav</code>, <code>cta_hero</code>, <code>cta_form_submit</code>, <code>cta_whatsapp</code></p>
+          <p class="config-help" style="margin-top:16px;"><strong>CTAs trackeados</strong> (<code>cta_id</code> values):</p>
+          <ul class="config-cta-list">
+            <li><code>cta_nav</code> — botón "Conversemos" en la nav superior</li>
+            <li><code>cta_hero</code> — botón "Agenda una conversación" del hero</li>
+            <li><code>cta_form_submit</code> — botón "Enviar mensaje" del formulario</li>
+            <li><code>cta_whatsapp</code> — botón "Contáctanos por WhatsApp"</li>
+          </ul>
+        </details>
+
+        <details class="config-events-doc">
+          <summary>🛠 Cómo configurar Triggers en GTM (paso a paso)</summary>
+          <ol class="config-setup">
+            <li>Andá a <a href="https://tagmanager.google.com" target="_blank" rel="noopener">tagmanager.google.com</a> y abrí tu container <code>GTM-WM6WHTW3</code>.</li>
+            <li>En el menú izquierdo → <strong>Triggers</strong> → <strong>New</strong>.</li>
+            <li>Trigger Configuration → <strong>Custom Event</strong>.</li>
+            <li>Event name: pegá uno de la tabla de arriba (ej: <code>form_submit_success</code>). Marca "This trigger fires on All Custom Events".</li>
+            <li>Guardá el trigger con un nombre descriptivo (ej: "Form Submit Success").</li>
+            <li>Repetí para cada evento que quieras trackear.</li>
+            <li>Para cada trigger, creá un <strong>Tag</strong> tipo "Google Analytics: GA4 Event" que reporte ese evento al GA4 ID configurado arriba.</li>
+            <li>Para capturar las variables (cta_id, motivo, etc.), creá <strong>Data Layer Variables</strong> con esos nombres exactos.</li>
+            <li><strong>Submit & Publish</strong> el container.</li>
+            <li>Verificá con <strong>Preview</strong> en GTM o en la landing con la <a href="https://chromewebstore.google.com/detail/tag-assistant-companion/jmekfmbnaedfebfnmakmokmlfpblbfdm" target="_blank" rel="noopener">Tag Assistant extension</a>.</li>
+          </ol>
+        </details>
+
+        <details class="config-events-doc">
+          <summary>🔍 Verificar que esté funcionando</summary>
+          <ol class="config-setup">
+            <li>Abrí la landing en una pestaña nueva.</li>
+            <li>F12 → Console → escribí <code>dataLayer</code> y Enter. Si configuraste GTM, vas a ver entries del init.</li>
+            <li>Click en cualquier CTA del sitio (ej: "Agenda una conversación").</li>
+            <li>Volvé a Console → <code>dataLayer</code> → vas a ver el push del evento <code>cta_click</code> con todas las variables.</li>
+            <li>En GTM, abrí <strong>Preview Mode</strong> → pegá la URL de la landing → vas a ver los eventos en tiempo real en el panel de debug.</li>
+          </ol>
         </details>`;
 
+      // Validación inline por tipo de ID
+      function validateAnalyticsValue (key, value) {
+        const v = (value || '').trim();
+        if (!v) return { ok: true, msg: '' };  // vacío = válido (desactiva el tag)
+        if (key === 'analytics.gtm_id') {
+          if (!/^GTM-[A-Z0-9]+$/.test(v)) return { ok: false, msg: '⚠ Formato esperado: GTM-XXXXXXX (mayúsculas y números).' };
+        }
+        if (key === 'analytics.ga4_id') {
+          if (!/^G-[A-Z0-9]+$/.test(v)) return { ok: false, msg: '⚠ Formato esperado: G-XXXXXXXXXX.' };
+        }
+        return { ok: true, msg: '✓ Formato válido.' };
+      }
+
       document.querySelectorAll('[data-setting-key]').forEach(input => {
+        // Validación al cargar
+        const initial = validateAnalyticsValue(input.dataset.settingKey, input.value);
+        const validEl = document.querySelector(`[data-validation-for="${input.dataset.settingKey}"]`);
+        if (validEl && input.value) {
+          validEl.textContent = initial.msg;
+          validEl.className = 'config-validation ' + (initial.ok ? 'is-ok' : 'is-warn');
+        }
+
         input.addEventListener('input', () => {
           const k = input.dataset.settingKey;
           const original = items.find(x => x.key === k);
@@ -696,6 +769,13 @@
           const btn = document.getElementById('analytics-save');
           btn.disabled = total === 0; btn.textContent = `Guardar (${total})`;
           input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
+
+          // Validación en vivo
+          const r = validateAnalyticsValue(k, input.value);
+          if (validEl) {
+            validEl.textContent = input.value ? r.msg : '';
+            validEl.className = 'config-validation ' + (r.ok ? 'is-ok' : 'is-warn');
+          }
         });
       });
 
