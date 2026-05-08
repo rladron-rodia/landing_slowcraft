@@ -1054,10 +1054,12 @@
 
         <div class="config-block" style="background:#fff;margin-top:var(--space-6);">
           <h3 class="content-section-title" style="font-size:18px;margin-bottom:var(--space-4);">Performance por agente</h3>
-          <table class="leads">
-            <thead><tr><th>Agente</th><th style="text-align:right;">Asignados</th><th style="text-align:right;">Convertidos</th><th style="text-align:right;">Tasa</th></tr></thead>
-            <tbody id="agents-perf-tbody"><tr><td colspan="4" class="state">Cargando…</td></tr></tbody>
-          </table>
+          <div class="table-scroll">
+            <table class="leads">
+              <thead><tr><th>Agente</th><th style="text-align:right;">Asignados</th><th style="text-align:right;">Convertidos</th><th style="text-align:right;">Tasa</th></tr></thead>
+              <tbody id="agents-perf-tbody"><tr><td colspan="4" class="state">Cargando…</td></tr></tbody>
+            </table>
+          </div>
           <p style="font-size:11px;color:var(--piedra);margin-top:8px;">"Convertidos" = leads en status <code>contacted</code> o <code>closed</code>.</p>
         </div>
 

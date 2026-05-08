@@ -380,7 +380,7 @@ body.is-viewer select {
 }
 
 /* ============================================================
-   PRIMARY TABS (Leads / Contenido)
+   PRIMARY TABS (Leads / Contenido) — desktop fix, mobile swipe
    ============================================================ */
 .app-tabs {
   display: flex;
@@ -388,6 +388,18 @@ body.is-viewer select {
   border-bottom: 1px solid var(--piedra-light);
   margin-bottom: var(--space-12);
   margin-top: calc(var(--space-8) * -1);
+  /* Horizontal scroll si no entran (mobile y desktop angosto) */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-snap-type: x proximity;
+}
+.app-tabs::-webkit-scrollbar { display: none; }
+.app-tabs a {
+  flex-shrink: 0;
+  white-space: nowrap;
+  scroll-snap-align: start;
 }
 
 .app-tabs a {
@@ -819,7 +831,7 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
 .toast.toast-error   { border-left-color: var(--danger); }
 
 /* ============================================================
-   CONTENT SUB-TABS (Programs / Servicios / Método / Contenido / CTA)
+   CONTENT SUB-TABS — desktop wrap, mobile swipe
    ============================================================ */
 .content-subtabs {
   display: flex;
@@ -830,7 +842,11 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
   border: 1px solid var(--piedra-light);
   padding: 4px;
   border-radius: 4px;
+  /* Mobile fallback: scroll horizontal en lugar de wrap */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.content-subtabs::-webkit-scrollbar { display: none; }
 .content-subtabs a {
   padding: 8px 16px;
   font-family: var(--sans);
@@ -1561,23 +1577,159 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
    RESPONSIVE
    ============================================================ */
 @media (max-width: 900px) {
-  .app-header { padding: var(--space-4); }
-  .app-main   { padding: var(--space-8) var(--space-4); }
+  .app-header { padding: var(--space-3) var(--space-4); }
+  .app-main   { padding: var(--space-6) var(--space-4); }
+  .app-h1     { font-size: 28px; line-height: 1.15; letter-spacing: -1px; }
+  .app-subtitle { font-size: 13px; margin-bottom: var(--space-6); }
+  .brand-text { font-size: 18px; }
+  .brand-eyebrow { font-size: 9px; padding: 1px 4px; margin-left: var(--space-1); }
+  .user-email {
+    font-size: 10px;
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Top nav: bordes "infinitos" (sangra al margen del viewport) */
+  .app-tabs {
+    margin-left: calc(var(--space-4) * -1);
+    margin-right: calc(var(--space-4) * -1);
+    padding: 0 var(--space-4);
+    margin-bottom: var(--space-8);
+    scroll-snap-type: x mandatory;
+  }
+  .app-tabs a { padding: 12px 16px; font-size: 12px; }
+
+  /* Sub-tabs: forzar nowrap + scroll horizontal */
+  .content-subtabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 2px;
+    padding: 2px;
+  }
+  .content-subtabs a {
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  /* Stats grid */
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Tablas: padding más chico + sangrado al borde + scroll horizontal */
   table.leads th, table.leads td { padding: var(--space-3); font-size: 12px; }
   .col-hide-mobile { display: none; }
+  .leads-table-wrap,
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-left: calc(var(--space-4) * -1);
+    margin-right: calc(var(--space-4) * -1);
+    border-left: none;
+    border-right: none;
+    border-radius: 0;
+  }
+  .table-scroll table.leads { min-width: 480px; }
+  .leads-table-wrap table.leads { min-width: 560px; }
+
+  /* Drawer */
   .drawer { width: 100vw; }
+  .drawer-header { padding: var(--space-4); }
+  .drawer-body { padding: var(--space-4); }
+  .drawer-actions { padding: var(--space-3) var(--space-4); flex-wrap: wrap; }
+  .drawer-actions .btn { flex: 1 0 auto; }
+  .drawer-meta { grid-template-columns: 80px 1fr; gap: var(--space-2) var(--space-3); }
+
+  /* Toasts */
   .toasts { left: 16px; right: 16px; max-width: none; top: 16px; }
+
+  /* Contenido general */
   .content-shell { grid-template-columns: 1fr; }
   .content-sidebar { position: relative; top: 0; max-height: 280px; }
   .content-field-grid { grid-template-columns: 1fr; }
   .content-pane { padding: var(--space-4); }
-  .content-action-bar { margin: var(--space-6) calc(var(--space-4) * -1) calc(var(--space-4) * -1); padding: var(--space-3) var(--space-4); }
+  .content-section-title { font-size: 20px; }
+  .content-action-bar {
+    margin: var(--space-6) calc(var(--space-4) * -1) calc(var(--space-4) * -1);
+    padding: var(--space-3) var(--space-4);
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .content-action-bar .btn { flex: 1 0 auto; }
+
+  /* Catálogos */
   .catalog-card-head { flex-direction: column; align-items: stretch; }
-  .catalog-card-actions { width: 100%; }
-  .catalog-card-actions .btn { flex: 1; }
+  .catalog-card-actions { width: 100%; flex-wrap: wrap; }
+  .catalog-card-actions .btn { flex: 1 0 calc(50% - var(--space-1)); }
+  .catalog-card-body { padding: var(--space-4); }
   .catalog-field-grid { grid-template-columns: 1fr; }
   .catalog-item-vals { grid-template-columns: 1fr; }
-  .content-subtabs { gap: 2px; padding: 2px; }
-  .content-subtabs a { padding: 6px 10px; font-size: 12px; }
+  .catalog-card-foot {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+  }
+  .catalog-card-foot .btn { width: 100%; }
+  .catalog-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+  .catalog-toolbar .btn { width: 100%; }
+
+  /* Filtros (leads) */
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-3);
+  }
+  .filter, .filter-search { flex: 1 1 auto; min-width: 0; }
+
+  /* Modal */
+  .modal { width: calc(100vw - 24px); max-height: calc(100vh - 48px); }
+  .modal-header { padding: var(--space-3) var(--space-4); }
+  .modal-body { padding: var(--space-4); }
+  .modal-actions {
+    padding: var(--space-3) var(--space-4);
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .modal-actions .btn { flex: 1 0 auto; }
+
+  /* Analítica · controles + grids */
+  .analitica-controls { flex-direction: column; align-items: stretch; }
+  .analitica-controls .filter { flex: 1 1 auto; min-width: 0; width: 100%; }
+  /* Forzar grids inline de 2 cols a stack en analitica */
+  .app-main #pane > div[style*="grid-template-columns:1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Form-block (Formulario tab) */
+  .form-block { padding: var(--space-4); }
+
+  /* Config status row */
+  .config-status-row { gap: var(--space-2); }
+  .config-status-row .btn { width: 100%; }
+
+  /* Tablas de eventos (configuración GTM) */
+  .events-table { font-size: 12px; }
+  .events-table th, .events-table td { padding: 6px 8px; }
+  .config-events-doc { padding: var(--space-4); }
+
+  /* Pagination */
+  .pagination { flex-wrap: wrap; gap: var(--space-2); }
+  .pagination .page-info { width: 100%; text-align: center; order: -1; }
+}
+
+/* Pantallas muy chicas (≤480px) */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .stat-value { font-size: 28px; }
+  .app-h1 { font-size: 24px; }
+  .catalog-card-actions .btn { flex: 1 0 100%; }
+  .drawer-meta { grid-template-columns: 1fr; }
+  .drawer-meta dt { color: var(--piedra); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-top: var(--space-2); }
 }

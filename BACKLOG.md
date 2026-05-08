@@ -71,3 +71,4 @@ Pendientes y mejoras futuras.
 - ✅ v0.11.0 — WhatsApp config administrable (slug renombrado + business label + mode futuro chatbot) + true self-hosted fonts en /fonts/
 - ✅ v0.12.0 — Sistema de usuarios y roles (master_admin/admin/viewer/content/commercial) + invitación por email con verificación + tab Usuarios + tab Analítica con propuesta de dashboards + role-based UI filtering + read-only mode
 - ✅ v0.13.0 — Rol `agente` + asignación de leads a agente + tab Analítica con charts reales (leads/período, motivo, status, performance por agente) + filtros por agente + Chart.js dinámico
+- ✅ v0.13.1 — Mobile-first admin: top nav y sub-tabs swipeables, tablas con scroll horizontal sangrado al borde, charts apilan en mobile, drawer/modal/forms adaptados, breakpoint extra ≤480px
