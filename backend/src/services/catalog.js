@@ -3,7 +3,12 @@
 
 import { query, withClient } from '../db.js';
 
+// Plural usado para agrupar items en la respuesta pública (programs/servicios/fases).
 const TYPE_TO_PLURAL = { program: 'programs', servicio: 'servicios', fase: 'fases' };
+
+// Prefijo REAL usado en la columna `section` de la DB.
+// Ojo: para fases, el prefijo es 'metodo' (no 'fases') por convención histórica.
+const SECTION_PREFIX = { program: 'programs', servicio: 'servicios', fase: 'metodo' };
 
 // Convención de keys según tipo:
 // - program:  prefix='prog'  → .h, .pitch, .who, .m1..mN, .note
@@ -92,8 +97,7 @@ export async function createCatalogItem (catalogType, { tag, defaults_es = {}, d
         .filter(n => !isNaN(n));
       const nextNum = (slotsUsed.length ? Math.max(...slotsUsed) : 0) + 1;
       const slot = slotPrefix + nextNum;
-      const sectionPlural = TYPE_TO_PLURAL[catalogType];
-      const section = `${sectionPlural}.${slot}`;
+      const section = `${SECTION_PREFIX[catalogType]}.${slot}`;
       const keyPrefix = keyPrefixFor(catalogType, slot);
 
       // Calcular display_order (max + 1)
@@ -154,7 +158,7 @@ export async function cloneCatalogItem (sourceSection, actor) {
         .filter(n => !isNaN(n));
       const nextNum = (slotsUsed.length ? Math.max(...slotsUsed) : 0) + 1;
       const newSlot = slotPrefix + nextNum;
-      const newSection = `${TYPE_TO_PLURAL[src.catalog_type]}.${newSlot}`;
+      const newSection = `${SECTION_PREFIX[src.catalog_type]}.${newSlot}`;
       const newKeyPrefix = keyPrefixFor(src.catalog_type, newSlot);
 
       // display_order al final
