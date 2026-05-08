@@ -1072,6 +1072,70 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
 }
 
 /* ============================================================
+   FORMULARIO — bloque agrupador
+   ============================================================ */
+.form-block {
+  background: #fff;
+  border: 1px solid var(--piedra-light);
+  padding: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+.form-block .content-section-title {
+  font-size: 22px;
+  margin-bottom: var(--space-2);
+}
+
+/* ============================================================
+   GTM EVENTS DOC TABLE
+   ============================================================ */
+.config-events-doc {
+  margin-top: var(--space-8);
+  background: #fff;
+  border: 1px solid var(--piedra-light);
+  padding: var(--space-6);
+}
+.config-events-doc summary {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: var(--space-2) 0;
+  color: var(--tinta);
+}
+.config-events-doc summary:hover { color: var(--cobre); }
+.events-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-4);
+  font-size: 13px;
+}
+.events-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: var(--crema-soft);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--piedra);
+  font-weight: 500;
+  border-bottom: 1px solid var(--piedra-light);
+}
+.events-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--piedra-light);
+  vertical-align: top;
+}
+.events-table code {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 2px 6px;
+  background: var(--crema-soft);
+  border-radius: 2px;
+  color: var(--cobre);
+}
+
+/* ============================================================
    CTA EDITOR — labels editables
    ============================================================ */
 .cta-field {

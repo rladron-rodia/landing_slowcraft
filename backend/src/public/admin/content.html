@@ -20,33 +20,27 @@
   </header>
 
   <main class="app-main">
-    <nav class="app-tabs" aria-label="Secciones del admin">
+    <!-- Top-level nav -->
+    <nav class="app-tabs" aria-label="Secciones principales">
       <a href="/admin/dashboard">Leads</a>
-      <a href="/admin/content" class="is-active">Contenido</a>
+      <a href="#contenido/general"     data-top="contenido">Contenido</a>
+      <a href="#formulario"            data-top="formulario">Formulario</a>
+      <a href="#configuracion/analytics" data-top="configuracion">Configuración</a>
     </nav>
 
-    <h1 class="app-h1">Contenido <em>de la landing.</em></h1>
-    <p class="app-subtitle">Editá el contenido en español e inglés. Los cambios se reflejan en la landing en menos de un minuto.</p>
+    <h1 class="app-h1" id="page-title">Contenido <em>de la landing.</em></h1>
+    <p class="app-subtitle" id="page-subtitle">Editá los textos en español e inglés.</p>
 
-    <!-- Sub-tabs por tipo de contenido -->
-    <nav class="content-subtabs" id="subtabs">
-      <a href="#programs"      data-tab="programs">Programs</a>
-      <a href="#servicios"     data-tab="servicios">Servicios</a>
-      <a href="#metodo"        data-tab="metodo">Método</a>
-      <a href="#contenido"     data-tab="contenido">Contenido general</a>
-      <a href="#cta"           data-tab="cta">CTA Final</a>
-      <a href="#configuracion" data-tab="configuracion">Configuración</a>
-    </nav>
+    <!-- Sub-nav (visible solo cuando la sección activa tiene sub-items) -->
+    <nav class="content-subtabs" id="subtabs"></nav>
 
     <section class="content-pane" id="pane">
       <div class="state">Cargando…</div>
     </section>
   </main>
 
-  <!-- Toasts -->
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
-  <!-- Modal genérico -->
   <div class="modal-overlay" id="modal-overlay"></div>
   <aside class="modal" id="modal" aria-hidden="true">
     <header class="modal-header">
@@ -59,10 +53,37 @@
 
   <script>
     // ============================================================
-    // Slowcraft Admin · Content hub
+    // Slowcraft Admin · Routing 2 niveles
+    //   #contenido/general | /programs | /servicios | /metodo
+    //   #formulario
+    //   #configuracion/analytics
     // ============================================================
 
-    // Map de "Contenido general" — qué secciones se editan ahí
+    const ROUTES = {
+      contenido: {
+        title: 'Contenido', subtitle: 'Editá los textos por sección en español e inglés.',
+        subs: [
+          { key: 'general',   title: 'General' },
+          { key: 'programs',  title: 'Programs' },
+          { key: 'servicios', title: 'Servicios' },
+          { key: 'metodo',    title: 'Método' }
+        ],
+        defaultSub: 'general'
+      },
+      formulario: {
+        title: 'Formulario', subtitle: 'Sección CTA antes del formulario y campos del formulario.',
+        subs: null
+      },
+      configuracion: {
+        title: 'Configuración', subtitle: 'Ajustes globales del sitio.',
+        subs: [
+          { key: 'analytics', title: 'Analytics y GTM' }
+        ],
+        defaultSub: 'analytics'
+      }
+    };
+
+    // Secciones que viven en "Contenido General"
     const CONTENT_SECTIONS = [
       { key: 'nav',           title: 'Navegación' },
       { key: 'hero',          title: 'Hero' },
@@ -72,20 +93,10 @@
       { key: 'programs.head', title: 'Programs · Cabecera' },
       { key: 'principios',    title: 'Principios' },
       { key: 'sobre',         title: 'Sobre nosotros' },
-      { key: 'form',          title: 'Formulario' },
       { key: 'footer',        title: 'Footer' }
     ];
 
-    const TAB_TITLES = {
-      programs:     'Programs',
-      servicios:    'Servicios',
-      metodo:       'Método',
-      contenido:    'Contenido general',
-      cta:          'CTA Final',
-      configuracion:'Configuración'
-    };
-
-    // ---------- Auth + API ----------
+    // ---------- API helpers ----------
     async function api (path, opts = {}) {
       const res = await fetch(path, {
         ...opts,
@@ -123,7 +134,7 @@
       return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
     }
 
-    // ---------- Modal helpers ----------
+    // ---------- Modal ----------
     function openModal (title, bodyHtml, actions) {
       document.getElementById('modal-title').textContent = title;
       document.getElementById('modal-body').innerHTML = bodyHtml;
@@ -147,34 +158,61 @@
     document.getElementById('modal-overlay').addEventListener('click', closeModal);
 
     // ============================================================
-    // Tab routing (hash-based)
+    // Routing
     // ============================================================
-    function activeTab () {
-      const h = (window.location.hash || '#programs').replace('#', '');
-      return TAB_TITLES[h] ? h : 'programs';
+    function activeRoute () {
+      const hash = (window.location.hash || '').replace('#', '');
+      const [top, sub] = hash.split('/');
+      const validTop = ROUTES[top] ? top : 'contenido';
+      const route = ROUTES[validTop];
+      const validSub = route.subs ? (route.subs.find(s => s.key === sub) ? sub : route.defaultSub) : null;
+      return { top: validTop, sub: validSub, route };
     }
 
-    function syncTabsUI () {
-      const cur = activeTab();
-      document.querySelectorAll('#subtabs a').forEach(a => {
-        a.classList.toggle('is-active', a.dataset.tab === cur);
+    function syncTopNav (top) {
+      document.querySelectorAll('.app-tabs a[data-top]').forEach(a => {
+        a.classList.toggle('is-active', a.dataset.top === top);
       });
     }
 
-    async function renderActiveTab () {
-      syncTabsUI();
-      const tab = activeTab();
+    function syncSubNav (route, currentSub) {
+      const subtabs = document.getElementById('subtabs');
+      if (!route.subs) { subtabs.innerHTML = ''; subtabs.style.display = 'none'; return; }
+      subtabs.style.display = '';
+      subtabs.innerHTML = route.subs.map(s => `
+        <a href="#${escapeHtml(currentTop())}/${escapeHtml(s.key)}" class="${currentSub === s.key ? 'is-active' : ''}">${escapeHtml(s.title)}</a>
+      `).join('');
+    }
+
+    function currentTop () { return activeRoute().top; }
+
+    function syncTitle (route, sub) {
+      document.getElementById('page-title').innerHTML = `${escapeHtml(route.title)}${sub ? ' <em>· ' + escapeHtml((route.subs.find(s => s.key === sub) || {}).title || '') + '.</em>' : ' <em>de la landing.</em>'}`;
+      document.getElementById('page-subtitle').textContent = route.subtitle;
+    }
+
+    async function renderActive () {
+      const { top, sub, route } = activeRoute();
+      syncTopNav(top);
+      syncSubNav(route, sub);
+      syncTitle(route, sub);
+
       try {
-        if (tab === 'contenido')     return await renderContenido();
-        if (tab === 'cta')           return await renderCTA();
-        if (tab === 'configuracion') return await renderConfiguracion();
-        return await renderCatalog(tab); // programs | servicios | metodo
+        if (top === 'contenido') {
+          if (sub === 'general')   return await renderContenidoGeneral();
+          if (sub === 'programs')  return await renderCatalog('programs');
+          if (sub === 'servicios') return await renderCatalog('servicios');
+          if (sub === 'metodo')    return await renderCatalog('metodo');
+        }
+        if (top === 'formulario')   return await renderFormulario();
+        if (top === 'configuracion') {
+          if (sub === 'analytics') return await renderAnalytics();
+        }
       } catch (err) {
         document.getElementById('pane').innerHTML = `<div class="state"><h3>Error</h3>${escapeHtml(err.message)}</div>`;
       }
     }
-
-    window.addEventListener('hashchange', renderActiveTab);
+    window.addEventListener('hashchange', renderActive);
 
     // ============================================================
     // CATALOG VIEW (programs / servicios / metodo)
@@ -186,14 +224,12 @@
 
       const isProgram = typeKey === 'program';
       const isServicio = typeKey === 'servicio';
-      const isFase = typeKey === 'fase';
       const itemsLabel = isProgram ? 'Módulos' : (isServicio ? 'Ítems' : null);
       const labelSingular = isProgram ? 'Programa' : (isServicio ? 'Servicio' : 'Fase');
 
       const cards = items.map(item => {
         const fields = item.fields || [];
         const titleField = fields.find(f => /\.h$/.test(f.i18n_key));
-        const pitchField = fields.find(f => /\.pitch$|\.p$/.test(f.i18n_key));
         const itemFields = fields.filter(f => /\.(m|li)\d+$/.test(f.i18n_key));
 
         const itemsListHtml = itemsLabel ? `
@@ -256,14 +292,12 @@
       document.getElementById('pane').innerHTML = `
         <div class="catalog-toolbar">
           <div>
-            <h2 class="content-section-title">${TAB_TITLES[catalogType]}</h2>
             <p class="content-section-meta">${items.length} ${labelSingular.toLowerCase()}${items.length !== 1 ? 's' : ''}</p>
           </div>
           <button class="btn" id="add-catalog-item">+ Nuevo ${labelSingular.toLowerCase()}</button>
         </div>
         <div class="catalog-list">${cards || '<div class="state">Sin items. Agregá el primero.</div>'}</div>`;
 
-      // Wire actions
       document.getElementById('add-catalog-item').addEventListener('click', () => promptCreateCatalog(typeKey));
       document.querySelectorAll('[data-action]').forEach(btn => {
         btn.addEventListener('click', (e) => handleCatalogAction(e, typeKey));
@@ -280,7 +314,7 @@
         try {
           await api(`/api/admin/catalog/section/${encodeURIComponent(section)}`, { method: 'DELETE' });
           toast('Eliminado ✓', 'success');
-          renderActiveTab();
+          renderActive();
         } catch (err) { toast('Error: ' + err.message, 'error'); }
       }
       else if (action === 'save-card') {
@@ -298,7 +332,7 @@
         try {
           await api('/api/admin/content/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
           toast('Guardado ✓', 'success');
-          renderActiveTab();
+          renderActive();
         } catch (err) {
           toast('Error: ' + err.message, 'error');
           btn.disabled = false; btn.textContent = 'Guardar cambios';
@@ -311,7 +345,7 @@
             method: 'POST', body: JSON.stringify({ value_es: '', value_en: '' })
           });
           toast('Ítem agregado', 'success');
-          renderActiveTab();
+          renderActive();
         } catch (err) { toast('Error: ' + err.message, 'error'); }
       }
       else if (action === 'remove-item') {
@@ -320,14 +354,11 @@
         try {
           await api(`/api/admin/catalog/items/${encodeURIComponent(key)}`, { method: 'DELETE' });
           toast('Eliminado', 'success');
-          renderActiveTab();
+          renderActive();
         } catch (err) { toast('Error: ' + err.message, 'error'); }
       }
       else if (action === 'edit-meta') {
-        const section = btn.dataset.section;
-        const tag = btn.dataset.tag;
-        const order = btn.dataset.order;
-        promptEditMeta(section, tag, order);
+        promptEditMeta(btn.dataset.section, btn.dataset.tag, btn.dataset.order);
       }
       else if (action === 'clone-item') {
         const section = btn.dataset.section;
@@ -335,8 +366,8 @@
         if (!confirm(`¿Clonar "${title}"? Se creará una copia editable.`)) return;
         try {
           await api(`/api/admin/catalog/section/${encodeURIComponent(section)}/clone`, { method: 'POST' });
-          toast('Clonado ✓ — buscalo abajo en la lista', 'success');
-          renderActiveTab();
+          toast('Clonado ✓', 'success');
+          renderActive();
         } catch (err) { toast('Error: ' + err.message, 'error'); }
       }
     }
@@ -345,7 +376,7 @@
       const labelSingular = typeKey === 'program' ? 'programa' : (typeKey === 'servicio' ? 'servicio' : 'fase');
       openModal(`Nuevo ${labelSingular}`, `
         <div class="field">
-          <label class="label">Tag (opcional, ej: FOUNDATIONS, GROWTH)</label>
+          <label class="label">Tag (opcional)</label>
           <input class="input" id="new-tag" placeholder="${typeKey === 'program' ? 'FOUNDATIONS' : typeKey === 'servicio' ? 'STRATEGY' : ''}">
         </div>
         <div class="field">
@@ -356,7 +387,6 @@
           <label class="label">Título inicial · EN</label>
           <input class="input" id="new-title-en" placeholder="${labelSingular} name">
         </div>
-        <p style="font-size:12px;color:var(--piedra);margin-top:8px;">Después de crear podés llenar el resto de campos.</p>
       `, [
         { label: 'Cancelar', variant: 'secondary', onClick: closeModal },
         { label: 'Crear', onClick: async (b) => {
@@ -370,9 +400,7 @@
                   defaults_en: { h: document.getElementById('new-title-en').value.trim() }
                 })
               });
-              toast('Creado ✓', 'success');
-              closeModal();
-              renderActiveTab();
+              toast('Creado ✓', 'success'); closeModal(); renderActive();
             } catch (err) { toast('Error: ' + err.message, 'error'); b.disabled = false; }
         }}
       ]);
@@ -380,14 +408,8 @@
 
     function promptEditMeta (section, currentTag, currentOrder) {
       openModal(`Metadata · ${section}`, `
-        <div class="field">
-          <label class="label">Tag</label>
-          <input class="input" id="meta-tag" value="${escapeHtml(currentTag)}">
-        </div>
-        <div class="field">
-          <label class="label">Orden</label>
-          <input class="input" type="number" id="meta-order" value="${currentOrder}" min="1">
-        </div>
+        <div class="field"><label class="label">Tag</label><input class="input" id="meta-tag" value="${escapeHtml(currentTag)}"></div>
+        <div class="field"><label class="label">Orden</label><input class="input" type="number" id="meta-order" value="${currentOrder}" min="1"></div>
       `, [
         { label: 'Cancelar', variant: 'secondary', onClick: closeModal },
         { label: 'Guardar', onClick: async (b) => {
@@ -400,21 +422,18 @@
                   display_order: parseInt(document.getElementById('meta-order').value, 10) || 0
                 })
               });
-              toast('Metadata actualizada', 'success');
-              closeModal();
-              renderActiveTab();
+              toast('Metadata actualizada', 'success'); closeModal(); renderActive();
             } catch (err) { toast('Error: ' + err.message, 'error'); b.disabled = false; }
         }}
       ]);
     }
 
     // ============================================================
-    // CONTENIDO GENERAL VIEW (i18n editor para nav, hero, tesis, etc)
+    // CONTENIDO GENERAL VIEW
     // ============================================================
-    async function renderContenido () {
+    async function renderContenidoGeneral () {
       const data = await api('/api/admin/content');
       const sections = data.sections || {};
-      const allowedKeys = CONTENT_SECTIONS.map(s => s.key);
 
       const sidebarHtml = CONTENT_SECTIONS.map(s => {
         const has = !!sections[s.key];
@@ -432,7 +451,6 @@
           </section>
         </div>`;
 
-      // Estado dirty para Contenido
       const dirty = {};
       document.querySelectorAll('button[data-content-section]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -442,11 +460,8 @@
         });
       });
 
-      // Auto-seleccionar la primera
       const firstAvail = CONTENT_SECTIONS.find(s => sections[s.key]);
-      if (firstAvail) {
-        document.querySelector(`button[data-content-section="${firstAvail.key}"]`).click();
-      }
+      if (firstAvail) document.querySelector(`button[data-content-section="${firstAvail.key}"]`).click();
     }
 
     function renderContenidoSection (sectionKey, allSections, dirty) {
@@ -491,7 +506,6 @@
           <button class="btn btn-sm" id="contenido-save" disabled>Guardar (0)</button>
         </div>`;
 
-      // Wire inputs
       document.querySelectorAll('#contenido-pane [data-edit-key]').forEach(input => {
         input.addEventListener('input', () => {
           const k = input.dataset.editKey, lang = input.dataset.lang;
@@ -513,7 +527,6 @@
         try {
           await api('/api/admin/content/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
           toast(`✓ ${changes.length} cambio(s) guardado(s)`, 'success');
-          // Update local state
           for (const c of changes) {
             const f = fields.find(x => x.i18n_key === c.i18n_key);
             if (f) { f.value_es = c.value_es; f.value_en = c.value_en; }
@@ -533,162 +546,170 @@
     }
 
     // ============================================================
-    // CTA FINAL VIEW (con labels editables)
+    // FORMULARIO VIEW (CTA section + form labels/placeholders)
     // ============================================================
-    async function renderCTA () {
+    async function renderFormulario () {
       const data = await api('/api/admin/content');
-      const fields = (data.sections && data.sections['cta']) || [];
+      const ctaFields = (data.sections && data.sections['cta']) || [];
+      const formFields = (data.sections && data.sections['form']) || [];
       const dirty = {};
 
-      const fieldsHtml = fields.map(f => `
-        <div class="content-field cta-field" data-key="${escapeHtml(f.i18n_key)}">
-          <div class="cta-field-row">
-            <div class="cta-field-label-edit">
-              <label class="content-field-lang-label">Etiqueta del campo</label>
-              <input type="text" class="cta-label-input" data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="field_label" value="${escapeHtml(f.field_label || '')}" placeholder="Ej: Headline, Párrafo…">
+      const renderField = (f, allowLabelEdit) => {
+        const isLong = (f.value_es && f.value_es.length > 60) || f.value_type === 'html';
+        return `
+          <div class="content-field" data-key="${escapeHtml(f.i18n_key)}">
+            ${allowLabelEdit ? `
+              <div class="cta-field-row">
+                <div class="cta-field-label-edit">
+                  <label class="content-field-lang-label">Etiqueta del campo</label>
+                  <input type="text" class="cta-label-input" data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="field_label" value="${escapeHtml(f.field_label || '')}" placeholder="Ej: Headline, Párrafo…">
+                </div>
+                <div class="cta-field-key-meta">
+                  <span class="content-field-key">${escapeHtml(f.i18n_key)}</span>
+                  <span class="content-field-type ${f.value_type === 'html' ? 'is-html' : ''}">${f.value_type === 'html' ? 'HTML' : 'Texto'}</span>
+                </div>
+              </div>` : `
+              <div class="content-field-header">
+                <span class="content-field-label">${escapeHtml(f.field_label || f.i18n_key)}</span>
+                <span class="content-field-key">${escapeHtml(f.i18n_key)}</span>
+                <span class="content-field-type ${f.value_type === 'html' ? 'is-html' : ''}">${f.value_type === 'html' ? 'HTML' : 'Texto'}</span>
+              </div>`}
+            <div class="content-field-grid">
+              <div class="content-field-lang">
+                <span class="content-field-lang-label">${allowLabelEdit ? 'Valor · ' : ''}ES</span>
+                ${isLong
+                  ? `<textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="value_es" rows="3">${escapeHtml(f.value_es)}</textarea>`
+                  : `<input type="text" data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="value_es" value="${escapeHtml(f.value_es)}">`}
+              </div>
+              <div class="content-field-lang">
+                <span class="content-field-lang-label">${allowLabelEdit ? 'Valor · ' : ''}EN</span>
+                ${isLong
+                  ? `<textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="value_en" rows="3">${escapeHtml(f.value_en)}</textarea>`
+                  : `<input type="text" data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="value_en" value="${escapeHtml(f.value_en)}">`}
+              </div>
             </div>
-            <div class="cta-field-key-meta">
-              <span class="content-field-key">${escapeHtml(f.i18n_key)}</span>
-              <span class="content-field-type ${f.value_type === 'html' ? 'is-html' : ''}">${f.value_type === 'html' ? 'HTML' : 'Texto'}</span>
-            </div>
-          </div>
-          <div class="content-field-grid">
-            <div class="content-field-lang">
-              <span class="content-field-lang-label">Valor · ES</span>
-              <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="value_es" rows="3">${escapeHtml(f.value_es)}</textarea>
-            </div>
-            <div class="content-field-lang">
-              <span class="content-field-lang-label">Valor · EN</span>
-              <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-prop="value_en" rows="3">${escapeHtml(f.value_en)}</textarea>
-            </div>
-          </div>
-        </div>`).join('');
+          </div>`;
+      };
 
       document.getElementById('pane').innerHTML = `
-        <h2 class="content-section-title">CTA Final</h2>
-        <p class="content-section-meta">El bloque de "Diseñemos juntos…" antes del formulario. Podés editar tanto los valores como las etiquetas internas de cada campo.</p>
-        ${fieldsHtml}
+        <div class="form-block">
+          <h3 class="content-section-title">Sección CTA</h3>
+          <p class="content-section-meta">El bloque que introduce el formulario. Las etiquetas internas son editables.</p>
+          ${ctaFields.map(f => renderField(f, true)).join('')}
+        </div>
+        <div class="form-block">
+          <h3 class="content-section-title">Campos del formulario</h3>
+          <p class="content-section-meta">Labels, placeholders, opciones del select y textos de los botones.</p>
+          ${formFields.map(f => renderField(f, false)).join('')}
+        </div>
         <div class="content-action-bar">
-          <span class="content-action-status" id="cta-status">Sin cambios</span>
-          <button class="btn btn-sm" id="cta-save" disabled>Guardar (0)</button>
+          <span class="content-action-status" id="formulario-status">Sin cambios</span>
+          <button class="btn btn-sm" id="formulario-save" disabled>Guardar (0)</button>
         </div>`;
 
+      const allFields = [...ctaFields, ...formFields];
       document.querySelectorAll('#pane [data-edit-key]').forEach(input => {
         input.addEventListener('input', () => {
           const k = input.dataset.editKey, prop = input.dataset.prop;
-          const original = fields.find(f => f.i18n_key === k);
+          const original = allFields.find(f => f.i18n_key === k);
           if (!original) return;
           if (!dirty[k]) dirty[k] = { value_es: original.value_es, value_en: original.value_en, field_label: original.field_label || '' };
           dirty[k][prop] = input.value;
           if (dirty[k].value_es === original.value_es && dirty[k].value_en === original.value_en && dirty[k].field_label === (original.field_label || '')) delete dirty[k];
           const total = Object.keys(dirty).length;
-          document.getElementById('cta-status').textContent = total > 0 ? `${total} cambio(s) sin guardar` : 'Sin cambios';
-          const btn = document.getElementById('cta-save');
+          document.getElementById('formulario-status').textContent = total > 0 ? `${total} cambio(s) sin guardar` : 'Sin cambios';
+          const btn = document.getElementById('formulario-save');
           btn.disabled = total === 0; btn.textContent = `Guardar (${total})`;
           input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
         });
       });
 
-      document.getElementById('cta-save').addEventListener('click', async () => {
+      document.getElementById('formulario-save').addEventListener('click', async () => {
         const changes = Object.entries(dirty).map(([k, v]) => ({
           i18n_key: k, value_es: v.value_es, value_en: v.value_en, field_label: v.field_label
         }));
         if (!changes.length) return;
-        const btn = document.getElementById('cta-save');
+        const btn = document.getElementById('formulario-save');
         btn.disabled = true; btn.textContent = 'Guardando…';
         try {
           await api('/api/admin/content/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
           toast('Guardado ✓', 'success');
-          renderActiveTab();
+          renderActive();
         } catch (err) { toast('Error: ' + err.message, 'error'); btn.disabled = false; btn.textContent = 'Reintentar'; }
       });
     }
 
     // ============================================================
-    // CONFIGURACIÓN VIEW (settings: Analytics + GTM, etc.)
+    // CONFIGURACIÓN > ANALYTICS
     // ============================================================
-    const CONFIG_SUB_SECTIONS = [
-      { key: 'analytics', title: 'Analytics', description: 'Google Analytics 4 y Google Tag Manager. Si configurás GTM, tiene prioridad sobre GA4 directo.' }
-    ];
-
-    async function renderConfiguracion () {
+    async function renderAnalytics () {
       const data = await api('/api/admin/settings');
-      const categories = data.categories || {};
+      const items = (data.categories && data.categories['analytics']) || [];
       const dirty = {};
 
-      // Sub-tabs
-      const subtabsHtml = CONFIG_SUB_SECTIONS.map((s, i) =>
-        `<button type="button" class="config-subtab ${i === 0 ? 'is-active' : ''}" data-subtab="${escapeHtml(s.key)}">${escapeHtml(s.title)}</button>`
-      ).join('');
+      const itemsHtml = items.map(it => `
+        <div class="content-field" data-key="${escapeHtml(it.key)}">
+          <div class="content-field-header">
+            <span class="content-field-label">${escapeHtml(it.label)}</span>
+            <span class="content-field-key">${escapeHtml(it.key)}</span>
+          </div>
+          ${it.description ? `<p class="config-help">${escapeHtml(it.description)}</p>` : ''}
+          <input type="text" class="input config-input" data-setting-key="${escapeHtml(it.key)}" value="${escapeHtml(it.value || '')}" placeholder="${escapeHtml(it.placeholder || '')}">
+        </div>`).join('');
 
       document.getElementById('pane').innerHTML = `
-        <h2 class="content-section-title">Configuración</h2>
-        <p class="content-section-meta">Ajustes globales del sitio.</p>
-        <nav class="config-subtabs">${subtabsHtml}</nav>
-        <div id="config-pane"></div>`;
+        <div class="config-block">
+          <p class="config-intro">Google Analytics 4 y Google Tag Manager. Si configurás GTM, tiene prioridad sobre GA4 directo (recomendado para tracking centralizado).</p>
+          ${itemsHtml || '<div class="state">Sin configuraciones.</div>'}
+          <div class="content-action-bar">
+            <span class="content-action-status" id="analytics-status">Sin cambios</span>
+            <button class="btn btn-sm" id="analytics-save" disabled>Guardar (0)</button>
+          </div>
+        </div>
 
-      function renderSub (subKey) {
-        const meta = CONFIG_SUB_SECTIONS.find(s => s.key === subKey);
-        const items = categories[subKey] || [];
-        const itemsHtml = items.map(it => `
-          <div class="content-field" data-key="${escapeHtml(it.key)}">
-            <div class="content-field-header">
-              <span class="content-field-label">${escapeHtml(it.label)}</span>
-              <span class="content-field-key">${escapeHtml(it.key)}</span>
-            </div>
-            ${it.description ? `<p class="config-help">${escapeHtml(it.description)}</p>` : ''}
-            <input type="text" class="input config-input" data-setting-key="${escapeHtml(it.key)}" value="${escapeHtml(it.value || '')}" placeholder="${escapeHtml(it.placeholder || '')}">
-          </div>`).join('');
+        <details class="config-events-doc">
+          <summary>📋 Eventos GTM disponibles en el sitio</summary>
+          <p class="config-help">Estos son los eventos que el sitio empuja a <code>dataLayer</code> y que podés usar como triggers en GTM:</p>
+          <table class="events-table">
+            <thead><tr><th>Evento</th><th>Disparado por</th><th>Datos extra</th></tr></thead>
+            <tbody>
+              <tr><td><code>cta_click</code></td><td>Cualquier CTA del sitio</td><td><code>cta_id</code> · <code>cta_text</code> · <code>cta_lang</code></td></tr>
+              <tr><td><code>form_view</code></td><td>Formulario entra en viewport</td><td><code>form_id</code> = <code>contact</code></td></tr>
+              <tr><td><code>form_submit_attempt</code></td><td>Click en "Enviar mensaje"</td><td><code>form_id</code> · <code>motivo</code></td></tr>
+              <tr><td><code>form_submit_success</code></td><td>Backend confirma envío</td><td><code>form_id</code> · <code>motivo</code> · <code>lang</code></td></tr>
+              <tr><td><code>form_submit_error</code></td><td>Falla el envío</td><td><code>form_id</code> · <code>error</code></td></tr>
+              <tr><td><code>lang_change</code></td><td>Cambio de idioma</td><td><code>from</code> · <code>to</code></td></tr>
+            </tbody>
+          </table>
+          <p class="config-help"><strong>cta_id values:</strong> <code>cta_nav</code>, <code>cta_hero</code>, <code>cta_form_submit</code>, <code>cta_whatsapp</code></p>
+        </details>`;
 
-        document.getElementById('config-pane').innerHTML = `
-          <div class="config-block">
-            <p class="config-intro">${escapeHtml(meta.description)}</p>
-            ${itemsHtml || '<div class="state">Sin configuraciones en esta categoría.</div>'}
-            <div class="content-action-bar">
-              <span class="content-action-status" id="config-status">Sin cambios</span>
-              <button class="btn btn-sm" id="config-save" disabled>Guardar (0)</button>
-            </div>
-          </div>`;
-
-        document.querySelectorAll('[data-setting-key]').forEach(input => {
-          input.addEventListener('input', () => {
-            const k = input.dataset.settingKey;
-            const original = items.find(x => x.key === k);
-            if (!original) return;
-            const newVal = input.value;
-            if (newVal === (original.value || '')) delete dirty[k];
-            else dirty[k] = newVal;
-            const total = Object.keys(dirty).length;
-            document.getElementById('config-status').textContent = total > 0 ? `${total} cambio(s) sin guardar` : 'Sin cambios';
-            const btn = document.getElementById('config-save');
-            btn.disabled = total === 0; btn.textContent = `Guardar (${total})`;
-            input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
-          });
-        });
-
-        document.getElementById('config-save').addEventListener('click', async () => {
-          const changes = Object.entries(dirty).map(([key, value]) => ({ key, value }));
-          if (!changes.length) return;
-          const btn = document.getElementById('config-save');
-          btn.disabled = true; btn.textContent = 'Guardando…';
-          try {
-            await api('/api/admin/settings/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
-            toast(`Configuración guardada ✓ (${changes.length})`, 'success');
-            renderActiveTab();
-          } catch (err) { toast('Error: ' + err.message, 'error'); btn.disabled = false; btn.textContent = 'Reintentar'; }
-        });
-      }
-
-      // Wire sub-tabs
-      document.querySelectorAll('[data-subtab]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('[data-subtab]').forEach(b => b.classList.remove('is-active'));
-          btn.classList.add('is-active');
-          renderSub(btn.dataset.subtab);
+      document.querySelectorAll('[data-setting-key]').forEach(input => {
+        input.addEventListener('input', () => {
+          const k = input.dataset.settingKey;
+          const original = items.find(x => x.key === k);
+          if (!original) return;
+          if (input.value === (original.value || '')) delete dirty[k];
+          else dirty[k] = input.value;
+          const total = Object.keys(dirty).length;
+          document.getElementById('analytics-status').textContent = total > 0 ? `${total} cambio(s) sin guardar` : 'Sin cambios';
+          const btn = document.getElementById('analytics-save');
+          btn.disabled = total === 0; btn.textContent = `Guardar (${total})`;
+          input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
         });
       });
 
-      renderSub(CONFIG_SUB_SECTIONS[0].key);
+      document.getElementById('analytics-save').addEventListener('click', async () => {
+        const changes = Object.entries(dirty).map(([key, value]) => ({ key, value }));
+        if (!changes.length) return;
+        const btn = document.getElementById('analytics-save');
+        btn.disabled = true; btn.textContent = 'Guardando…';
+        try {
+          await api('/api/admin/settings/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
+          toast(`Guardado ✓ (${changes.length})`, 'success');
+          renderActive();
+        } catch (err) { toast('Error: ' + err.message, 'error'); btn.disabled = false; btn.textContent = 'Reintentar'; }
+      });
     }
 
     // ============================================================
@@ -711,8 +732,8 @@
       const me = await checkAuth();
       if (!me) return;
       document.getElementById('user-email').textContent = me.email;
-      if (!window.location.hash) window.location.hash = '#programs';
-      renderActiveTab();
+      if (!window.location.hash) window.location.hash = '#contenido/general';
+      renderActive();
     })();
   </script>
 </body>
