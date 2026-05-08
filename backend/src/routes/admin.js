@@ -14,6 +14,10 @@ import {
 } from '../services/admin-users.js';
 import { sendPasswordResetEmail } from '../email.js';
 import { getAllForAdmin, bulkUpdate } from '../services/content.js';
+import {
+  listCatalog, getOne, createCatalogItem, deleteCatalogItem,
+  updateMetadata, addItem, removeItem
+} from '../services/catalog.js';
 
 const router = Router();
 const isProd = process.env.NODE_ENV === 'production';
@@ -378,6 +382,80 @@ router.patch('/content/bulk', requireAuth, async (req, res) => {
   } catch (err) {
     console.error('[admin/content PATCH]', err);
     res.status(500).json({ error: 'Error actualizando contenido' });
+  }
+});
+
+// ============================================================
+// CATALOG CRUD (programs, servicios, fases)
+// ============================================================
+const VALID_TYPES = new Set(['program', 'servicio', 'fase']);
+
+router.get('/catalog/:type', requireAuth, async (req, res) => {
+  try {
+    const type = req.params.type;
+    if (!VALID_TYPES.has(type)) return res.status(400).json({ error: 'tipo inválido' });
+    const items = await listCatalog(type);
+    res.json({ items });
+  } catch (err) {
+    console.error('[catalog list]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/catalog/:type', requireAuth, async (req, res) => {
+  try {
+    const type = req.params.type;
+    if (!VALID_TYPES.has(type)) return res.status(400).json({ error: 'tipo inválido' });
+    const result = await createCatalogItem(type, req.body || {}, req.session.email);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('[catalog create]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/catalog/section/:section', requireAuth, async (req, res) => {
+  try {
+    const section = req.params.section;
+    const ok = await deleteCatalogItem(section);
+    if (!ok) return res.status(404).json({ error: 'Section no encontrada' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[catalog delete]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/catalog/section/:section', requireAuth, async (req, res) => {
+  try {
+    const section = req.params.section;
+    const result = await updateMetadata(section, req.body || {}, req.session.email);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('[catalog meta update]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/catalog/section/:section/items', requireAuth, async (req, res) => {
+  try {
+    const section = req.params.section;
+    const result = await addItem(section, req.body || {}, req.session.email);
+    res.json({ ok: true, ...result });
+  } catch (err) {
+    console.error('[catalog add item]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete('/catalog/items/:i18nKey', requireAuth, async (req, res) => {
+  try {
+    const ok = await removeItem(req.params.i18nKey);
+    if (!ok) return res.status(404).json({ error: 'Item no encontrado' });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[catalog remove item]', err);
+    res.status(500).json({ error: err.message });
   }
 });
 

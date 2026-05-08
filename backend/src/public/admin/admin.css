@@ -782,7 +782,297 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
 .toast.toast-error   { border-left-color: var(--danger); }
 
 /* ============================================================
-   CONTENT EDITOR
+   CONTENT SUB-TABS (Programs / Servicios / Método / Contenido / CTA)
+   ============================================================ */
+.content-subtabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: var(--space-8);
+  flex-wrap: wrap;
+  background: #fff;
+  border: 1px solid var(--piedra-light);
+  padding: 4px;
+  border-radius: 4px;
+}
+.content-subtabs a {
+  padding: 8px 16px;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--piedra);
+  text-decoration: none;
+  border-radius: 2px;
+  transition: background var(--duration-fast) var(--ease-out),
+              color var(--duration-fast) var(--ease-out);
+}
+.content-subtabs a:hover { color: var(--tinta); background: var(--crema-soft); }
+.content-subtabs a.is-active {
+  background: var(--tinta);
+  color: var(--crema);
+}
+
+/* ============================================================
+   CATALOG (Programs / Servicios / Método)
+   ============================================================ */
+.catalog-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
+}
+.catalog-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.catalog-card {
+  background: #fff;
+  border: 1px solid var(--piedra-light);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+.catalog-card:hover { border-color: var(--piedra); }
+
+.catalog-card-head {
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--piedra-light);
+  background: var(--crema-soft);
+}
+.catalog-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.catalog-card-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--cobre);
+  font-weight: 500;
+}
+.catalog-card-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  background: var(--salvia);
+  color: var(--crema);
+  border-radius: 2px;
+  font-weight: 500;
+}
+.catalog-card-section {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--piedra-soft);
+}
+.catalog-card-title {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+}
+.catalog-card-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.catalog-card-body {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.catalog-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.catalog-field-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--piedra);
+  text-transform: uppercase;
+  font-weight: 500;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.catalog-field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.catalog-field textarea,
+.catalog-field input,
+.catalog-items-list textarea,
+.catalog-items-list input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--crema);
+  color: var(--tinta);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  border: 1px solid var(--piedra-soft);
+  border-radius: 2px;
+  resize: vertical;
+  transition: border-color var(--duration-fast) var(--ease-out);
+}
+.catalog-field textarea:focus,
+.catalog-field input:focus,
+.catalog-items-list textarea:focus,
+.catalog-items-list input:focus {
+  outline: none;
+  border-color: var(--salvia);
+  box-shadow: 0 0 0 2px rgba(58, 79, 65, 0.10);
+}
+
+/* Items (modules / li) */
+.catalog-items-block {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px dashed var(--piedra-light);
+}
+.catalog-items-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+.catalog-items-label {
+  font-family: var(--sans);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  color: var(--piedra);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.catalog-items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.catalog-item-row {
+  display: flex;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+.catalog-item-vals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  flex: 1;
+}
+.catalog-empty {
+  padding: var(--space-4);
+  text-align: center;
+  font-size: 12px;
+  color: var(--piedra);
+  background: var(--crema-soft);
+  border: 1px dashed var(--piedra-light);
+  border-radius: 2px;
+}
+
+.btn-icon-danger {
+  background: transparent;
+  border: 1px solid var(--piedra-light);
+  color: var(--piedra);
+  width: 36px;
+  height: auto;
+  font-size: 18px;
+  line-height: 1;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+.btn-icon-danger:hover { color: var(--danger); border-color: var(--danger); background: rgba(160, 74, 61, 0.05); }
+
+.btn-danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+.btn-danger:hover:not(:disabled) {
+  background: var(--danger);
+  color: var(--crema);
+}
+
+.catalog-card-foot {
+  padding: var(--space-3) var(--space-6);
+  background: var(--crema-soft);
+  border-top: 1px solid var(--piedra-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,15,14,0.4);
+  opacity: 0; visibility: hidden;
+  transition: opacity var(--duration-default) var(--ease-out), visibility var(--duration-default) var(--ease-out);
+  z-index: 100;
+}
+.modal-overlay.is-open { opacity: 1; visibility: visible; }
+
+.modal {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -45%);
+  width: min(480px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  background: var(--crema);
+  border: 1px solid var(--piedra-light);
+  z-index: 101;
+  opacity: 0; visibility: hidden;
+  transition: all var(--duration-default) var(--ease-out);
+}
+.modal.is-open {
+  transform: translate(-50%, -50%);
+  opacity: 1; visibility: visible;
+}
+.modal-header {
+  padding: var(--space-4) var(--space-6);
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--piedra-light);
+}
+.modal-header h3 {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
+}
+.modal-body { padding: var(--space-6); }
+.modal-actions {
+  padding: var(--space-4) var(--space-6);
+  border-top: 1px solid var(--piedra-light);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  background: var(--crema-soft);
+}
+
+/* ============================================================
+   CONTENT EDITOR (Contenido general — i18n)
    ============================================================ */
 .content-shell {
   display: grid;
@@ -1019,4 +1309,11 @@ table.leads tr.is-selected td { background: var(--crema-deep); }
   .content-field-grid { grid-template-columns: 1fr; }
   .content-pane { padding: var(--space-4); }
   .content-action-bar { margin: var(--space-6) calc(var(--space-4) * -1) calc(var(--space-4) * -1); padding: var(--space-3) var(--space-4); }
+  .catalog-card-head { flex-direction: column; align-items: stretch; }
+  .catalog-card-actions { width: 100%; }
+  .catalog-card-actions .btn { flex: 1; }
+  .catalog-field-grid { grid-template-columns: 1fr; }
+  .catalog-item-vals { grid-template-columns: 1fr; }
+  .content-subtabs { gap: 2px; padding: 2px; }
+  .content-subtabs a { padding: 6px 10px; font-size: 12px; }
 }

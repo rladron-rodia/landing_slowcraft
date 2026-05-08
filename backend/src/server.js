@@ -18,6 +18,7 @@ import { sendContactEmail } from './email.js';
 import adminRouter from './routes/admin.js';
 import { bootstrapFromEnv } from './services/admin-users.js';
 import { getPublicContent } from './services/content.js';
+import { getPublicCatalogs } from './services/catalog.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = dirname(__filename);
@@ -74,9 +75,12 @@ app.get('/', (_req, res) => {
 // ============================================================
 app.get('/api/content', async (_req, res) => {
   try {
-    const content = await getPublicContent();
-    res.set('Cache-Control', 'public, max-age=60');  // 1 min de caché en CDN/browser
-    res.json(content);
+    const [content, catalogs] = await Promise.all([
+      getPublicContent(),
+      getPublicCatalogs()
+    ]);
+    res.set('Cache-Control', 'public, max-age=60');
+    res.json({ ...content, catalogs });
   } catch (err) {
     console.error('[api/content]', err);
     res.status(500).json({ error: 'Error obteniendo contenido' });

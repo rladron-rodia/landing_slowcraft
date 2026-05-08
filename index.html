@@ -1384,7 +1384,7 @@
     <div class="eyebrow" data-i18n="metodo.eyebrow">02 · CÓMO TRABAJAMOS</div>
     <h2 data-i18n="metodo.h2">Tres fases. Una arquitectura. Resultados medibles.</h2>
 
-    <div class="fases">
+    <div class="fases" data-render="fases">
       <div class="fase">
         <div class="fase-num">01</div>
         <h3 data-i18n="metodo.f1.h">Diagnóstico</h3>
@@ -1410,7 +1410,7 @@
       <h2 data-i18n="serv.h2">Engagements de arquitectura.</h2>
       <p class="servicios-intro" data-i18n="serv.intro">Para empresas que quieren repensar cómo trabajan con IA. Proyectos transformacionales, con alcance abierto al diagnóstico. Tres tipos.</p>
 
-      <div class="servicios-grid">
+      <div class="servicios-grid" data-render="servicios">
         <div class="servicio">
           <div class="servicio-num">01 · STRATEGY</div>
           <h3 data-i18n="serv.s1.h">AI Readiness</h3>
@@ -1461,7 +1461,7 @@
         <p class="programs-bridge" data-i18n="prog.bridge">Aplicaciones modulares de la tesis Slowcraft, cada una con un objetivo específico. Los módulos se activan según la madurez del cliente.</p>
       </div>
 
-      <div class="programs-grid">
+      <div class="programs-grid" data-render="programs">
 
         <div class="program-card">
           <div class="program-card-head">
@@ -2189,9 +2189,85 @@
     // Apply on load
     applyLang(currentLang);
 
-    // Fetch contenido editado desde /api/content y mergear sobre el diccionario hardcoded.
-    // El hardcoded es el fallback (funciona offline / si la API está caída).
-    // El admin puede editar y los cambios se reflejan al próximo load (con cache de 60s).
+    // ============================================================
+    // Render dinámico de catálogos (programs / servicios / fases)
+    // El HTML hardcoded es fallback. Cuando llega /api/content con
+    // catalogs, regeneramos el contenido permitiendo agregar/quitar items.
+    // ============================================================
+    function escapeHtml (s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+
+    function v (key) { return (I18N[currentLang] && I18N[currentLang][key]) || I18N.es[key] || ''; }
+
+    function renderPrograms (programs) {
+      const grid = document.querySelector('[data-render="programs"]');
+      if (!grid || !Array.isArray(programs) || !programs.length) return;
+      grid.innerHTML = programs.map((p, i) => {
+        const num = String(p.display_order || i + 1).padStart(2, '0');
+        const modulesHtml = (p.module_keys || []).map(k => `<li>${escapeHtml(v(k))}</li>`).join('');
+        return `
+          <div class="program-card">
+            <div class="program-card-head">
+              <div class="program-card-num">${num}</div>
+              <div class="program-card-tag">${escapeHtml(p.tag || '')}</div>
+            </div>
+            <h3>${escapeHtml(v(p.title_key))}</h3>
+            <div class="program-card-pitch">${escapeHtml(v(p.pitch_key))}</div>
+            <div class="program-card-meta">
+              <div class="program-card-meta-label">${escapeHtml(v('prog.label.parawho'))}</div>
+              <div class="program-card-meta-text">${escapeHtml(v(p.who_key))}</div>
+            </div>
+            <ul class="program-card-modules">${modulesHtml}</ul>
+            <div class="program-card-note">${escapeHtml(v(p.note_key))}</div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderServicios (servicios) {
+      const grid = document.querySelector('[data-render="servicios"]');
+      if (!grid || !Array.isArray(servicios) || !servicios.length) return;
+      grid.innerHTML = servicios.map((s, i) => {
+        const num = String(s.display_order || i + 1).padStart(2, '0');
+        const itemsHtml = (s.item_keys || []).map(k => `<li>${escapeHtml(v(k))}</li>`).join('');
+        return `
+          <div class="servicio">
+            <div class="servicio-num">${num}${s.tag ? ' · ' + escapeHtml(s.tag) : ''}</div>
+            <h3>${escapeHtml(v(s.title_key))}</h3>
+            <p>${escapeHtml(v(s.description_key))}</p>
+            <ul class="servicio-list">${itemsHtml}</ul>
+          </div>`;
+      }).join('');
+    }
+
+    function renderFases (fases) {
+      const grid = document.querySelector('[data-render="fases"]');
+      if (!grid || !Array.isArray(fases) || !fases.length) return;
+      grid.innerHTML = fases.map((f, i) => {
+        const num = String(f.display_order || i + 1).padStart(2, '0');
+        return `
+          <div class="fase">
+            <div class="fase-num">${num}</div>
+            <h3>${escapeHtml(v(f.title_key))}</h3>
+            <p>${escapeHtml(v(f.description_key))}</p>
+          </div>`;
+      }).join('');
+    }
+
+    let __siteData = null;  // cache para re-render en cambio de idioma
+
+    // Re-render dinámico cuando cambia el idioma
+    const __originalApplyLang = applyLang;
+    applyLang = function (lang) {
+      __originalApplyLang(lang);
+      if (__siteData && __siteData.catalogs) {
+        renderPrograms(__siteData.catalogs.programs);
+        renderServicios(__siteData.catalogs.servicios);
+        renderFases(__siteData.catalogs.fases);
+      }
+    };
+
+    // Fetch contenido + catálogos
     (function fetchContent () {
       const baseEndpoint = window.SLOWCRAFT_FORM_ENDPOINT || '';
       const apiBase = baseEndpoint.replace(/\/api\/contact$/, '');
@@ -2200,9 +2276,10 @@
         .then(r => r.ok ? r.json() : null)
         .then(data => {
           if (!data) return;
+          __siteData = data;
           if (data.es) Object.assign(I18N.es, data.es);
           if (data.en) Object.assign(I18N.en, data.en);
-          applyLang(currentLang);  // re-aplicar con dictionary mergeado
+          applyLang(currentLang);
         })
         .catch(err => console.warn('[content] no pude cargar:', err.message));
     })();

@@ -26,71 +26,64 @@
     </nav>
 
     <h1 class="app-h1">Contenido <em>de la landing.</em></h1>
-    <p class="app-subtitle">Editá los textos de cada sección en español e inglés. Los cambios se aplican al sitio en menos de un minuto.</p>
+    <p class="app-subtitle">Editá el contenido en español e inglés. Los cambios se reflejan en la landing en menos de un minuto.</p>
 
-    <div class="content-shell">
-      <!-- Sidebar de secciones -->
-      <aside class="content-sidebar" id="sidebar">
-        <div class="state">Cargando…</div>
-      </aside>
+    <!-- Sub-tabs por tipo de contenido -->
+    <nav class="content-subtabs" id="subtabs">
+      <a href="#programs"   data-tab="programs">Programs</a>
+      <a href="#servicios"  data-tab="servicios">Servicios</a>
+      <a href="#metodo"     data-tab="metodo">Método</a>
+      <a href="#contenido"  data-tab="contenido">Contenido general</a>
+      <a href="#cta"        data-tab="cta">CTA Final</a>
+    </nav>
 
-      <!-- Pane principal -->
-      <section class="content-pane" id="pane">
-        <div class="state">Elegí una sección a la izquierda.</div>
-      </section>
-    </div>
+    <section class="content-pane" id="pane">
+      <div class="state">Cargando…</div>
+    </section>
   </main>
 
   <!-- Toasts -->
   <div class="toasts" id="toasts" aria-live="polite"></div>
 
+  <!-- Modal genérico -->
+  <div class="modal-overlay" id="modal-overlay"></div>
+  <aside class="modal" id="modal" aria-hidden="true">
+    <header class="modal-header">
+      <h3 id="modal-title">—</h3>
+      <button class="drawer-close" id="modal-close" aria-label="Cerrar">×</button>
+    </header>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-actions" id="modal-actions"></div>
+  </aside>
+
   <script>
     // ============================================================
-    // Slowcraft Admin · Editor de Contenido
+    // Slowcraft Admin · Content hub
     // ============================================================
-    const SECTION_META = {
-      'nav':            { title: 'Navegación',            group: null },
-      'hero':           { title: 'Hero',                  group: null },
-      'tesis':          { title: 'Tesis',                 group: null },
-      'metodo':         { title: 'Método',                group: null },
-      'servicios':      { title: 'Servicios (Strategy)',  group: null },
-      'programs.head':  { title: 'Programs · Cabecera',   group: 'Programs' },
-      'programs.p1':    { title: 'Programs · Founder OS',           group: 'Programs' },
-      'programs.p2':    { title: 'Programs · Site Performance Lab', group: 'Programs' },
-      'programs.p3':    { title: 'Programs · Conversion Architecture', group: 'Programs' },
-      'programs.p4':    { title: 'Programs · Studio Automation',    group: 'Programs' },
-      'principios':     { title: 'Principios',            group: null },
-      'sobre':          { title: 'Sobre nosotros',        group: null },
-      'cta':            { title: 'CTA final',             group: null },
-      'form':           { title: 'Formulario de contacto',group: null },
-      'footer':         { title: 'Footer',                group: null }
-    };
 
-    const SECTION_ORDER = [
-      'nav','hero','tesis','metodo','servicios',
-      'programs.head','programs.p1','programs.p2','programs.p3','programs.p4',
-      'principios','sobre','cta','form','footer'
+    // Map de "Contenido general" — qué secciones se editan ahí
+    const CONTENT_SECTIONS = [
+      { key: 'nav',           title: 'Navegación' },
+      { key: 'hero',          title: 'Hero' },
+      { key: 'tesis',         title: 'Tesis' },
+      { key: 'metodo.head',   title: 'Método · Cabecera' },
+      { key: 'servicios.head',title: 'Servicios · Cabecera' },
+      { key: 'programs.head', title: 'Programs · Cabecera' },
+      { key: 'principios',    title: 'Principios' },
+      { key: 'sobre',         title: 'Sobre nosotros' },
+      { key: 'form',          title: 'Formulario' },
+      { key: 'footer',        title: 'Footer' }
     ];
 
-    const state = {
-      sections: {},      // datos del backend agrupados por sección
-      currentSection: null,
-      dirty: {},         // { i18n_key: { value_es, value_en } }
+    const TAB_TITLES = {
+      programs:  'Programs',
+      servicios: 'Servicios',
+      metodo:    'Método',
+      contenido: 'Contenido general',
+      cta:       'CTA Final'
     };
 
-    // ---------- Auth ----------
-    async function checkAuth () {
-      try {
-        const res = await fetch('/api/admin/me', { credentials: 'same-origin' });
-        if (!res.ok) { window.location.replace('/admin/login'); return null; }
-        return await res.json();
-      } catch {
-        window.location.replace('/admin/login');
-        return null;
-      }
-    }
-
-    // ---------- API ----------
+    // ---------- Auth + API ----------
     async function api (path, opts = {}) {
       const res = await fetch(path, {
         ...opts,
@@ -103,7 +96,6 @@
       return data;
     }
 
-    // ---------- Toast ----------
     function toast (msg, type = 'success', timeout = 4000) {
       const region = document.getElementById('toasts');
       const t = document.createElement('div');
@@ -114,7 +106,6 @@
       setTimeout(() => { t.classList.remove('is-visible'); setTimeout(() => t.remove(), 300); }, timeout);
     }
 
-    // ---------- Helpers ----------
     function escapeHtml (s) {
       return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
     }
@@ -122,248 +113,498 @@
     function fmtAgo (iso) {
       if (!iso) return '—';
       const d = new Date(iso);
-      const diffMs = Date.now() - d.getTime();
-      const mins = Math.floor(diffMs / 60_000);
+      const mins = Math.floor((Date.now() - d.getTime()) / 60_000);
       if (mins < 1) return 'recién';
       if (mins < 60) return 'hace ' + mins + ' min';
-      const hours = Math.floor(mins / 60);
-      if (hours < 24) return 'hace ' + hours + ' h';
+      const h = Math.floor(mins / 60);
+      if (h < 24) return 'hace ' + h + ' h';
       return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
     }
 
-    // ---------- Carga inicial ----------
-    async function loadAll () {
-      try {
-        const data = await api('/api/admin/content');
-        state.sections = data.sections || {};
-        renderSidebar();
-        if (SECTION_ORDER[0]) selectSection(SECTION_ORDER[0]);
-      } catch (err) {
-        document.getElementById('sidebar').innerHTML = `<div class="state">Error: ${escapeHtml(err.message)}</div>`;
-      }
+    // ---------- Modal helpers ----------
+    function openModal (title, bodyHtml, actions) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').innerHTML = bodyHtml;
+      const actionsEl = document.getElementById('modal-actions');
+      actionsEl.innerHTML = '';
+      (actions || []).forEach(a => {
+        const btn = document.createElement('button');
+        btn.className = 'btn btn-sm ' + (a.variant === 'secondary' ? 'btn-secondary' : a.variant === 'danger' ? 'btn-danger' : '');
+        btn.textContent = a.label;
+        btn.addEventListener('click', () => { a.onClick && a.onClick(btn); });
+        actionsEl.appendChild(btn);
+      });
+      document.getElementById('modal-overlay').classList.add('is-open');
+      document.getElementById('modal').classList.add('is-open');
+    }
+    function closeModal () {
+      document.getElementById('modal-overlay').classList.remove('is-open');
+      document.getElementById('modal').classList.remove('is-open');
+    }
+    document.getElementById('modal-close').addEventListener('click', closeModal);
+    document.getElementById('modal-overlay').addEventListener('click', closeModal);
+
+    // ============================================================
+    // Tab routing (hash-based)
+    // ============================================================
+    function activeTab () {
+      const h = (window.location.hash || '#programs').replace('#', '');
+      return TAB_TITLES[h] ? h : 'programs';
     }
 
-    // ---------- Sidebar ----------
-    function renderSidebar () {
-      const sidebar = document.getElementById('sidebar');
-      let html = '';
-      let lastGroup = undefined;
-
-      for (const key of SECTION_ORDER) {
-        const meta = SECTION_META[key];
-        if (!meta) continue;
-        if (!state.sections[key]) continue;
-
-        if (meta.group && meta.group !== lastGroup) {
-          html += `<h4>${escapeHtml(meta.group)}</h4><ul>`;
-        } else if (!meta.group && lastGroup !== null) {
-          if (lastGroup !== undefined) html += '</ul>';
-          html += '<ul>';
-        } else if (lastGroup === undefined) {
-          html += '<ul>';
-        }
-        lastGroup = meta.group;
-
-        const dirtyCount = state.sections[key].filter(f => state.dirty[f.i18n_key]).length;
-        const isActive = state.currentSection === key;
-        const isChild = !!meta.group;
-        html += `
-          <li>
-            <button type="button" class="section-btn ${isActive ? 'is-active' : ''} ${isChild ? 'is-child' : ''}" data-section="${escapeHtml(key)}">
-              <span>${escapeHtml(meta.title)}</span>
-              ${dirtyCount > 0 ? '<span class="dirty-dot" title="Cambios sin guardar"></span>' : ''}
-            </button>
-          </li>`;
-      }
-      html += '</ul>';
-
-      sidebar.innerHTML = html;
-      sidebar.querySelectorAll('button[data-section]').forEach(btn => {
-        btn.addEventListener('click', () => selectSection(btn.dataset.section));
+    function syncTabsUI () {
+      const cur = activeTab();
+      document.querySelectorAll('#subtabs a').forEach(a => {
+        a.classList.toggle('is-active', a.dataset.tab === cur);
       });
     }
 
-    // ---------- Pane (sección activa) ----------
-    function selectSection (sectionKey) {
-      state.currentSection = sectionKey;
-      renderSidebar();
-      renderPane();
+    async function renderActiveTab () {
+      syncTabsUI();
+      const tab = activeTab();
+      try {
+        if (tab === 'contenido') return await renderContenido();
+        if (tab === 'cta')       return await renderCTA();
+        return await renderCatalog(tab); // programs | servicios | metodo
+      } catch (err) {
+        document.getElementById('pane').innerHTML = `<div class="state"><h3>Error</h3>${escapeHtml(err.message)}</div>`;
+      }
     }
 
-    function renderPane () {
-      const pane = document.getElementById('pane');
-      const key = state.currentSection;
-      if (!key) { pane.innerHTML = '<div class="state">Elegí una sección.</div>'; return; }
+    window.addEventListener('hashchange', renderActiveTab);
 
-      const meta = SECTION_META[key] || { title: key };
-      const fields = state.sections[key] || [];
+    // ============================================================
+    // CATALOG VIEW (programs / servicios / metodo)
+    // ============================================================
+    async function renderCatalog (catalogType) {
+      const typeKey = catalogType === 'metodo' ? 'fase' : (catalogType === 'programs' ? 'program' : 'servicio');
+      const data = await api(`/api/admin/catalog/${typeKey}`);
+      const items = data.items || [];
 
-      const fieldsHtml = fields.map(f => {
-        const dirty = state.dirty[f.i18n_key];
-        const valEs = dirty ? dirty.value_es : f.value_es;
-        const valEn = dirty ? dirty.value_en : f.value_en;
-        const isLong = (f.value_es && f.value_es.length > 60) || (f.value_en && f.value_en.length > 60) || f.value_type === 'html';
-        const tag = isLong ? 'textarea' : 'input';
-        const rows = isLong ? Math.min(8, Math.max(2, Math.ceil(Math.max(valEs.length, valEn.length) / 50))) : null;
+      const isProgram = typeKey === 'program';
+      const isServicio = typeKey === 'servicio';
+      const isFase = typeKey === 'fase';
+      const itemsLabel = isProgram ? 'Módulos' : (isServicio ? 'Ítems' : null);
+      const labelSingular = isProgram ? 'Programa' : (isServicio ? 'Servicio' : 'Fase');
 
-        const inputEs = isLong
-          ? `<textarea data-key="${escapeHtml(f.i18n_key)}" data-lang="es" rows="${rows}">${escapeHtml(valEs)}</textarea>`
-          : `<input type="text" data-key="${escapeHtml(f.i18n_key)}" data-lang="es" value="${escapeHtml(valEs)}">`;
-        const inputEn = isLong
-          ? `<textarea data-key="${escapeHtml(f.i18n_key)}" data-lang="en" rows="${rows}">${escapeHtml(valEn)}</textarea>`
-          : `<input type="text" data-key="${escapeHtml(f.i18n_key)}" data-lang="en" value="${escapeHtml(valEn)}">`;
+      const cards = items.map(item => {
+        const fields = item.fields || [];
+        const titleField = fields.find(f => /\.h$/.test(f.i18n_key));
+        const pitchField = fields.find(f => /\.pitch$|\.p$/.test(f.i18n_key));
+        const itemFields = fields.filter(f => /\.(m|li)\d+$/.test(f.i18n_key));
 
-        const typeBadge = f.value_type === 'html' ? '<span class="content-field-type is-html">HTML</span>' : '<span class="content-field-type">Texto</span>';
-        const dirtyBadge = dirty ? '<span class="content-field-dirty">● Sin guardar</span>' : '';
+        const itemsListHtml = itemsLabel ? `
+          <div class="catalog-items-block">
+            <div class="catalog-items-head">
+              <span class="catalog-items-label">${itemsLabel} (${itemFields.length})</span>
+              <button class="btn btn-sm btn-ghost" data-action="add-item" data-section="${escapeHtml(item.section)}">+ Agregar ${itemsLabel === 'Módulos' ? 'módulo' : 'ítem'}</button>
+            </div>
+            <ul class="catalog-items-list">
+              ${itemFields.map(f => `
+                <li class="catalog-item-row">
+                  <div class="catalog-item-vals">
+                    <input data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="es" value="${escapeHtml(f.value_es)}" placeholder="ES">
+                    <input data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="en" value="${escapeHtml(f.value_en)}" placeholder="EN">
+                  </div>
+                  <button class="btn-icon-danger" data-action="remove-item" data-key="${escapeHtml(f.i18n_key)}" title="Eliminar">×</button>
+                </li>`).join('')}
+              ${itemFields.length === 0 ? '<li class="catalog-empty">Sin ítems aún. Agregá el primero.</li>' : ''}
+            </ul>
+          </div>` : '';
 
         return `
-          <div class="content-field ${dirty ? 'is-dirty' : ''}" data-key="${escapeHtml(f.i18n_key)}">
+          <article class="catalog-card" data-section="${escapeHtml(item.section)}">
+            <header class="catalog-card-head">
+              <div>
+                <div class="catalog-card-meta">
+                  <span class="catalog-card-num">${String(item.display_order).padStart(2, '0')}</span>
+                  ${item.tag ? `<span class="catalog-card-tag">${escapeHtml(item.tag)}</span>` : ''}
+                  <span class="catalog-card-section">${escapeHtml(item.section)}</span>
+                </div>
+                <h3 class="catalog-card-title">${escapeHtml(titleField ? titleField.value_es : '(sin título)')}</h3>
+              </div>
+              <div class="catalog-card-actions">
+                <button class="btn btn-sm btn-secondary" data-action="edit-meta" data-section="${escapeHtml(item.section)}" data-tag="${escapeHtml(item.tag || '')}" data-order="${item.display_order}">⚙ Meta</button>
+                <button class="btn btn-sm btn-danger" data-action="delete-item" data-section="${escapeHtml(item.section)}" data-title="${escapeHtml(titleField ? titleField.value_es : item.section)}">🗑 Eliminar</button>
+              </div>
+            </header>
+
+            <div class="catalog-card-body">
+              ${fields.filter(f => !/\.(m|li)\d+$/.test(f.i18n_key)).map(f => `
+                <div class="catalog-field">
+                  <div class="catalog-field-label">${escapeHtml(f.field_label || f.i18n_key)} <span class="content-field-key">${escapeHtml(f.i18n_key)}</span></div>
+                  <div class="catalog-field-grid">
+                    <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="es" rows="${f.value_es.length > 80 ? 3 : 1}" placeholder="ES">${escapeHtml(f.value_es)}</textarea>
+                    <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="en" rows="${f.value_en.length > 80 ? 3 : 1}" placeholder="EN">${escapeHtml(f.value_en)}</textarea>
+                  </div>
+                </div>
+              `).join('')}
+              ${itemsListHtml}
+            </div>
+
+            <footer class="catalog-card-foot">
+              <span class="content-action-status">Editado ${fmtAgo(item.updated_at)}</span>
+              <button class="btn btn-sm" data-action="save-card" data-section="${escapeHtml(item.section)}">Guardar cambios</button>
+            </footer>
+          </article>`;
+      }).join('');
+
+      document.getElementById('pane').innerHTML = `
+        <div class="catalog-toolbar">
+          <div>
+            <h2 class="content-section-title">${TAB_TITLES[catalogType]}</h2>
+            <p class="content-section-meta">${items.length} ${labelSingular.toLowerCase()}${items.length !== 1 ? 's' : ''}</p>
+          </div>
+          <button class="btn" id="add-catalog-item">+ Nuevo ${labelSingular.toLowerCase()}</button>
+        </div>
+        <div class="catalog-list">${cards || '<div class="state">Sin items. Agregá el primero.</div>'}</div>`;
+
+      // Wire actions
+      document.getElementById('add-catalog-item').addEventListener('click', () => promptCreateCatalog(typeKey));
+      document.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => handleCatalogAction(e, typeKey));
+      });
+    }
+
+    async function handleCatalogAction (e, typeKey) {
+      const btn = e.currentTarget;
+      const action = btn.dataset.action;
+      if (action === 'delete-item') {
+        const section = btn.dataset.section;
+        const title = btn.dataset.title;
+        if (!confirm(`¿Eliminar "${title}"? Esta acción no se puede deshacer.`)) return;
+        try {
+          await api(`/api/admin/catalog/section/${encodeURIComponent(section)}`, { method: 'DELETE' });
+          toast('Eliminado ✓', 'success');
+          renderActiveTab();
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
+      }
+      else if (action === 'save-card') {
+        const section = btn.dataset.section;
+        const card = document.querySelector(`.catalog-card[data-section="${section}"]`);
+        const inputs = card.querySelectorAll('[data-edit-key]');
+        const grouped = {};
+        inputs.forEach(i => {
+          const k = i.dataset.editKey, lang = i.dataset.lang;
+          if (!grouped[k]) grouped[k] = { i18n_key: k };
+          grouped[k]['value_' + lang] = i.value;
+        });
+        const changes = Object.values(grouped);
+        btn.disabled = true; btn.textContent = 'Guardando…';
+        try {
+          await api('/api/admin/content/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
+          toast('Guardado ✓', 'success');
+          renderActiveTab();
+        } catch (err) {
+          toast('Error: ' + err.message, 'error');
+          btn.disabled = false; btn.textContent = 'Guardar cambios';
+        }
+      }
+      else if (action === 'add-item') {
+        const section = btn.dataset.section;
+        try {
+          await api(`/api/admin/catalog/section/${encodeURIComponent(section)}/items`, {
+            method: 'POST', body: JSON.stringify({ value_es: '', value_en: '' })
+          });
+          toast('Ítem agregado', 'success');
+          renderActiveTab();
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
+      }
+      else if (action === 'remove-item') {
+        const key = btn.dataset.key;
+        if (!confirm('¿Eliminar este ítem?')) return;
+        try {
+          await api(`/api/admin/catalog/items/${encodeURIComponent(key)}`, { method: 'DELETE' });
+          toast('Eliminado', 'success');
+          renderActiveTab();
+        } catch (err) { toast('Error: ' + err.message, 'error'); }
+      }
+      else if (action === 'edit-meta') {
+        const section = btn.dataset.section;
+        const tag = btn.dataset.tag;
+        const order = btn.dataset.order;
+        promptEditMeta(section, tag, order);
+      }
+    }
+
+    function promptCreateCatalog (typeKey) {
+      const labelSingular = typeKey === 'program' ? 'programa' : (typeKey === 'servicio' ? 'servicio' : 'fase');
+      openModal(`Nuevo ${labelSingular}`, `
+        <div class="field">
+          <label class="label">Tag (opcional, ej: FOUNDATIONS, GROWTH)</label>
+          <input class="input" id="new-tag" placeholder="${typeKey === 'program' ? 'FOUNDATIONS' : typeKey === 'servicio' ? 'STRATEGY' : ''}">
+        </div>
+        <div class="field">
+          <label class="label">Título inicial · ES</label>
+          <input class="input" id="new-title-es" placeholder="Nombre del ${labelSingular}">
+        </div>
+        <div class="field">
+          <label class="label">Título inicial · EN</label>
+          <input class="input" id="new-title-en" placeholder="${labelSingular} name">
+        </div>
+        <p style="font-size:12px;color:var(--piedra);margin-top:8px;">Después de crear podés llenar el resto de campos.</p>
+      `, [
+        { label: 'Cancelar', variant: 'secondary', onClick: closeModal },
+        { label: 'Crear', onClick: async (b) => {
+            b.disabled = true;
+            try {
+              await api(`/api/admin/catalog/${typeKey}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                  tag: document.getElementById('new-tag').value.trim() || null,
+                  defaults_es: { h: document.getElementById('new-title-es').value.trim() },
+                  defaults_en: { h: document.getElementById('new-title-en').value.trim() }
+                })
+              });
+              toast('Creado ✓', 'success');
+              closeModal();
+              renderActiveTab();
+            } catch (err) { toast('Error: ' + err.message, 'error'); b.disabled = false; }
+        }}
+      ]);
+    }
+
+    function promptEditMeta (section, currentTag, currentOrder) {
+      openModal(`Metadata · ${section}`, `
+        <div class="field">
+          <label class="label">Tag</label>
+          <input class="input" id="meta-tag" value="${escapeHtml(currentTag)}">
+        </div>
+        <div class="field">
+          <label class="label">Orden</label>
+          <input class="input" type="number" id="meta-order" value="${currentOrder}" min="1">
+        </div>
+      `, [
+        { label: 'Cancelar', variant: 'secondary', onClick: closeModal },
+        { label: 'Guardar', onClick: async (b) => {
+            b.disabled = true;
+            try {
+              await api(`/api/admin/catalog/section/${encodeURIComponent(section)}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                  tag: document.getElementById('meta-tag').value.trim() || null,
+                  display_order: parseInt(document.getElementById('meta-order').value, 10) || 0
+                })
+              });
+              toast('Metadata actualizada', 'success');
+              closeModal();
+              renderActiveTab();
+            } catch (err) { toast('Error: ' + err.message, 'error'); b.disabled = false; }
+        }}
+      ]);
+    }
+
+    // ============================================================
+    // CONTENIDO GENERAL VIEW (i18n editor para nav, hero, tesis, etc)
+    // ============================================================
+    async function renderContenido () {
+      const data = await api('/api/admin/content');
+      const sections = data.sections || {};
+      const allowedKeys = CONTENT_SECTIONS.map(s => s.key);
+
+      const sidebarHtml = CONTENT_SECTIONS.map(s => {
+        const has = !!sections[s.key];
+        return `<li><button type="button" class="section-btn" data-content-section="${escapeHtml(s.key)}" ${!has ? 'disabled' : ''}>${escapeHtml(s.title)}</button></li>`;
+      }).join('');
+
+      document.getElementById('pane').innerHTML = `
+        <div class="content-shell">
+          <aside class="content-sidebar">
+            <h4>Secciones</h4>
+            <ul>${sidebarHtml}</ul>
+          </aside>
+          <section class="content-pane-inner" id="contenido-pane">
+            <div class="state">Elegí una sección a la izquierda.</div>
+          </section>
+        </div>`;
+
+      // Estado dirty para Contenido
+      const dirty = {};
+      document.querySelectorAll('button[data-content-section]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('button[data-content-section]').forEach(b => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          renderContenidoSection(btn.dataset.contentSection, sections, dirty);
+        });
+      });
+
+      // Auto-seleccionar la primera
+      const firstAvail = CONTENT_SECTIONS.find(s => sections[s.key]);
+      if (firstAvail) {
+        document.querySelector(`button[data-content-section="${firstAvail.key}"]`).click();
+      }
+    }
+
+    function renderContenidoSection (sectionKey, allSections, dirty) {
+      const fields = allSections[sectionKey] || [];
+      const meta = CONTENT_SECTIONS.find(s => s.key === sectionKey) || { title: sectionKey };
+
+      const fieldsHtml = fields.map(f => {
+        const dirtyVal = dirty[f.i18n_key];
+        const valEs = dirtyVal ? dirtyVal.value_es : f.value_es;
+        const valEn = dirtyVal ? dirtyVal.value_en : f.value_en;
+        const isLong = (f.value_es && f.value_es.length > 60) || f.value_type === 'html';
+        return `
+          <div class="content-field ${dirtyVal ? 'is-dirty' : ''}" data-key="${escapeHtml(f.i18n_key)}">
             <div class="content-field-header">
               <span class="content-field-label">${escapeHtml(f.field_label || f.i18n_key)}</span>
               <span class="content-field-key">${escapeHtml(f.i18n_key)}</span>
-              ${typeBadge}
-              ${dirtyBadge}
+              <span class="content-field-type ${f.value_type === 'html' ? 'is-html' : ''}">${f.value_type === 'html' ? 'HTML' : 'Texto'}</span>
             </div>
             <div class="content-field-grid">
               <div class="content-field-lang">
                 <span class="content-field-lang-label">ES</span>
-                ${inputEs}
+                ${isLong
+                  ? `<textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="es" rows="${Math.min(6, Math.max(2, Math.ceil(valEs.length / 60)))}">${escapeHtml(valEs)}</textarea>`
+                  : `<input type="text" data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="es" value="${escapeHtml(valEs)}">`}
               </div>
               <div class="content-field-lang">
                 <span class="content-field-lang-label">EN</span>
-                ${inputEn}
+                ${isLong
+                  ? `<textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="en" rows="${Math.min(6, Math.max(2, Math.ceil(valEn.length / 60)))}">${escapeHtml(valEn)}</textarea>`
+                  : `<input type="text" data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="en" value="${escapeHtml(valEn)}">`}
               </div>
             </div>
-            <div class="content-field-meta">${f.value_type === 'html' ? 'Admite tags HTML como &lt;em&gt;texto&lt;/em&gt; · ' : ''}Editado ${fmtAgo(f.updated_at)}${f.updated_by && f.updated_by !== 'system' ? ' por ' + escapeHtml(f.updated_by) : ''}</div>
           </div>`;
       }).join('');
 
-      const totalDirty = countDirty();
-      pane.innerHTML = `
-        <h2 class="content-section-title">${escapeHtml(meta.title)}</h2>
-        <div class="content-section-meta">${fields.length} ${fields.length === 1 ? 'campo' : 'campos'} · ${escapeHtml(key)}</div>
-        ${fieldsHtml || '<div class="state">Sin campos en esta sección.</div>'}
+      document.getElementById('contenido-pane').innerHTML = `
+        <h3 class="content-section-title">${escapeHtml(meta.title)}</h3>
+        <p class="content-section-meta">${fields.length} campo(s) · ${escapeHtml(sectionKey)}</p>
+        ${fieldsHtml}
         <div class="content-action-bar">
-          <span class="content-action-status" id="action-status">${totalDirty > 0 ? totalDirty + ' cambio(s) sin guardar' : 'Todo guardado'}</span>
-          <div style="display:flex;gap:var(--space-3);">
-            <button class="btn btn-secondary btn-sm" id="discard-btn" ${totalDirty === 0 ? 'disabled' : ''}>Descartar cambios</button>
-            <button class="btn btn-sm" id="save-btn" ${totalDirty === 0 ? 'disabled' : ''}>Guardar (${totalDirty})</button>
-          </div>
+          <span class="content-action-status" id="contenido-status">Sin cambios</span>
+          <button class="btn btn-sm" id="contenido-save" disabled>Guardar (0)</button>
         </div>`;
 
       // Wire inputs
-      pane.querySelectorAll('[data-key]').forEach(input => {
-        if (input.tagName !== 'INPUT' && input.tagName !== 'TEXTAREA') return;
+      document.querySelectorAll('#contenido-pane [data-edit-key]').forEach(input => {
         input.addEventListener('input', () => {
-          const k = input.dataset.key;
-          const lang = input.dataset.lang;
-          const original = (state.sections[state.currentSection] || []).find(f => f.i18n_key === k);
+          const k = input.dataset.editKey, lang = input.dataset.lang;
+          const original = fields.find(f => f.i18n_key === k);
           if (!original) return;
-
-          if (!state.dirty[k]) state.dirty[k] = { value_es: original.value_es, value_en: original.value_en };
-          state.dirty[k][`value_${lang}`] = input.value;
-
-          // Si volvió al original, sacar de dirty
-          if (state.dirty[k].value_es === original.value_es && state.dirty[k].value_en === original.value_en) {
-            delete state.dirty[k];
-          }
-
-          updateDirtyUI();
+          if (!dirty[k]) dirty[k] = { value_es: original.value_es, value_en: original.value_en };
+          dirty[k]['value_' + lang] = input.value;
+          if (dirty[k].value_es === original.value_es && dirty[k].value_en === original.value_en) delete dirty[k];
+          updateContenidoStatus(dirty);
+          input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
         });
       });
 
-      pane.querySelector('#save-btn').addEventListener('click', saveDirty);
-      pane.querySelector('#discard-btn').addEventListener('click', discardDirty);
-    }
-
-    function countDirty () { return Object.keys(state.dirty).length; }
-
-    function updateDirtyUI () {
-      const total = countDirty();
-      const status = document.getElementById('action-status');
-      const saveBtn = document.getElementById('save-btn');
-      const discardBtn = document.getElementById('discard-btn');
-      if (status) status.textContent = total > 0 ? total + ' cambio(s) sin guardar' : 'Todo guardado';
-      if (saveBtn) {
-        saveBtn.textContent = 'Guardar (' + total + ')';
-        saveBtn.disabled = total === 0;
-      }
-      if (discardBtn) discardBtn.disabled = total === 0;
-
-      // Marcar field rows como dirty
-      document.querySelectorAll('.content-field[data-key]').forEach(row => {
-        const k = row.dataset.key;
-        if (state.dirty[k]) row.classList.add('is-dirty');
-        else row.classList.remove('is-dirty');
+      document.getElementById('contenido-save').addEventListener('click', async () => {
+        const changes = Object.entries(dirty).map(([k, v]) => ({ i18n_key: k, value_es: v.value_es, value_en: v.value_en }));
+        if (!changes.length) return;
+        const btn = document.getElementById('contenido-save');
+        btn.disabled = true; btn.textContent = 'Guardando…';
+        try {
+          await api('/api/admin/content/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
+          toast(`✓ ${changes.length} cambio(s) guardado(s)`, 'success');
+          // Update local state
+          for (const c of changes) {
+            const f = fields.find(x => x.i18n_key === c.i18n_key);
+            if (f) { f.value_es = c.value_es; f.value_en = c.value_en; }
+            delete dirty[c.i18n_key];
+          }
+          renderContenidoSection(sectionKey, allSections, dirty);
+        } catch (err) { toast('Error: ' + err.message, 'error'); btn.disabled = false; btn.textContent = 'Reintentar'; }
       });
-      // Refrescar sidebar (dirty dots)
-      renderSidebar();
     }
 
-    async function saveDirty () {
-      const changes = Object.entries(state.dirty).map(([i18n_key, v]) => ({
-        i18n_key,
-        value_es: v.value_es,
-        value_en: v.value_en
-      }));
-      if (!changes.length) return;
+    function updateContenidoStatus (dirty) {
+      const total = Object.keys(dirty).length;
+      const status = document.getElementById('contenido-status');
+      const btn = document.getElementById('contenido-save');
+      if (status) status.textContent = total > 0 ? `${total} cambio(s) sin guardar` : 'Sin cambios';
+      if (btn) { btn.disabled = total === 0; btn.textContent = `Guardar (${total})`; }
+    }
 
-      const btn = document.getElementById('save-btn');
-      btn.disabled = true;
-      btn.textContent = 'Guardando…';
+    // ============================================================
+    // CTA FINAL VIEW
+    // ============================================================
+    async function renderCTA () {
+      const data = await api('/api/admin/content');
+      const fields = (data.sections && data.sections['cta']) || [];
+      const dirty = {};
 
+      const fieldsHtml = fields.map(f => `
+        <div class="content-field" data-key="${escapeHtml(f.i18n_key)}">
+          <div class="content-field-header">
+            <span class="content-field-label">${escapeHtml(f.field_label)}</span>
+            <span class="content-field-key">${escapeHtml(f.i18n_key)}</span>
+            <span class="content-field-type ${f.value_type === 'html' ? 'is-html' : ''}">${f.value_type === 'html' ? 'HTML' : 'Texto'}</span>
+          </div>
+          <div class="content-field-grid">
+            <div class="content-field-lang">
+              <span class="content-field-lang-label">ES</span>
+              <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="es" rows="3">${escapeHtml(f.value_es)}</textarea>
+            </div>
+            <div class="content-field-lang">
+              <span class="content-field-lang-label">EN</span>
+              <textarea data-edit-key="${escapeHtml(f.i18n_key)}" data-lang="en" rows="3">${escapeHtml(f.value_en)}</textarea>
+            </div>
+          </div>
+        </div>`).join('');
+
+      document.getElementById('pane').innerHTML = `
+        <h2 class="content-section-title">CTA Final</h2>
+        <p class="content-section-meta">El bloque de "Diseñemos juntos…" antes del formulario.</p>
+        ${fieldsHtml}
+        <div class="content-action-bar">
+          <span class="content-action-status" id="cta-status">Sin cambios</span>
+          <button class="btn btn-sm" id="cta-save" disabled>Guardar (0)</button>
+        </div>`;
+
+      document.querySelectorAll('#pane [data-edit-key]').forEach(input => {
+        input.addEventListener('input', () => {
+          const k = input.dataset.editKey, lang = input.dataset.lang;
+          const original = fields.find(f => f.i18n_key === k);
+          if (!original) return;
+          if (!dirty[k]) dirty[k] = { value_es: original.value_es, value_en: original.value_en };
+          dirty[k]['value_' + lang] = input.value;
+          if (dirty[k].value_es === original.value_es && dirty[k].value_en === original.value_en) delete dirty[k];
+          const total = Object.keys(dirty).length;
+          document.getElementById('cta-status').textContent = total > 0 ? `${total} cambio(s)` : 'Sin cambios';
+          const btn = document.getElementById('cta-save');
+          btn.disabled = total === 0; btn.textContent = `Guardar (${total})`;
+          input.closest('.content-field').classList.toggle('is-dirty', !!dirty[k]);
+        });
+      });
+
+      document.getElementById('cta-save').addEventListener('click', async () => {
+        const changes = Object.entries(dirty).map(([k, v]) => ({ i18n_key: k, value_es: v.value_es, value_en: v.value_en }));
+        if (!changes.length) return;
+        const btn = document.getElementById('cta-save');
+        btn.disabled = true; btn.textContent = 'Guardando…';
+        try {
+          await api('/api/admin/content/bulk', { method: 'PATCH', body: JSON.stringify({ changes }) });
+          toast('Guardado ✓', 'success');
+          renderActiveTab();
+        } catch (err) { toast('Error: ' + err.message, 'error'); btn.disabled = false; btn.textContent = 'Reintentar'; }
+      });
+    }
+
+    // ============================================================
+    // Boot
+    // ============================================================
+    async function checkAuth () {
       try {
-        const res = await api('/api/admin/content/bulk', {
-          method: 'PATCH',
-          body: JSON.stringify({ changes })
-        });
-        toast(`✓ ${res.updated} cambio(s) guardado(s). La landing se actualiza en <1 min.`, 'success', 6000);
-        // Actualizar el state.sections con los nuevos valores y limpiar dirty
-        for (const c of changes) {
-          for (const sectionKey of Object.keys(state.sections)) {
-            const f = state.sections[sectionKey].find(x => x.i18n_key === c.i18n_key);
-            if (f) {
-              f.value_es = c.value_es;
-              f.value_en = c.value_en;
-              f.updated_at = new Date().toISOString();
-            }
-          }
-        }
-        state.dirty = {};
-        renderPane();
-      } catch (err) {
-        toast('Error: ' + err.message, 'error');
-        btn.disabled = false;
-        btn.textContent = 'Reintentar';
-      }
+        const res = await fetch('/api/admin/me', { credentials: 'same-origin' });
+        if (!res.ok) { window.location.replace('/admin/login'); return null; }
+        return await res.json();
+      } catch { window.location.replace('/admin/login'); return null; }
     }
 
-    function discardDirty () {
-      if (!confirm('¿Descartar todos los cambios sin guardar?')) return;
-      state.dirty = {};
-      renderPane();
-    }
-
-    // ---------- Logout ----------
-    function wireLogout () {
-      document.getElementById('logout-btn').addEventListener('click', async () => {
-        try { await api('/api/admin/logout', { method: 'POST' }); } catch {}
-        window.location.replace('/admin/login');
-      });
-    }
-
-    // Antes de salir de la página, advertir si hay cambios sin guardar
-    window.addEventListener('beforeunload', (e) => {
-      if (countDirty() > 0) { e.preventDefault(); e.returnValue = ''; }
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      try { await api('/api/admin/logout', { method: 'POST' }); } catch {}
+      window.location.replace('/admin/login');
     });
 
-    // ---------- Boot ----------
     (async function () {
       const me = await checkAuth();
       if (!me) return;
       document.getElementById('user-email').textContent = me.email;
-      wireLogout();
-      await loadAll();
+      if (!window.location.hash) window.location.hash = '#programs';
+      renderActiveTab();
     })();
   </script>
 </body>
