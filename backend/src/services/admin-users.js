@@ -9,7 +9,8 @@ const RESET_TOKEN_EXPIRY_MIN = 30;
 export async function findByEmail (email) {
   if (!email) return null;
   const { rows } = await query(
-    `SELECT id, email, password_hash, password_reset_token_hash, password_reset_expires_at
+    `SELECT id, email, password_hash, password_reset_token_hash, password_reset_expires_at,
+            role, is_active, email_verified_at
      FROM admin_users WHERE LOWER(email) = LOWER($1)`,
     [email]
   );
