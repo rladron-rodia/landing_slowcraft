@@ -1065,7 +1065,7 @@
             <option value="viewer">Solo lectura · todas las pestañas en modo vista</option>
           </select>
         </div>
-        <p style="font-size:12px;color:var(--piedra);margin-top:8px;">Recibirá un email con link para activar la cuenta y configurar su contraseña.</p>
+        <p style="font-size:12px;color:var(--piedra);margin-top:8px;">Le enviamos un email con link para activar la cuenta. Si el email falla (sandbox de Resend, dominio no verificado, etc.) te mostramos el link directo para copiarlo.</p>
       `, [
         { label: 'Cancelar', variant: 'secondary', onClick: closeModal },
         { label: 'Invitar', onClick: async (b) => {
@@ -1074,12 +1074,53 @@
             if (!email) return toast('Email requerido', 'error');
             b.disabled = true; b.textContent = 'Enviando…';
             try {
-              await api('/api/admin/users', { method: 'POST', body: JSON.stringify({ email, role }) });
-              toast(`Invitación enviada a ${email}`, 'success', 5000);
-              closeModal(); renderActive();
+              const res = await api('/api/admin/users', { method: 'POST', body: JSON.stringify({ email, role }) });
+              closeModal();
+              showInvitationResult(email, res.verifyUrl, res.emailStatus);
+              renderActive();
             } catch (err) { toast('Error: ' + err.message, 'error'); b.disabled = false; b.textContent = 'Invitar'; }
         }}
       ]);
+    }
+
+    // Modal post-invitación: muestra el link copiable + estado del email
+    function showInvitationResult (email, verifyUrl, emailStatus) {
+      const status = emailStatus || {};
+      const statusBlock = status.sent
+        ? `<div class="success-block" style="display:block;background:rgba(74,107,92,0.10);border-left:3px solid var(--success);">
+             ✓ Email enviado a <strong>${escapeHtml(email)}</strong>. Revisá inbox + spam.
+           </div>`
+        : `<div class="form-error is-visible" style="margin-bottom:var(--space-3);">
+             ⚠ El email <strong>no</strong> pudo enviarse${status.error ? ': <code style="font-size:11px;">' + escapeHtml(status.error) + '</code>' : '.'}
+             <br><br>Causa más probable: estás en sandbox de Resend (CONTACT_FROM_EMAIL = onboarding@resend.dev), que solo deja enviar al email registrado en tu cuenta Resend. Para enviar a otros emails, verificá tu dominio en Resend.
+           </div>`;
+
+      openModal('Invitación creada', `
+        ${statusBlock}
+        <p style="font-size:13px;color:var(--piedra);margin-bottom:var(--space-2);">Mandale este link al usuario manualmente (expira en 48h):</p>
+        <div style="display:flex;gap:8px;">
+          <input type="text" class="input" id="copy-link" value="${escapeHtml(verifyUrl)}" readonly style="font-family:var(--mono);font-size:11px;">
+          <button class="btn btn-sm btn-secondary" id="copy-btn" type="button">Copiar</button>
+        </div>
+        <p style="font-size:11px;color:var(--piedra);margin-top:var(--space-3);">Cuando el usuario abra el link, define su contraseña y queda activo.</p>
+      `, [
+        { label: 'Cerrar', onClick: closeModal }
+      ]);
+
+      const linkInput = document.getElementById('copy-link');
+      const copyBtn = document.getElementById('copy-btn');
+      copyBtn.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(linkInput.value);
+          copyBtn.textContent = '✓ Copiado';
+          setTimeout(() => { copyBtn.textContent = 'Copiar'; }, 2000);
+        } catch {
+          linkInput.select();
+          document.execCommand('copy');
+          copyBtn.textContent = '✓ Copiado';
+          setTimeout(() => { copyBtn.textContent = 'Copiar'; }, 2000);
+        }
+      });
     }
 
     async function handleUserAction (ev) {
@@ -1095,8 +1136,11 @@
       }
       else if (action === 'resend') {
         try {
-          await api(`/api/admin/users/${id}/resend-invitation`, { method: 'POST' });
-          toast('Invitación reenviada', 'success');
+          const res = await api(`/api/admin/users/${id}/resend-invitation`, { method: 'POST' });
+          // Buscar el email del user en la fila
+          const row = el.closest('tr');
+          const userEmail = row ? row.querySelector('strong').textContent : 'usuario';
+          showInvitationResult(userEmail, res.verifyUrl, res.emailStatus);
         } catch (err) { toast('Error: ' + err.message, 'error'); }
       }
       else if (action === 'toggle-active') {

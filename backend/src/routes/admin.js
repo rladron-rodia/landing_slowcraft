@@ -538,19 +538,28 @@ router.post('/users', requireAuth, requireRole(['master_admin']), async (req, re
       role,
       createdBy: req.session.email
     });
-    // Enviar email de invitación
+
+    // Construir verifyUrl absoluto (siempre, aunque el email falle)
     const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
     const verifyUrl = `${baseUrl.replace(/\/$/, '')}/admin/verify?token=${rawToken}`;
+
+    // Intentar envío vía Resend
+    let emailStatus = { sent: false, error: null };
     try {
       await sendInvitationEmail({
         email: user.email, role: user.role, verifyUrl,
         expiresInHours: 48, invitedBy: req.session.email
       });
+      emailStatus.sent = true;
+      console.log(`[users/invite] email enviado a ${user.email}`);
     } catch (mailErr) {
-      console.error('[users/invite] email falló:', mailErr.message);
-      // El user ya quedó creado; el master_admin puede reenviar la invitación
+      const msg = String(mailErr.message || mailErr);
+      emailStatus.error = msg.slice(0, 300);
+      console.error(`[users/invite] email a ${user.email} FALLÓ:`, msg);
     }
-    res.json({ ok: true, user });
+
+    // Devolvemos el verifyUrl siempre — si el email falló, el master_admin lo copia y manda manual
+    res.json({ ok: true, user, verifyUrl, emailStatus });
   } catch (err) {
     console.error('[users invite]', err);
     res.status(400).json({ error: err.message });
@@ -589,10 +598,18 @@ router.post('/users/:id/resend-invitation', requireAuth, requireRole(['master_ad
     const { email, rawToken } = await resendInvitation(id);
     const baseUrl = process.env.APP_BASE_URL || `${req.protocol}://${req.get('host')}`;
     const verifyUrl = `${baseUrl.replace(/\/$/, '')}/admin/verify?token=${rawToken}`;
-    await sendInvitationEmail({
-      email, role: 'admin', verifyUrl, expiresInHours: 48, invitedBy: req.session.email
-    });
-    res.json({ ok: true });
+    let emailStatus = { sent: false, error: null };
+    try {
+      await sendInvitationEmail({
+        email, role: 'admin', verifyUrl, expiresInHours: 48, invitedBy: req.session.email
+      });
+      emailStatus.sent = true;
+      console.log(`[users/resend] email enviado a ${email}`);
+    } catch (mailErr) {
+      emailStatus.error = String(mailErr.message || mailErr).slice(0, 300);
+      console.error(`[users/resend] email a ${email} FALLÓ:`, emailStatus.error);
+    }
+    res.json({ ok: true, verifyUrl, emailStatus });
   } catch (err) { res.status(400).json({ error: err.message }); }
 });
 
