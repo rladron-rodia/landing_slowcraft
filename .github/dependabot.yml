@@ -1,0 +1,76 @@
+version: 2
+
+updates:
+  # GitHub Actions — semanal
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+      include: scope
+
+  # Backend npm — semanal
+  - package-ecosystem: npm
+    directory: /backend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    groups:
+      backend-dev-deps:
+        dependency-type: development
+      backend-prod-deps:
+        dependency-type: production
+        update-types:
+          - patch
+          - minor
+
+  # Root npm (commitlint, husky, etc.) — semanal
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Mexico_City
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+      include: scope
+
+  # Template Next.js — habilitar cuando exista template-next/package.json
+  # - package-ecosystem: npm
+  #   directory: /template-next
+  #   schedule:
+  #     interval: weekly
+  #     day: monday
+  #     time: "09:00"
+  #     timezone: America/Mexico_City
+  #   open-pull-requests-limit: 10
+  #   commit-message:
+  #     prefix: chore
+  #     include: scope
+  #   groups:
+  #     next-ecosystem:
+  #       patterns:
+  #         - "next"
+  #         - "react"
+  #         - "react-dom"
+  #         - "@next/*"
+  #     tailwind-ecosystem:
+  #       patterns:
+  #         - "tailwindcss"
+  #         - "@tailwindcss/*"
+  #         - "postcss"
+  #         - "autoprefixer"

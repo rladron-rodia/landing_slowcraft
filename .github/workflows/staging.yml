@@ -1,0 +1,22 @@
+name: staging
+
+# Stub workflow — Fase C/D.
+# Deploya a staging environment al merge a un branch `develop` o similar.
+# El landing actual no tiene staging — se puede agregar como sub-app.
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  staging:
+    name: deploy staging
+    runs-on: ubuntu-latest
+    if: hashFiles('template-next/package.json') != ''
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: TODO
+        run: |
+          echo "Staging deploy se implementa en Fase C/D."
+          echo "Requiere: branch develop + Cloudflare Pages staging project + DB staging."

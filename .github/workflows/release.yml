@@ -1,0 +1,42 @@
+name: release
+
+# Stub workflow — Fase E.
+# Semantic Release: lee Conventional Commits del merge a main, calcula bump
+# (major/minor/patch), genera tag + entrada en CHANGELOG + GitHub Release.
+#
+# Para activar:
+# 1. Agregar a devDependencies (root package.json):
+#      semantic-release
+#      @semantic-release/changelog
+#      @semantic-release/git
+#      @semantic-release/github
+# 2. Crear .releaserc.json con la config.
+# 3. Quitar el `if: false` del step de release.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  release:
+    name: semantic-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: install root deps
+        run: npm install
+      - name: semantic-release
+        if: false   # ← quitar cuando .releaserc.json + deps estén listos
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
