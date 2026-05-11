@@ -3,9 +3,9 @@
 Landing page bilingüe de **Slowcraft** (Strategy & Programs · IA deliberadamente diseñada) + sistema de administración completo (CMS bilingüe + dashboard de leads + configuración de analytics).
 
 **Live:**
-- Landing: [rladron-rodia.github.io/landing_slowcraft](https://rladron-rodia.github.io/landing_slowcraft/)
-- API: [slowcraft-api.onrender.com](https://slowcraft-api.onrender.com/healthz)
-- Admin: [slowcraft-api.onrender.com/admin](https://slowcraft-api.onrender.com/admin)
+- Landing: [slowcraft.ai](https://slowcraft.ai/) (origen GitHub Pages)
+- API: [api.slowcraft.ai](https://api.slowcraft.ai/healthz) (origen Render)
+- Admin: [api.slowcraft.ai/admin](https://api.slowcraft.ai/admin) (origen Render)
 
 ## Arquitectura
 
@@ -143,7 +143,7 @@ python3 -m http.server 8000
 # abrir http://localhost:8000
 ```
 
-Por defecto la landing apunta a la API de producción (`https://slowcraft-api.onrender.com`). Para apuntar a backend local, en el `<script>` antes del bundle principal cambiá:
+Por defecto la landing apunta a la API de producción (`https://api.slowcraft.ai`). Para apuntar a backend local, en el `<script>` antes del bundle principal cambiá:
 
 ```html
 <script>window.SLOWCRAFT_FORM_ENDPOINT = 'http://localhost:8080/api/contact';</script>

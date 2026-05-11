@@ -49,6 +49,10 @@ template-next/.env.production.local
 monou-vars.sh
 *.local.sh
 
+# --- Artefactos de migración / sed (no commitear) ---
+*.tmp
+*.bak.*
+
 # --- Build outputs del Template ---
 template-next/out/
 template-next/.next/
