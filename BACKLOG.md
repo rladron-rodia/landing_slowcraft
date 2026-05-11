@@ -23,18 +23,21 @@ Pendientes y mejoras futuras.
   - Implementación sugerida en fases: (a) widget UI mock, (b) backend que reenvía a un humano vía email, (c) integración WA Business API, (d) capa LLM.
 - **True self-hosting de fuentes** — actualmente jsdelivr CDN (sin Google tracking). Para 100% offline-capable, correr `bash scripts/download-fonts.sh` (descarga 8 .woff2 a `/fonts/`), después actualizar `index.html` para usar paths relativos `fonts/{file}.woff2`, eliminar `<link rel='preload'>` y `<link rel='preconnect'>` apuntando a jsdelivr, commit + push.
 
-## Producción
+## Follow-ups inmediatos (post v0.14.0)
 
-- **Configurar dominio real `slowcraft.ai`:**
-  - Migrar DNS de GoDaddy a Cloudflare (recomendado).
-  - Apex `slowcraft.ai` → A records de GitHub Pages.
-  - `www.slowcraft.ai` → CNAME a `rladron-rodia.github.io`.
-  - `api.slowcraft.ai` → CNAME a `api.slowcraft.ai` (custom domain en Render).
-  - Verificar dominio en Resend (TXT/MX records).
-  - En Render Environment: cambiar `CONTACT_FROM_EMAIL` → `Slowcraft <noreply@slowcraft.ai>`, `CONTACT_TO_EMAIL` → `hola@slowcraft.ai`, `APP_BASE_URL` → `https://api.slowcraft.ai`, agregar dominio nuevo a `ALLOWED_ORIGINS`.
-  - En `index.html` actualizar `window.SLOWCRAFT_FORM_ENDPOINT` → `https://api.slowcraft.ai/api/contact`.
-  - Archivo `CNAME` en raíz del repo con `slowcraft.ai`.
-  - Tag `v1.0.0` cuando esté en producción real.
+- **Soportar multi-destinatario en `CONTACT_TO_EMAIL`** — `backend/src/email.js` línea 105 hoy hace `to: process.env.CONTACT_TO_EMAIL` y pasa el string raw. Cambiar a `to: process.env.CONTACT_TO_EMAIL.split(',').map(s => s.trim()).filter(Boolean)` para permitir `hola@slowcraft.ai, rladron@gmail.com`. Tag sugerido `v0.14.1`.
+- **Montar inbox `hola@slowcraft.ai`** — Resend solo envía, no recibe. Opciones: Google Workspace (~$6/mes), Zoho (free 5 usuarios), Fastmail (~$3/mes). Agregar MX records de recepción en GoDaddy, crear el usuario, y reapuntar `CONTACT_TO_EMAIL` (después del multi-destinatario, idealmente a `hola@slowcraft.ai` + `rladron@gmail.com`).
+- **Auto warm-up de Render free tier** — `/healthz` cada 14 min vía cron-job.org o GitHub Actions schedule.
+
+## Producción — Fase C (cutover a Next.js)
+
+Activación del dominio terminada en `v0.14.0`. Lo siguiente es cambiar el origen público de GitHub Pages (`index.html` legacy) a Cloudflare Pages (`template-next/`):
+
+- Preview de `template-next/` en Cloudflare Pages → `template-next.pages.dev`.
+- Validar paridad visual contra `slowcraft.ai` (Lighthouse ≥ 95, form end-to-end, dataLayer events idénticos).
+- Reapuntar los 4 A records del apex de GitHub Pages a Cloudflare Pages (cuando se migre DNS a Cloudflare; o seguir en GoDaddy si quieres).
+- 14 días de monitoreo con GitHub Pages como fallback.
+- Tag `v1.0.0`.
 
 ## Polish operacional (Fase 4)
 
@@ -72,3 +75,4 @@ Pendientes y mejoras futuras.
 - ✅ v0.12.0 — Sistema de usuarios y roles (master_admin/admin/viewer/content/commercial) + invitación por email con verificación + tab Usuarios + tab Analítica con propuesta de dashboards + role-based UI filtering + read-only mode
 - ✅ v0.13.0 — Rol `agente` + asignación de leads a agente + tab Analítica con charts reales (leads/período, motivo, status, performance por agente) + filtros por agente + Chart.js dinámico
 - ✅ v0.13.1 — Mobile-first admin: top nav y sub-tabs swipeables, tablas con scroll horizontal sangrado al borde, charts apilan en mobile, drawer/modal/forms adaptados, breakpoint extra ≤480px
+- ✅ v0.14.0 — Activación de dominio `slowcraft.ai` (apex + www + api) con SSL Let's Encrypt en GitHub Pages, custom domain en Render para api, Resend verified (DKIM+SPF+MX). Fase A + Fase B mergeadas (Conventional Commits, commitlint, husky, gitleaks, GitHub Actions, `platform-docs/`, `template-next/` Next.js 15 + TS + Tailwind v4 scaffold completo). `CONTACT_TO_EMAIL=rladron@gmail.com` temporal hasta montar inbox `hola@slowcraft.ai`.
