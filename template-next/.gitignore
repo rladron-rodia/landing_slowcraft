@@ -1,0 +1,21 @@
+# Next.js
+.next/
+out/
+next-env.d.ts
+
+# pnpm
+node_modules/
+.pnpm-store/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+*.log
