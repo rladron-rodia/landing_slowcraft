@@ -40,8 +40,21 @@ build/
 .env.local
 .env.*.local
 backend/.env
+template-next/.env.local
+template-next/.env.production.local
 *.pem
 *.key
+
+# --- Local dev scripts (no commitear) ---
+monou-vars.sh
+*.local.sh
+
+# --- Build outputs del Template ---
+template-next/out/
+template-next/.next/
+
+# --- pnpm ---
+.pnpm-store/
 
 # --- Logs ---
 *.log
