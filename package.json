@@ -1,0 +1,28 @@
+{
+  "name": "landing-slowcraft-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Producto #001 (Landing_Site) — root del repo (legacy index.html + backend/ + template-next/ futuro)",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "commit": "cz",
+    "commitlint": "commitlint --edit",
+    "gitleaks": "gitleaks protect --staged --verbose --redact"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  }
+}

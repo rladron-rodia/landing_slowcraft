@@ -1,0 +1,167 @@
+{
+  "nav": {
+    "metodo": "Method",
+    "strategy": "Strategy",
+    "programs": "Programs",
+    "sobre": "About",
+    "cta": "Let's talk"
+  },
+  "hero": {
+    "eyebrow": "SLOWCRAFT · AI STRATEGY · MEXICO",
+    "h1": "AI is the right hand of <em>human talent.</em>",
+    "p": "We design the workflows where your team and artificial intelligence each do what they do best. No replacements. No shortcuts. With judgment.",
+    "cta": "Schedule a conversation",
+    "metaText": "\"AI Strategy, deliberately designed.\""
+  },
+  "tesis": {
+    "eyebrow": "01 · OUR THESIS",
+    "h2": "AI doesn't replace humans. <em>It amplifies them.</em> Humans don't slow AI down. They direct it. Slowcraft designs that collaboration.",
+    "b1": "Artificial intelligence is the most powerful copilot in history. But a copilot without a pilot who knows the destination doesn't get far.",
+    "b2": "The mistake isn't adopting AI late. It's adopting it without design. The companies that will win this decade are the ones that designed best how they work with it.",
+    "b3": "Your team and AI are your two most valuable resources. Our job is to design how they shake hands so both do what they do best."
+  },
+  "metodo": {
+    "eyebrow": "02 · HOW WE WORK",
+    "h2": "Three phases. One architecture. Measurable results.",
+    "f1": {
+      "h": "Diagnosis",
+      "p": "We map how your company works today. We identify where AI can be a powerful copilot for your team — and where it's better not to touch anything yet."
+    },
+    "f2": {
+      "h": "Architecture",
+      "p": "We design human–AI workflows with purpose. We define what the machine does best, what people do best, and how they complement each other at every step."
+    },
+    "f3": {
+      "h": "Implementation",
+      "p": "We integrate the right tools, train the team, and measure real results. We stay until the system works in sync."
+    }
+  },
+  "serv": {
+    "eyebrow": "03 · STRATEGY",
+    "h2": "Architecture engagements.",
+    "intro": "For companies that want to rethink how they work with AI. Transformational projects, with scope open to diagnosis. Three types.",
+    "items": [
+      {
+        "h": "AI Readiness",
+        "p": "Strategic diagnosis for companies that want to enter the AI era well. Without wasting capital or time.",
+        "list": ["Audit of current processes", "12-month adoption roadmap", "Prioritized use cases"]
+      },
+      {
+        "h": "Workflow Architecture",
+        "p": "Detailed design of human–AI workflows for critical areas: marketing, operations, sales, customer service.",
+        "list": ["Process mapping", "Human-AI handoff design", "Tool specification"]
+      },
+      {
+        "h": "Implementation Partner",
+        "p": "We accompany end-to-end implementation. We stay until the system works and the team operates it with confidence.",
+        "list": ["Technical integration", "Team training", "Outcome measurement"]
+      }
+    ]
+  },
+  "programs": {
+    "eyebrow": "04 · PROGRAMS",
+    "h2": "Continuous programs.",
+    "intro": "For companies that want sustained improvement in how they work with AI. Monthly commitment, scalable.",
+    "items": [
+      {
+        "h": "AI Office Hours",
+        "p": "Monthly access to our team to resolve strategic questions, review implementations, and unblock initiatives.",
+        "modules": ["2 sessions / month", "Implementation reviews", "Async access"]
+      },
+      {
+        "h": "Embedded Strategist",
+        "p": "A Slowcraft consultant working embedded with your team. For companies in active transformation.",
+        "modules": ["20-40 hrs / month", "Working groups", "Monthly reports"]
+      }
+    ]
+  },
+  "principios": {
+    "eyebrow": "05 · HOW WE THINK",
+    "items": [
+      {
+        "h": "Slow and deliberate",
+        "p": "AI adoption is not a race. Quick decisions today are the expensive problems of tomorrow."
+      },
+      {
+        "h": "Human first",
+        "p": "AI is the tool. Your team decides what to do with it. None of our designs starts without understanding the team."
+      },
+      {
+        "h": "No lock-in",
+        "p": "We design portable architectures. We don't marry you to a vendor or a platform."
+      },
+      {
+        "h": "Measurable",
+        "p": "Every engagement has concrete success metrics. If it can't be measured, we don't recommend it."
+      }
+    ]
+  },
+  "sobre": {
+    "eyebrow": "06 · WHO WE ARE",
+    "h2": "A boutique AI strategy consultancy in Mexico City.",
+    "p1": "Slowcraft is born from the observation that most companies are adopting AI in a rush. They buy tools without designing the flow. They replace people without understanding the cost. They chase the hype without strategy.",
+    "p2": "We work with a handful of companies at a time. We focus on clients who want to do things right. Who understand that AI is a strategic decision, not an IT experiment."
+  },
+  "cta": {
+    "eyebrow": "07 · LET'S TALK",
+    "h2": "Does your company want to rethink how it works with AI?",
+    "p": "Tell us what you're thinking. We respond within 48 business hours. No commitments.",
+    "form": {
+      "fullName": "Full name",
+      "fullNamePlaceholder": "First and last name",
+      "email": "Corporate email",
+      "emailPlaceholder": "you@company.com",
+      "jobTitle": "Job title",
+      "jobTitlePlaceholder": "Your role in the company",
+      "companyWebsite": "Company website",
+      "companyWebsitePlaceholder": "company.com",
+      "reason": "Reason for contact",
+      "reasonPlaceholder": "Select...",
+      "reasons": {
+        "proyectos": "Projects / Engagements",
+        "informes": "Reports / Diagnoses",
+        "bolsa-de-trabajo": "Job opportunities"
+      },
+      "description": "Tell us more",
+      "descriptionPlaceholder": "Context, objectives, timelines. Minimum 20 characters.",
+      "submit": "Send message",
+      "submitting": "Sending...",
+      "success": "Message sent! We'll contact you within 48 business hours.",
+      "error": "There was an error. Try again or write to us at hola@slowcraft.ai."
+    },
+    "whatsapp": "Chat on WhatsApp"
+  },
+  "footer": {
+    "tagline": "AI Strategy, deliberately designed.",
+    "address": "Mexico City · LATAM",
+    "copyright": "© 2026 Slowcraft. All rights reserved."
+  },
+  "errors": {
+    "contact": {
+      "fullName": {
+        "tooShort": "Name must be at least 3 characters.",
+        "tooLong": "Name is too long.",
+        "needsLastName": "Include first and last name."
+      },
+      "email": {
+        "invalid": "Invalid email.",
+        "noFree": "Use your corporate email, not a free one."
+      },
+      "jobTitle": {
+        "tooShort": "Indicate your job title.",
+        "tooLong": "Title is too long."
+      },
+      "companyWebsite": {
+        "required": "Website is required.",
+        "invalid": "Invalid website (e.g., company.com)."
+      },
+      "reason": {
+        "invalid": "Select a valid reason."
+      },
+      "description": {
+        "tooShort": "Minimum 20 characters.",
+        "tooLong": "Maximum 1000 characters."
+      }
+    }
+  }
+}

@@ -3,4 +3,4 @@ Allow: /
 Disallow: /backend/
 Disallow: /docs/
 
-Sitemap: https://rladron-rodia.github.io/landing_slowcraft/sitemap.xml
+Sitemap: https://slowcraft.ai/sitemap.xml

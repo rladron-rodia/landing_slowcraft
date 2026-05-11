@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Valida que el mensaje del commit cumpla Conventional Commits.
+# Configurado en .commitlintrc.json
+
+npx --no-install commitlint --edit "$1"

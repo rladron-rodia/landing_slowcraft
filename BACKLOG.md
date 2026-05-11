@@ -29,7 +29,7 @@ Pendientes y mejoras futuras.
   - Migrar DNS de GoDaddy a Cloudflare (recomendado).
   - Apex `slowcraft.ai` → A records de GitHub Pages.
   - `www.slowcraft.ai` → CNAME a `rladron-rodia.github.io`.
-  - `api.slowcraft.ai` → CNAME a `slowcraft-api.onrender.com` (custom domain en Render).
+  - `api.slowcraft.ai` → CNAME a `api.slowcraft.ai` (custom domain en Render).
   - Verificar dominio en Resend (TXT/MX records).
   - En Render Environment: cambiar `CONTACT_FROM_EMAIL` → `Slowcraft <noreply@slowcraft.ai>`, `CONTACT_TO_EMAIL` → `hola@slowcraft.ai`, `APP_BASE_URL` → `https://api.slowcraft.ai`, agregar dominio nuevo a `ALLOWED_ORIGINS`.
   - En `index.html` actualizar `window.SLOWCRAFT_FORM_ENDPOINT` → `https://api.slowcraft.ai/api/contact`.

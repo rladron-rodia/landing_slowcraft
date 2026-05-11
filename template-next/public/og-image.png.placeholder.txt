@@ -1,0 +1,11 @@
+PLACEHOLDER — copiar el og-image.png real cuando exista.
+
+El layout.tsx referencia /og-image.png en metadata.openGraph.images[0].url.
+Mientras no exista, los previews en LinkedIn / Twitter / WhatsApp
+caerán al placeholder default de cada plataforma.
+
+Acción: copiar el og-image.png que se diseñe (1200x630, png) a esta ruta:
+  template-next/public/og-image.png
+
+(Si el actual /og-image.png en la raíz del repo legacy ya existe y vale,
+copiar/symlink: cp ../og-image.png template-next/public/og-image.png)
