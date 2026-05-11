@@ -1,0 +1,12 @@
+# gitleaks ignore file — falsos positivos justificados
+#
+# Formato: <commit-sha>:<file-path>:<rule-id>:<line-number>
+# o globs por path para excluir directorios enteros.
+#
+# Cada entrada DEBE tener un comentario justificando por qué es seguro.
+
+# Ejemplos en .env.example son placeholders, no secretos reales.
+# El propio gitleaks reconoce *.env.example, pero por si acaso:
+backend/.env.example
+platform-docs/.env.example
+template-next/.env.example

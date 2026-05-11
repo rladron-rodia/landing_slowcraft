@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+# Pre-commit hook:
+# 1. Bloquea secretos en el staged diff (gitleaks).
+# 2. (Futuro) Lint+typecheck del template-next/ que cambia.
+
+# --- gitleaks ---
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --verbose --redact || {
+    echo ""
+    echo "❌ gitleaks detectó posibles secretos en el diff staged."
+    echo "   Revisa los hallazgos arriba. Si es un falso positivo,"
+    echo "   agrégalo a .gitleaksignore con justificación."
+    exit 1
+  }
+else
+  echo "⚠️  gitleaks no instalado en el sistema. Saltando scan local."
+  echo "   Instala con: brew install gitleaks"
+  echo "   (CI corre el scan obligatoriamente; este local es defensa adicional)"
+fi
