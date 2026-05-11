@@ -49,7 +49,7 @@ jobs:
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: comment preview URL on PR
         if: false   # ← quitar cuando deploy esté activo
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.issues.createComment({
