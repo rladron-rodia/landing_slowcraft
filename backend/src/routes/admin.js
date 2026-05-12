@@ -6,7 +6,8 @@ import bcrypt from 'bcryptjs';
 import rateLimit from 'express-rate-limit';
 import { query, withClient } from '../db.js';
 import {
-  verifyPassword, signSession, cookieOptions, requireAuth, requireRole, requireEditor, SESSION_COOKIE
+  verifyPassword, signSession, cookieOptions, clearCookieOptions,
+  requireAuth, requireRole, requireEditor, SESSION_COOKIE
 } from '../auth.js';
 import {
   listUsers, inviteUser, verifyInvitationToken, completeInvitation,
@@ -196,8 +197,13 @@ router.get('/reset/check', async (req, res) => {
 // ============================================================
 // POST /api/admin/logout
 // ============================================================
+// Las opciones del clearCookie deben coincidir con las del Set-Cookie
+// original (httpOnly, secure, sameSite, path). Si solo se pasa { path: '/' },
+// en producción (HTTPS con Secure+SameSite=Strict) el browser NO borra la
+// cookie por mismatch de atributos → la sesión sobrevive al logout y el
+// /api/admin/me sigue devolviendo 200, causando re-login automático.
 router.post('/logout', (req, res) => {
-  res.clearCookie(SESSION_COOKIE, { path: '/' });
+  res.clearCookie(SESSION_COOKIE, clearCookieOptions(isProd));
   res.json({ ok: true });
 });
 

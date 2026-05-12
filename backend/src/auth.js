@@ -46,6 +46,17 @@ export const cookieOptions = (isProd) => ({
   path: '/'
 });
 
+// Para borrar la cookie con clearCookie() los atributos DEBEN coincidir
+// con los del Set-Cookie original (excepto maxAge/expires, que clearCookie
+// gestiona internamente). Si no coinciden, el browser no identifica la
+// cookie como la misma y NO la borra → la sesión sobrevive al logout.
+export const clearCookieOptions = (isProd) => ({
+  httpOnly: true,
+  secure: isProd,
+  sameSite: 'strict',
+  path: '/'
+});
+
 // ---------- Middleware ----------
 export function requireAuth (req, res, next) {
   const token = req.cookies && req.cookies[SESSION_COOKIE];
