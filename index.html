@@ -1392,30 +1392,28 @@
       to { opacity: 1; }
     }
 
-    /* === SCROLL REVEALS === */
-    /* Estado inicial: invisible y ligeramente abajo. JS añade .is-visible cuando el
-       elemento entra en viewport. Stagger via --reveal-delay (set por JS por orden). */
+    /* === SCROLL REVEALS — scroll-driven progress ===
+       --reveal-progress (0 → 1) lo actualiza JS en cada frame según la posición
+       del elemento en el viewport. Resultado: aparición gradual y continua
+       conforme haces scroll, sin "snap" ni bloques vacíos. */
     [data-reveal] {
-      opacity: 0;
-      transform: translate3d(0, 28px, 0);
-      transition: opacity var(--duration-deliberate) var(--ease-out),
-                  transform var(--duration-deliberate) var(--ease-out);
-      transition-delay: var(--reveal-delay, 0ms);
+      --reveal-progress: 0;
+      --reveal-distance: 18px;
+      opacity: var(--reveal-progress);
+      transform: translate3d(0, calc((1 - var(--reveal-progress)) * var(--reveal-distance)), 0);
       will-change: opacity, transform;
     }
     [data-reveal="fade"] {
-      transform: none;
+      --reveal-distance: 0px;
     }
     [data-reveal="rise-sm"] {
-      transform: translate3d(0, 16px, 0);
+      --reveal-distance: 10px;
     }
-    [data-reveal].is-visible {
-      opacity: 1;
-      transform: translate3d(0, 0, 0);
-    }
-    /* Una vez completado el reveal, soltamos will-change para no penalizar GPU */
+    /* Una vez completado el reveal (progress=1 estable), soltamos will-change */
     [data-reveal].is-revealed {
+      --reveal-progress: 1;
       will-change: auto;
+      transform: none;
     }
 
     /* === HERO PARALLAX (micro) ===
@@ -1506,6 +1504,7 @@
     /* === MOTION REDUCED — anula reveals y parallax === */
     @media (prefers-reduced-motion: reduce) {
       [data-reveal] {
+        --reveal-progress: 1 !important;
         opacity: 1 !important;
         transform: none !important;
         transition: none !important;
@@ -2729,66 +2728,153 @@
       const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       const supportsIO = 'IntersectionObserver' in window;
 
-      // ---------- REVEALS ----------
+      // ---------- REVEALS — scroll-driven progress ----------
+      // Cada elemento [data-reveal] tiene una --reveal-progress (0→1) que
+      // depende de su posición vertical en el viewport. CSS interpola opacity
+      // y transform en función de esa variable. Resultado: aparición continua
+      // y suave conforme el usuario hace scroll, sin "snap" ni bloques vacíos.
+      //
+      // Performance: solo procesamos elementos "activos" (cerca del viewport).
+      // IntersectionObserver con rootMargin amplio mantiene el Set activo;
+      // un único rAF loop actualiza la progress de los activos.
+
+      // Tramos de viewport donde corre la animación.
+      // top en vh*START_RATIO → progress 0 (acaba de asomar)
+      // top en vh*END_RATIO   → progress 1 (totalmente revelado)
+      const START_RATIO = 0.95;
+      const END_RATIO   = 0.65;
+
+      const activeReveals = new Set();
+      let revealRafId = null;
       let revealObs = null;
-      function ensureObserver () {
+
+      function easeOutQuint (t) {
+        // Suaviza el final del progress: arranca rápido, asienta despacio
+        return 1 - Math.pow(1 - t, 5);
+      }
+
+      function tickReveals () {
+        revealRafId = null;
+        if (!activeReveals.size) return;
+        const vh = window.innerHeight;
+        const startY = vh * START_RATIO;
+        const endY   = vh * END_RATIO;
+        const range  = startY - endY;
+
+        // Recolectamos elementos a remover para no mutar el Set durante iter
+        const done = [];
+        activeReveals.forEach(el => {
+          const top = el.getBoundingClientRect().top;
+          let p;
+          if (top >= startY) {
+            p = 0;
+          } else if (top <= endY) {
+            p = 1;
+          } else {
+            p = (startY - top) / range;
+          }
+          const eased = easeOutQuint(p);
+          el.style.setProperty('--reveal-progress', eased.toFixed(3));
+          if (p >= 1) {
+            // Se revela del todo → marcamos y sacamos del set
+            el.classList.add('is-revealed');
+            done.push(el);
+          }
+        });
+        done.forEach(el => {
+          activeReveals.delete(el);
+          if (revealObs) revealObs.unobserve(el);
+        });
+
+        if (activeReveals.size) {
+          revealRafId = requestAnimationFrame(tickReveals);
+        }
+      }
+
+      function ensureRevealLoop () {
+        if (revealRafId == null && activeReveals.size) {
+          revealRafId = requestAnimationFrame(tickReveals);
+        }
+      }
+
+      function ensureRevealObserver () {
         if (revealObs || !supportsIO) return revealObs;
         revealObs = new IntersectionObserver((entries) => {
           entries.forEach(en => {
-            if (!en.isIntersecting) return;
             const el = en.target;
-            el.classList.add('is-visible');
-            // Soltar will-change tras la transición para no penalizar GPU
-            setTimeout(() => el.classList.add('is-revealed'), 1100);
-            revealObs.unobserve(el);
+            if (en.isIntersecting) {
+              activeReveals.add(el);
+            } else {
+              // Si el elemento sale por arriba (ya muy adentro del fold),
+              // lo damos por revelado y descansamos.
+              const rect = el.getBoundingClientRect();
+              if (rect.bottom < 0) {
+                el.style.setProperty('--reveal-progress', '1');
+                el.classList.add('is-revealed');
+                activeReveals.delete(el);
+                revealObs.unobserve(el);
+              } else {
+                activeReveals.delete(el);
+              }
+            }
           });
+          ensureRevealLoop();
         }, {
-          // threshold 0 + rootMargin positivo abajo: dispara mientras el elemento
-          // está aún 15% del viewport por debajo del fold, así da tiempo a animar
-          // antes de que el usuario lo vea "del todo". Antes era -40px (retrasaba).
-          threshold: 0,
-          rootMargin: '0px 0px 15% 0px'
+          // rootMargin amplio: incluimos en el set elementos hasta 40% por debajo
+          // del fold y 20% por arriba — el rAF decide en cada frame su progress.
+          rootMargin: '20% 0px 40% 0px',
+          threshold: 0
         });
         return revealObs;
       }
 
       function observeReveals (root) {
         const scope = root || document;
-        const els = scope.querySelectorAll('[data-reveal]:not(.is-visible)');
+        const els = scope.querySelectorAll('[data-reveal]:not(.is-revealed)');
         if (!els.length) return;
 
         if (prefersReduced || !supportsIO) {
-          // Sin IO o usuario pidió motion reducido → mostrar todo de una
-          els.forEach(el => el.classList.add('is-visible', 'is-revealed'));
+          els.forEach(el => {
+            el.style.setProperty('--reveal-progress', '1');
+            el.classList.add('is-revealed');
+          });
           return;
         }
 
-        const obs = ensureObserver();
-        // Stagger automático: si hay data-reveal-delay, lo respetamos.
-        // Si no, calculamos según el índice dentro de su contenedor padre.
-        els.forEach((el, idx) => {
-          const explicit = el.dataset.revealDelay;
-          if (explicit != null) {
-            el.style.setProperty('--reveal-delay', explicit + 'ms');
-          } else {
-            // Stagger pequeño solo entre hermanos directos del mismo padre
-            const sibIdx = Array.prototype.indexOf.call(
-              el.parentElement ? el.parentElement.children : [],
-              el
-            );
-            const delay = Math.min(sibIdx, 6) * 90;
-            el.style.setProperty('--reveal-delay', delay + 'ms');
+        const obs = ensureRevealObserver();
+        const vh = window.innerHeight;
+        const endY = vh * END_RATIO;
+
+        els.forEach(el => {
+          const top = el.getBoundingClientRect().top;
+          // Elementos ya pasados el end ratio (above the fold real) → revelados de una
+          if (top <= endY) {
+            el.style.setProperty('--reveal-progress', '1');
+            el.classList.add('is-revealed');
+            return;
           }
           obs.observe(el);
         });
+
+        ensureRevealLoop();
       }
 
       // Expuesto globalmente para que los renderers de catálogos
       // (renderPrograms, renderServicios, renderFases) puedan re-observar.
       window.__slowcraftRevealRefresh = observeReveals;
 
-      // Pase inicial
+      // Pase inicial. defer hasta layout estable.
       observeReveals(document);
+
+      // Re-tick continuo durante scroll (por si un elemento queda en el set
+      // pero el IO ya disparó y no hay frame nuevo). Pasivo y barato.
+      window.addEventListener('scroll', () => {
+        if (activeReveals.size) ensureRevealLoop();
+      }, { passive: true });
+      window.addEventListener('resize', () => {
+        // Recalcular: algunos elementos pueden haber cambiado posición
+        if (activeReveals.size) ensureRevealLoop();
+      }, { passive: true });
 
       // ---------- HERO PARALLAX ----------
       // Loop rAF continuo con lerp (inercia). El scroll event solo actualiza el
