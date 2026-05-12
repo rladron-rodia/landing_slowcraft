@@ -2742,7 +2742,13 @@
             setTimeout(() => el.classList.add('is-revealed'), 1100);
             revealObs.unobserve(el);
           });
-        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        }, {
+          // threshold 0 + rootMargin positivo abajo: dispara mientras el elemento
+          // está aún 15% del viewport por debajo del fold, así da tiempo a animar
+          // antes de que el usuario lo vea "del todo". Antes era -40px (retrasaba).
+          threshold: 0,
+          rootMargin: '0px 0px 15% 0px'
+        });
         return revealObs;
       }
 
@@ -2785,44 +2791,70 @@
       observeReveals(document);
 
       // ---------- HERO PARALLAX ----------
-      // Solo en desktop, sin reduced-motion, y solo mientras el hero esté en pantalla.
+      // Loop rAF continuo con lerp (inercia). El scroll event solo actualiza el
+      // target; el rAF interpola hacia él. Resultado: drift fluido, no escalonado.
+      // Solo desktop, sin reduced-motion, pausado cuando el hero está fuera.
       const hero = document.querySelector('.hero');
       const isDesktop = window.matchMedia('(min-width: 901px)').matches;
 
       if (hero && !prefersReduced && isDesktop) {
-        let ticking = false;
-        let heroVisible = true;
-        const FACTOR = -0.08; // muy sutil: 100px de scroll → -8px de drift
-        const MAX = 60;       // tope absoluto en px
+        const FACTOR = -0.18;  // visible: 100px de scroll → -18px de drift target
+        const MAX = 90;        // tope absoluto en px
+        const LERP = 0.12;     // velocidad de catch-up por frame (inercia suave)
+        const EPSILON = 0.05;  // umbral para parar el loop
 
-        function updateParallax () {
-          ticking = false;
-          if (!heroVisible) return;
+        let targetY = 0;
+        let currentY = 0;
+        let rafId = null;
+        let heroVisible = true;
+
+        function computeTarget () {
           const y = window.scrollY || window.pageYOffset || 0;
-          // Clampeamos para que el efecto no se acumule indefinidamente
           let drift = y * FACTOR;
           if (drift < -MAX) drift = -MAX;
           if (drift > MAX) drift = MAX;
-          hero.style.setProperty('--parallax-y', drift.toFixed(1) + 'px');
+          targetY = drift;
+        }
+
+        function tick () {
+          // Interpolación lineal entre current y target (lerp)
+          currentY += (targetY - currentY) * LERP;
+          hero.style.setProperty('--parallax-y', currentY.toFixed(2) + 'px');
+          if (heroVisible && Math.abs(targetY - currentY) > EPSILON) {
+            rafId = requestAnimationFrame(tick);
+          } else {
+            // Snap al target para no dejar fracciones visibles, y parar el loop
+            currentY = targetY;
+            hero.style.setProperty('--parallax-y', currentY.toFixed(2) + 'px');
+            rafId = null;
+          }
+        }
+
+        function startLoop () {
+          if (rafId == null) rafId = requestAnimationFrame(tick);
         }
 
         function onScroll () {
-          if (ticking) return;
-          ticking = true;
-          requestAnimationFrame(updateParallax);
+          if (!heroVisible) return;
+          computeTarget();
+          startLoop();
         }
 
-        // Observador de visibilidad: paramos rAF cuando el hero sale de pantalla
+        // Observador: pausamos cuando el hero sale del viewport
         if (supportsIO) {
           const visObs = new IntersectionObserver((entries) => {
-            entries.forEach(en => { heroVisible = en.isIntersecting; });
+            entries.forEach(en => {
+              heroVisible = en.isIntersecting;
+              if (heroVisible) startLoop();
+            });
           }, { threshold: 0 });
           visObs.observe(hero);
         }
 
         window.addEventListener('scroll', onScroll, { passive: true });
         // Sync inicial por si la página carga con scroll != 0
-        updateParallax();
+        computeTarget();
+        startLoop();
       }
     })();
 
