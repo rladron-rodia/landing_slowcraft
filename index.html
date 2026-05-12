@@ -1386,12 +1386,136 @@
       from { opacity: 0; transform: translateY(24px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    
+
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
     }
-    
+
+    /* === SCROLL REVEALS === */
+    /* Estado inicial: invisible y ligeramente abajo. JS añade .is-visible cuando el
+       elemento entra en viewport. Stagger via --reveal-delay (set por JS por orden). */
+    [data-reveal] {
+      opacity: 0;
+      transform: translate3d(0, 28px, 0);
+      transition: opacity var(--duration-deliberate) var(--ease-out),
+                  transform var(--duration-deliberate) var(--ease-out);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    [data-reveal="fade"] {
+      transform: none;
+    }
+    [data-reveal="rise-sm"] {
+      transform: translate3d(0, 16px, 0);
+    }
+    [data-reveal].is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    /* Una vez completado el reveal, soltamos will-change para no penalizar GPU */
+    [data-reveal].is-revealed {
+      will-change: auto;
+    }
+
+    /* === HERO PARALLAX (micro) ===
+       --parallax-y se actualiza desde JS con requestAnimationFrame
+       según scrollY. Magnitudes muy bajas para no marear. */
+    .hero {
+      --parallax-y: 0px;
+      overflow: hidden; /* contiene el drift de hero-meta */
+    }
+    .hero-parallax {
+      transform: translate3d(0, var(--parallax-y), 0);
+      will-change: transform;
+    }
+    .hero-meta {
+      /* drift levemente más rápido para sensación de profundidad */
+      transform: translate3d(0, calc(var(--parallax-y) * 1.6), 0);
+      will-change: transform;
+    }
+
+    /* === HOVERS REFINADOS (DS tokens) === */
+    .nav-cta {
+      transition: background var(--duration-default) var(--ease-editorial),
+                  transform var(--duration-default) var(--ease-editorial);
+    }
+    .nav-cta:hover {
+      transform: translateY(-1px);
+    }
+
+    .hero-cta {
+      transition: background var(--duration-default) var(--ease-editorial),
+                  transform var(--duration-default) var(--ease-editorial),
+                  box-shadow var(--duration-default) var(--ease-editorial);
+    }
+    .hero-cta:hover {
+      box-shadow: 0 12px 28px rgba(15, 15, 14, 0.18);
+    }
+
+    .servicio {
+      transition: background var(--duration-slow) var(--ease-editorial),
+                  transform var(--duration-slow) var(--ease-editorial);
+    }
+    .servicio:hover {
+      transform: translateY(-2px);
+    }
+
+    .program-card {
+      transition: background var(--duration-slow) var(--ease-editorial),
+                  transform var(--duration-slow) var(--ease-editorial),
+                  box-shadow var(--duration-slow) var(--ease-editorial);
+    }
+    .program-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 40px -20px rgba(15, 15, 14, 0.25);
+      position: relative;
+      z-index: 1;
+    }
+
+    .fase {
+      transition: transform var(--duration-slow) var(--ease-editorial);
+    }
+    .fase:hover .fase-num {
+      transform: translateY(-2px);
+    }
+    .fase-num {
+      transition: transform var(--duration-slow) var(--ease-editorial),
+                  color var(--duration-slow) var(--ease-editorial);
+    }
+
+    .principio {
+      transition: transform var(--duration-slow) var(--ease-editorial);
+    }
+    .principio:hover .principio-num {
+      color: var(--salvia);
+    }
+    .principio-num {
+      transition: color var(--duration-slow) var(--ease-editorial);
+    }
+
+    .cta-button {
+      transition: background var(--duration-default) var(--ease-editorial),
+                  transform var(--duration-default) var(--ease-editorial),
+                  box-shadow var(--duration-default) var(--ease-editorial);
+    }
+    .cta-button:hover {
+      box-shadow: 0 14px 32px rgba(15, 15, 14, 0.20);
+    }
+
+    /* === MOTION REDUCED — anula reveals y parallax === */
+    @media (prefers-reduced-motion: reduce) {
+      [data-reveal] {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+      .hero-parallax,
+      .hero-meta {
+        transform: none !important;
+      }
+    }
+
     /* === RESPONSIVE === */
     @media (max-width: 900px) {
       nav { padding: 20px 24px; }
@@ -1508,10 +1632,12 @@
   
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-eyebrow eyebrow" data-i18n="hero.eyebrow">SLOWCRAFT · AI STRATEGY · MÉXICO</div>
-    <h1 data-i18n-html="hero.h1">La IA es la mano derecha del <em>talento humano.</em></h1>
-    <p data-i18n="hero.p">Diseñamos los flujos donde tu equipo y la inteligencia artificial hacen lo que cada uno mejor sabe hacer. Sin reemplazos. Sin atajos. Con criterio.</p>
-    <a href="#contacto" class="hero-cta" data-i18n="hero.cta" data-gtm-id="cta_hero">Agenda una conversación</a>
+    <div class="hero-parallax">
+      <div class="hero-eyebrow eyebrow" data-i18n="hero.eyebrow">SLOWCRAFT · AI STRATEGY · MÉXICO</div>
+      <h1 data-i18n-html="hero.h1">La IA es la mano derecha del <em>talento humano.</em></h1>
+      <p data-i18n="hero.p">Diseñamos los flujos donde tu equipo y la inteligencia artificial hacen lo que cada uno mejor sabe hacer. Sin reemplazos. Sin atajos. Con criterio.</p>
+      <a href="#contacto" class="hero-cta" data-i18n="hero.cta" data-gtm-id="cta_hero">Agenda una conversación</a>
+    </div>
 
     <div class="hero-meta">
       <div class="hero-meta-label">Slowcraft</div>
@@ -1522,19 +1648,19 @@
   <!-- TESIS -->
   <section class="tesis">
     <div class="tesis-inner">
-      <div class="eyebrow" data-i18n="tesis.eyebrow">01 · NUESTRA TESIS</div>
-      <h2 data-i18n-html="tesis.h2">La IA no reemplaza al humano. <em>Lo amplifica.</em> El humano no frena a la IA. La dirige. Slowcraft diseña esa colaboración.</h2>
+      <div class="eyebrow" data-reveal data-reveal-delay="0" data-i18n="tesis.eyebrow">01 · NUESTRA TESIS</div>
+      <h2 data-reveal data-reveal-delay="120" data-i18n-html="tesis.h2">La IA no reemplaza al humano. <em>Lo amplifica.</em> El humano no frena a la IA. La dirige. Slowcraft diseña esa colaboración.</h2>
 
       <div class="tesis-text">
-        <div class="tesis-block">
+        <div class="tesis-block" data-reveal data-reveal-delay="0">
           <div class="tesis-block-num">i.</div>
           <p data-i18n="tesis.b1">La inteligencia artificial es el copiloto más poderoso que ha existido. Pero un copiloto sin un piloto que sepa hacia dónde va, no llega lejos.</p>
         </div>
-        <div class="tesis-block">
+        <div class="tesis-block" data-reveal data-reveal-delay="120">
           <div class="tesis-block-num">ii.</div>
           <p data-i18n="tesis.b2">El error no es adoptar la IA tarde. Es adoptarla sin diseño. Las empresas que ganarán esta década son las que diseñaron mejor cómo trabajan con ella.</p>
         </div>
-        <div class="tesis-block">
+        <div class="tesis-block" data-reveal data-reveal-delay="240">
           <div class="tesis-block-num">iii.</div>
           <p data-i18n="tesis.b3">Tu equipo y la IA son tus dos recursos más valiosos. Nuestro trabajo es diseñar cómo se dan la mano para que ambos hagan lo que mejor saben hacer.</p>
         </div>
@@ -1544,21 +1670,21 @@
 
   <!-- MÉTODO -->
   <section id="metodo" class="metodo">
-    <div class="eyebrow" data-i18n="metodo.eyebrow">02 · CÓMO TRABAJAMOS</div>
-    <h2 data-i18n="metodo.h2">Tres fases. Una arquitectura. Resultados medibles.</h2>
+    <div class="eyebrow" data-reveal data-reveal-delay="0" data-i18n="metodo.eyebrow">02 · CÓMO TRABAJAMOS</div>
+    <h2 data-reveal data-reveal-delay="120" data-i18n="metodo.h2">Tres fases. Una arquitectura. Resultados medibles.</h2>
 
     <div class="fases" data-render="fases">
-      <div class="fase">
+      <div class="fase" data-reveal data-reveal-delay="0">
         <div class="fase-num">01</div>
         <h3 data-i18n="metodo.f1.h">Diagnóstico</h3>
         <p data-i18n="metodo.f1.p">Mapeamos cómo trabaja hoy tu empresa. Identificamos dónde la IA puede ser un copiloto poderoso para tu equipo — y dónde es mejor no tocar nada todavía.</p>
       </div>
-      <div class="fase">
+      <div class="fase" data-reveal data-reveal-delay="120">
         <div class="fase-num">02</div>
         <h3 data-i18n="metodo.f2.h">Arquitectura</h3>
         <p data-i18n="metodo.f2.p">Diseñamos los flujos humano–IA con propósito. Definimos qué hace mejor la máquina, qué hace mejor la persona, y cómo se complementan en cada paso.</p>
       </div>
-      <div class="fase">
+      <div class="fase" data-reveal data-reveal-delay="240">
         <div class="fase-num">03</div>
         <h3 data-i18n="metodo.f3.h">Implementación</h3>
         <p data-i18n="metodo.f3.p">Integramos las herramientas correctas, capacitamos al equipo, y medimos resultados reales. Nos quedamos hasta que el sistema funciona en sintonía.</p>
@@ -1569,12 +1695,12 @@
   <!-- SERVICIOS -->
   <section id="strategy" class="servicios">
     <div class="servicios-inner">
-      <div class="eyebrow" data-i18n="serv.eyebrow">03 · STRATEGY</div>
-      <h2 data-i18n="serv.h2">Engagements de arquitectura.</h2>
-      <p class="servicios-intro" data-i18n="serv.intro">Para empresas que quieren repensar cómo trabajan con IA. Proyectos transformacionales, con alcance abierto al diagnóstico. Tres tipos.</p>
+      <div class="eyebrow" data-reveal data-reveal-delay="0" data-i18n="serv.eyebrow">03 · STRATEGY</div>
+      <h2 data-reveal data-reveal-delay="120" data-i18n="serv.h2">Engagements de arquitectura.</h2>
+      <p class="servicios-intro" data-reveal data-reveal-delay="220" data-i18n="serv.intro">Para empresas que quieren repensar cómo trabajan con IA. Proyectos transformacionales, con alcance abierto al diagnóstico. Tres tipos.</p>
 
       <div class="servicios-grid" data-render="servicios">
-        <div class="servicio">
+        <div class="servicio" data-reveal data-reveal-delay="0">
           <div class="servicio-num">01 · STRATEGY</div>
           <h3 data-i18n="serv.s1.h">AI Readiness</h3>
           <p data-i18n="serv.s1.p">Diagnóstico estratégico para empresas que quieren entrar bien a la era de IA. Sin desperdiciar capital ni tiempo.</p>
@@ -1586,7 +1712,7 @@
           </ul>
         </div>
 
-        <div class="servicio">
+        <div class="servicio" data-reveal data-reveal-delay="120">
           <div class="servicio-num">02 · DESIGN</div>
           <h3 data-i18n="serv.s2.h">Workflow Architecture</h3>
           <p data-i18n="serv.s2.p">Diseño detallado de flujos humano–IA para áreas críticas: marketing, operaciones, ventas, atención al cliente.</p>
@@ -1598,7 +1724,7 @@
           </ul>
         </div>
 
-        <div class="servicio">
+        <div class="servicio" data-reveal data-reveal-delay="240">
           <div class="servicio-num">03 · DEPLOY</div>
           <h3 data-i18n="serv.s3.h">Implementation Partner</h3>
           <p data-i18n="serv.s3.p">Acompañamos la implementación end-to-end. Nos quedamos hasta que el sistema funciona y el equipo lo opera con confianza.</p>
@@ -1618,15 +1744,15 @@
     <div class="programs-inner">
       <div class="programs-head">
         <div>
-          <div class="eyebrow" data-i18n="prog.eyebrow">04 · PROGRAMS</div>
-          <h2 data-i18n-html="prog.h2">Productos modulares con <em>objetivos específicos.</em></h2>
+          <div class="eyebrow" data-reveal data-reveal-delay="0" data-i18n="prog.eyebrow">04 · PROGRAMS</div>
+          <h2 data-reveal data-reveal-delay="120" data-i18n-html="prog.h2">Productos modulares con <em>objetivos específicos.</em></h2>
         </div>
-        <p class="programs-bridge" data-i18n="prog.bridge">Aplicaciones modulares de la tesis Slowcraft, cada una con un objetivo específico. Los módulos se activan según la madurez del cliente.</p>
+        <p class="programs-bridge" data-reveal data-reveal-delay="220" data-i18n="prog.bridge">Aplicaciones modulares de la tesis Slowcraft, cada una con un objetivo específico. Los módulos se activan según la madurez del cliente.</p>
       </div>
 
       <div class="programs-grid" data-render="programs">
 
-        <div class="program-card">
+        <div class="program-card" data-reveal data-reveal-delay="0">
           <div class="program-card-head">
             <div class="program-card-num">01</div>
             <div class="program-card-tag">FOUNDATIONS</div>
@@ -1650,7 +1776,7 @@
           <div class="program-card-note" data-i18n="prog.p1.note">Módulos activados según madurez del cliente.</div>
         </div>
 
-        <div class="program-card">
+        <div class="program-card" data-reveal data-reveal-delay="120">
           <div class="program-card-head">
             <div class="program-card-num">02</div>
             <div class="program-card-tag">GROWTH</div>
@@ -1674,7 +1800,7 @@
           <div class="program-card-note" data-i18n="prog.p2.note">Alcance se define con base en la auditoría inicial.</div>
         </div>
 
-        <div class="program-card">
+        <div class="program-card" data-reveal data-reveal-delay="240">
           <div class="program-card-head">
             <div class="program-card-num">03</div>
             <div class="program-card-tag">GROWTH</div>
@@ -1698,7 +1824,7 @@
           <div class="program-card-note" data-i18n="prog.p3.note">Profundidad según volumen de tráfico y madurez analítica.</div>
         </div>
 
-        <div class="program-card">
+        <div class="program-card" data-reveal data-reveal-delay="360">
           <div class="program-card-head">
             <div class="program-card-num">04</div>
             <div class="program-card-tag">OPERATIONS</div>
@@ -1728,11 +1854,11 @@
   
   <!-- PRINCIPIOS -->
   <section class="principios">
-    <div class="eyebrow" data-i18n="pri.eyebrow">05 · PRINCIPIOS</div>
-    <h2 data-i18n="pri.h2">Cinco cosas en las que sí creemos.</h2>
+    <div class="eyebrow" data-reveal data-reveal-delay="0" data-i18n="pri.eyebrow">05 · PRINCIPIOS</div>
+    <h2 data-reveal data-reveal-delay="120" data-i18n="pri.h2">Cinco cosas en las que sí creemos.</h2>
 
     <div class="principios-list">
-      <div class="principio">
+      <div class="principio" data-reveal data-reveal-delay="0">
         <div class="principio-num">i.</div>
         <div>
           <h3 data-i18n="pri.1.h">Diseñar antes de implementar.</h3>
@@ -1740,7 +1866,7 @@
         </div>
       </div>
 
-      <div class="principio">
+      <div class="principio" data-reveal data-reveal-delay="80">
         <div class="principio-num">ii.</div>
         <div>
           <h3 data-i18n="pri.2.h">La IA es el copiloto. El humano dirige.</h3>
@@ -1748,7 +1874,7 @@
         </div>
       </div>
 
-      <div class="principio">
+      <div class="principio" data-reveal data-reveal-delay="160">
         <div class="principio-num">iii.</div>
         <div>
           <h3 data-i18n="pri.3.h">Claridad sobre complejidad.</h3>
@@ -1756,7 +1882,7 @@
         </div>
       </div>
 
-      <div class="principio">
+      <div class="principio" data-reveal data-reveal-delay="240">
         <div class="principio-num">iv.</div>
         <div>
           <h3 data-i18n="pri.4.h">Resultados, no demos.</h3>
@@ -1764,7 +1890,7 @@
         </div>
       </div>
 
-      <div class="principio">
+      <div class="principio" data-reveal data-reveal-delay="320">
         <div class="principio-num">v.</div>
         <div>
           <h3 data-i18n="pri.5.h">Inteligencia con criterio.</h3>
@@ -1777,12 +1903,12 @@
   <!-- SOBRE -->
   <section id="sobre" class="sobre">
     <div class="sobre-inner">
-      <div class="eyebrow" data-i18n="sobre.eyebrow">06 · NOSOTROS</div>
-      <h2 data-i18n-html="sobre.h2">Slowcraft es una consultora boutique con base en <em>Ciudad de México.</em></h2>
-      <p data-i18n="sobre.p1">Nacimos en 2026 con una convicción simple: la IA es la oportunidad más grande de esta década, pero la mayoría de las empresas la están adoptando mal. Sin diseño, sin criterio, sin un plan que considere a las personas que la van a usar día con día.</p>
-      <p data-i18n="sobre.p2">Trabajamos con CEOs y líderes de empresas en crecimiento que quieren entrar a esta era con cabeza. No vendemos hype, no prometemos atajos. Diseñamos los flujos donde el talento humano y la IA hacen lo que cada uno mejor sabe hacer — porque esa es la única forma de generar ventaja real y sostenida.</p>
+      <div class="eyebrow" data-reveal data-reveal-delay="0" data-i18n="sobre.eyebrow">06 · NOSOTROS</div>
+      <h2 data-reveal data-reveal-delay="120" data-i18n-html="sobre.h2">Slowcraft es una consultora boutique con base en <em>Ciudad de México.</em></h2>
+      <p data-reveal data-reveal-delay="220" data-i18n="sobre.p1">Nacimos en 2026 con una convicción simple: la IA es la oportunidad más grande de esta década, pero la mayoría de las empresas la están adoptando mal. Sin diseño, sin criterio, sin un plan que considere a las personas que la van a usar día con día.</p>
+      <p data-reveal data-reveal-delay="320" data-i18n="sobre.p2">Trabajamos con CEOs y líderes de empresas en crecimiento que quieren entrar a esta era con cabeza. No vendemos hype, no prometemos atajos. Diseñamos los flujos donde el talento humano y la IA hacen lo que cada uno mejor sabe hacer — porque esa es la única forma de generar ventaja real y sostenida.</p>
 
-      <div class="sobre-meta">
+      <div class="sobre-meta" data-reveal data-reveal-delay="420">
         <div class="sobre-meta-item">
           <div class="label" data-i18n="sobre.meta.fundado">FUNDADO</div>
           <div class="value">2026</div>
@@ -1801,9 +1927,9 @@
 
   <!-- CTA FINAL -->
   <section id="contacto" class="cta-final">
-    <h2 data-i18n-html="cta.h2">Diseñemos juntos cómo trabaja tu empresa <em>con IA.</em></h2>
-    <p data-i18n="cta.p">Agenda una conversación de 30 minutos. Sin pitch, sin presentación. Solo una charla honesta sobre dónde está tu empresa y cómo podríamos ayudarte.</p>
-    <form id="contact-form" class="contact-form" novalidate>
+    <h2 data-reveal data-reveal-delay="0" data-i18n-html="cta.h2">Diseñemos juntos cómo trabaja tu empresa <em>con IA.</em></h2>
+    <p data-reveal data-reveal-delay="120" data-i18n="cta.p">Agenda una conversación de 30 minutos. Sin pitch, sin presentación. Solo una charla honesta sobre dónde está tu empresa y cómo podríamos ayudarte.</p>
+    <form id="contact-form" class="contact-form" novalidate data-reveal="fade" data-reveal-delay="220">
       <!-- Honeypot anti-spam: invisible para humanos -->
       <div class="hp-field" aria-hidden="true">
         <label for="cf-website">No completar este campo</label>
@@ -2407,8 +2533,9 @@
       grid.innerHTML = programs.map((p, i) => {
         const num = String(p.display_order || i + 1).padStart(2, '0');
         const modulesHtml = (p.module_keys || []).map(k => `<li>${escapeHtml(v(k))}</li>`).join('');
+        const delay = Math.min(i, 5) * 90;
         return `
-          <div class="program-card">
+          <div class="program-card" data-reveal data-reveal-delay="${delay}">
             <div class="program-card-head">
               <div class="program-card-num">${num}</div>
               <div class="program-card-tag">${escapeHtml(p.tag || '')}</div>
@@ -2423,6 +2550,9 @@
             <div class="program-card-note">${escapeHtml(v(p.note_key))}</div>
           </div>`;
       }).join('');
+      if (typeof window.__slowcraftRevealRefresh === 'function') {
+        window.__slowcraftRevealRefresh(grid);
+      }
     }
 
     function renderServicios (servicios) {
@@ -2432,14 +2562,18 @@
       grid.innerHTML = servicios.map((s, i) => {
         const num = String(s.display_order || i + 1).padStart(2, '0');
         const itemsHtml = (s.item_keys || []).map(k => `<li>${escapeHtml(v(k))}</li>`).join('');
+        const delay = Math.min(i, 5) * 90;
         return `
-          <div class="servicio">
+          <div class="servicio" data-reveal data-reveal-delay="${delay}">
             <div class="servicio-num">${num}${s.tag ? ' · ' + escapeHtml(s.tag) : ''}</div>
             <h3>${escapeHtml(v(s.title_key))}</h3>
             <p>${escapeHtml(v(s.description_key))}</p>
             <ul class="servicio-list">${itemsHtml}</ul>
           </div>`;
       }).join('');
+      if (typeof window.__slowcraftRevealRefresh === 'function') {
+        window.__slowcraftRevealRefresh(grid);
+      }
     }
 
     function renderFases (fases) {
@@ -2448,13 +2582,17 @@
       if (!fases.length) { grid.innerHTML = ''; return; }
       grid.innerHTML = fases.map((f, i) => {
         const num = String(f.display_order || i + 1).padStart(2, '0');
+        const delay = Math.min(i, 5) * 90;
         return `
-          <div class="fase">
+          <div class="fase" data-reveal data-reveal-delay="${delay}">
             <div class="fase-num">${num}</div>
             <h3>${escapeHtml(v(f.title_key))}</h3>
             <p>${escapeHtml(v(f.description_key))}</p>
           </div>`;
       }).join('');
+      if (typeof window.__slowcraftRevealRefresh === 'function') {
+        window.__slowcraftRevealRefresh(grid);
+      }
     }
 
     let __siteData = null;  // cache para re-render en cambio de idioma
@@ -2581,6 +2719,112 @@
         }
       });
     });
+
+    // ============================================================
+    // SCROLL EFFECTS — reveals (IntersectionObserver) + hero parallax (rAF)
+    // Sin librerías. Respeta prefers-reduced-motion. Expone refresh global
+    // para que los renderers de catálogos puedan re-observar nodos nuevos.
+    // ============================================================
+    (function initScrollEffects () {
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const supportsIO = 'IntersectionObserver' in window;
+
+      // ---------- REVEALS ----------
+      let revealObs = null;
+      function ensureObserver () {
+        if (revealObs || !supportsIO) return revealObs;
+        revealObs = new IntersectionObserver((entries) => {
+          entries.forEach(en => {
+            if (!en.isIntersecting) return;
+            const el = en.target;
+            el.classList.add('is-visible');
+            // Soltar will-change tras la transición para no penalizar GPU
+            setTimeout(() => el.classList.add('is-revealed'), 1100);
+            revealObs.unobserve(el);
+          });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        return revealObs;
+      }
+
+      function observeReveals (root) {
+        const scope = root || document;
+        const els = scope.querySelectorAll('[data-reveal]:not(.is-visible)');
+        if (!els.length) return;
+
+        if (prefersReduced || !supportsIO) {
+          // Sin IO o usuario pidió motion reducido → mostrar todo de una
+          els.forEach(el => el.classList.add('is-visible', 'is-revealed'));
+          return;
+        }
+
+        const obs = ensureObserver();
+        // Stagger automático: si hay data-reveal-delay, lo respetamos.
+        // Si no, calculamos según el índice dentro de su contenedor padre.
+        els.forEach((el, idx) => {
+          const explicit = el.dataset.revealDelay;
+          if (explicit != null) {
+            el.style.setProperty('--reveal-delay', explicit + 'ms');
+          } else {
+            // Stagger pequeño solo entre hermanos directos del mismo padre
+            const sibIdx = Array.prototype.indexOf.call(
+              el.parentElement ? el.parentElement.children : [],
+              el
+            );
+            const delay = Math.min(sibIdx, 6) * 90;
+            el.style.setProperty('--reveal-delay', delay + 'ms');
+          }
+          obs.observe(el);
+        });
+      }
+
+      // Expuesto globalmente para que los renderers de catálogos
+      // (renderPrograms, renderServicios, renderFases) puedan re-observar.
+      window.__slowcraftRevealRefresh = observeReveals;
+
+      // Pase inicial
+      observeReveals(document);
+
+      // ---------- HERO PARALLAX ----------
+      // Solo en desktop, sin reduced-motion, y solo mientras el hero esté en pantalla.
+      const hero = document.querySelector('.hero');
+      const isDesktop = window.matchMedia('(min-width: 901px)').matches;
+
+      if (hero && !prefersReduced && isDesktop) {
+        let ticking = false;
+        let heroVisible = true;
+        const FACTOR = -0.08; // muy sutil: 100px de scroll → -8px de drift
+        const MAX = 60;       // tope absoluto en px
+
+        function updateParallax () {
+          ticking = false;
+          if (!heroVisible) return;
+          const y = window.scrollY || window.pageYOffset || 0;
+          // Clampeamos para que el efecto no se acumule indefinidamente
+          let drift = y * FACTOR;
+          if (drift < -MAX) drift = -MAX;
+          if (drift > MAX) drift = MAX;
+          hero.style.setProperty('--parallax-y', drift.toFixed(1) + 'px');
+        }
+
+        function onScroll () {
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(updateParallax);
+        }
+
+        // Observador de visibilidad: paramos rAF cuando el hero sale de pantalla
+        if (supportsIO) {
+          const visObs = new IntersectionObserver((entries) => {
+            entries.forEach(en => { heroVisible = en.isIntersecting; });
+          }, { threshold: 0 });
+          visObs.observe(hero);
+        }
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        // Sync inicial por si la página carga con scroll != 0
+        updateParallax();
+      }
+    })();
 
     // ============================================================
     // CONTACT FORM — validación + submit + toasts
